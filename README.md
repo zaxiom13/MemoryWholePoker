@@ -1,69 +1,69 @@
-# React + TypeScript + Vite
+## MemoryWhole
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+A React + TypeScript + Vite app for memorization practice. Create decks of cards (quotes, poetry, speeches), then type them from memory. The app times your runs and records best times per card and per deck. Optional assistance modes help you practice:
 
-Currently, two official plugins are available:
+- Ghost Text: faintly show the next few characters after a brief pause
+- See Full Text: display the entire reference text
+- Autocorrect: be lenient on case and auto-insert punctuation
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+## Quick start
 
-## Expanding the ESLint configuration
+Prerequisites: Node 20+ and npm (or your preferred package manager).
 
-If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
-
-```js
-export default tseslint.config([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-
-      // Remove tseslint.configs.recommended and replace with this
-      ...tseslint.configs.recommendedTypeChecked,
-      // Alternatively, use this for stricter rules
-      ...tseslint.configs.strictTypeChecked,
-      // Optionally, add this for stylistic rules
-      ...tseslint.configs.stylisticTypeChecked,
-
-      // Other configs...
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
+```bash
+npm install
+npm run dev
 ```
 
-You can also install [eslint-plugin-react-x](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-dom) for React-specific lint rules:
+Build for production:
 
-```js
-// eslint.config.js
-import reactX from 'eslint-plugin-react-x'
-import reactDom from 'eslint-plugin-react-dom'
-
-export default tseslint.config([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-      // Enable lint rules for React
-      reactX.configs['recommended-typescript'],
-      // Enable lint rules for React DOM
-      reactDom.configs.recommended,
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
+```bash
+npm run build
+npm run preview
 ```
+
+## Using the app
+
+- Create a deck and add cards, or click "Load Default Decks" on the Decks page to seed demo content.
+- Open a card or a deck and click "Study" to choose assistance options.
+- Type the content exactly; only correct characters are accepted. Your best times are saved locally and visible via the trophy icon.
+
+## Optional: Gemini integration
+
+This project can generate cards with Google Gemini via `@google/genai`. Provide an API key in one of two ways (prefer .env):
+
+1) Create a `.env` file in the project root:
+
+```
+VITE_GEMINI_API_KEY=your_key_here
+```
+
+2) Or copy `src/AI_KEY.template.ts` to `src/AI_KEY.ts` and replace the placeholder with your key.
+
+Security note: `src/AI_KEY.ts` is ignored by git (see `.gitignore`). Keep keys out of version control and prefer environment variables for production. If a key file is ever committed by mistake, remove it from the remote history and rotate the key immediately.
+
+## Scripts
+
+- dev: start Vite in development
+- build: type-check and build
+- preview: preview the production build
+- lint: run ESLint
+
+## Tech stack
+
+- React 19, TypeScript, Vite 7
+- React Router for navigation
+- Tailwind CSS and small UI primitives
+- Local storage for app state (decks, cards, records)
+
+## Project structure (selected)
+
+- `src/pages/DeckList.tsx`: manage decks, seed defaults, view best times
+- `src/pages/StudySetup.tsx`: choose assistance options
+- `src/pages/StudySession.tsx`: typing experience, timer, best-time recording
+- `src/contexts/DataContext.tsx`: app state, CRUD, records
+- `src/lib/gemini.ts`: Gemini card generation helpers
+
+## License
+
+MIT
