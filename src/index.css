@@ -468,7 +468,11 @@ body {
   letter-spacing: 0.4px;
   color: oklch(0.86 0.14 230);
   text-shadow: 0 1px 0 oklch(0 0 0 / 50%), 0 2px 6px oklch(0 0 0 / 40%);
-  font-size: clamp(1.1rem, 4vw, 1.75rem);
+  font-size: clamp(0.9rem, 4vw, 1.75rem);
+  white-space: nowrap;
+  /* Allow brand to shrink if needed */
+  min-width: 0;
+  flex-shrink: 1;
 }
 .table-header .nav-chip {
   color: oklch(0.98 0.01 230);
@@ -480,6 +484,33 @@ body {
 }
 .table-header .nav-chip:hover {
   background: oklch(1 0 0 / 10%);
+}
+
+/* Ensure header content doesn't wrap on very small screens */
+@media (max-width: 320px) {
+  .table-header .brand {
+    font-size: clamp(0.8rem, 3vw, 1.2rem);
+  }
+  
+  .table-header .container {
+    padding-left: 0.5rem;
+    padding-right: 0.5rem;
+  }
+}
+
+/* Ensure deck view controls don't wrap on small screens */
+@media (max-width: 480px) {
+  /* On very small screens, ensure buttons have space */
+  .chip {
+    font-size: 0.875rem;
+    padding-left: 0.75rem;
+    padding-right: 0.75rem;
+  }
+  
+  /* Ensure flex containers handle small screens properly */
+  .flex.sm\\:justify-between {
+    gap: 0.5rem;
+  }
 }
 
 /* Force black text on any clickable button-like element */

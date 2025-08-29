@@ -12,14 +12,14 @@ export default function Header(props: HeaderProps) {
       <div className="container mx-auto flex items-center justify-between px-3 py-3 sm:px-4 sm:py-4 lg:px-6 lg:py-6">
         {props.onNavigateHome ? (
           <button className="brand" onClick={props.onNavigateHome}>
-            <span>MemoryWhole</span>
+            <span>MemoryWholed</span>
           </button>
         ) : (
           <Link to="/" className="brand">
-            <span>MemoryWhole</span>
+            <span>MemoryWholed</span>
           </Link>
         )}
-        <nav className="flex items-center gap-2">
+        <nav className="flex items-center gap-2 flex-shrink-0">
           <InfoButton />
         </nav>
       </div>

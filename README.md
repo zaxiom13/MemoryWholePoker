@@ -1,4 +1,4 @@
-## MemoryWhole
+## MemoryWholed
 
 A React + TypeScript + Vite app for memorization practice. Create decks of cards (quotes, poetry, speeches), then type them from memory. The app times your runs and records best times per card and per deck. Optional assistance modes help you practice:
 

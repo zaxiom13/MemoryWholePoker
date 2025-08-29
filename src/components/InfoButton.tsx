@@ -17,15 +17,15 @@ export default function InfoButton() {
           size="icon"
           variant="ghost"
           className="rounded-full hover:bg-white/10 text-white/90 hover:text-white"
-          aria-label="About MemoryWhole"
-          title="About MemoryWhole"
+          aria-label="About MemoryWholed"
+          title="About MemoryWholed"
         >
           <Info className="h-5 w-5" />
         </Button>
       </DialogTrigger>
       <DialogContent className="max-w-md">
         <DialogHeader>
-          <DialogTitle>About MemoryWhole</DialogTitle>
+          <DialogTitle>About MemoryWholed</DialogTitle>
           <DialogDescription>
             A lightweight app for memorizing poems, speeches, and other prose using typed recall.
           </DialogDescription>
@@ -34,7 +34,7 @@ export default function InfoButton() {
           <section>
             <div className="font-medium text-black">What it is</div>
             <p>
-              MemoryWhole helps you practice verbatim recall. Create decks, add cards
+              MemoryWholed helps you practice verbatim recall. Create decks, add cards
               with text you want to memorize, and run timed typing sessions that accept
               only correct characters.
             </p>
