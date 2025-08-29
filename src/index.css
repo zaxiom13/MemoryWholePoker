@@ -1,0 +1,486 @@
+@import "tailwindcss";
+
+@custom-variant dark (&:is(.dark *));
+@plugin "tailwindcss-animate";
+
+/* App-wide base tweaks */
+html,
+body,
+#root {
+  height: 100%;
+}
+
+body {
+  @apply antialiased;
+  /* Prevent horizontal scrolling on mobile */
+  overflow-x: hidden;
+  /* Better text rendering on mobile */
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  /* Prevent zoom on input focus on iOS */
+  font-size: 16px;
+}
+
+/* Ensure all interactive elements have adequate touch targets on mobile */
+@media (max-width: 639px) {
+  button:not(.chip), 
+  [role="button"]:not(.chip), 
+  input[type="button"]:not(.chip), 
+  input[type="submit"]:not(.chip), 
+  a:not(.chip) {
+    min-height: 44px;
+    min-width: 44px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+  }
+  
+  /* Exception for text links that should flow naturally */
+  a:not([role="button"]):not(.btn):not(.button):not(.chip) {
+    min-height: auto;
+    min-width: auto;
+    display: inline;
+  }
+  
+  /* Chip buttons handle their own touch target sizing */
+  .chip {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+  }
+}
+
+@theme inline {
+  --radius-sm: calc(var(--radius) - 4px);
+  --radius-md: calc(var(--radius) - 2px);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) + 4px);
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-popover: var(--popover);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-destructive: var(--destructive);
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-ring: var(--ring);
+  --color-chart-1: var(--chart-1);
+  --color-chart-2: var(--chart-2);
+  --color-chart-3: var(--chart-3);
+  --color-chart-4: var(--chart-4);
+  --color-chart-5: var(--chart-5);
+  --color-sidebar: var(--sidebar);
+  --color-sidebar-foreground: var(--sidebar-foreground);
+  --color-sidebar-primary: var(--sidebar-primary);
+  --color-sidebar-primary-foreground: var(--sidebar-primary-foreground);
+  --color-sidebar-accent: var(--sidebar-accent);
+  --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
+  --color-sidebar-border: var(--sidebar-border);
+  --color-sidebar-ring: var(--sidebar-ring);
+}
+
+:root {
+  --radius: 0.625rem;
+  /* Light theme with improved contrast */
+  --background: oklch(0.99 0.005 250);
+  --foreground: oklch(0.18 0.03 250);
+  --card: oklch(1 0 0);
+  --card-foreground: var(--foreground);
+  --popover: oklch(1 0 0);
+  --popover-foreground: var(--foreground);
+  /* Primary darker for better contrast with white text */
+  /* Cool billiard-table blue as primary */
+  --primary: oklch(0.6 0.18 230);
+  --primary-foreground: oklch(0.98 0.02 230);
+  /* Secondary and muted with stronger fg */
+  --secondary: oklch(0.94 0.02 250);
+  --secondary-foreground: oklch(0.25 0.04 250);
+  --muted: oklch(0.95 0.015 250);
+  --muted-foreground: oklch(0.35 0.03 250);
+  /* Accent slightly darker for contrast */
+  --accent: oklch(0.9 0.07 310);
+  --accent-foreground: oklch(0.22 0.04 310);
+  --destructive: oklch(0.55 0.25 25);
+  --border: oklch(0.9 0.01 250);
+  --input: var(--border);
+  --ring: oklch(0.62 0.16 230);
+  /* Charts */
+  --chart-1: oklch(0.6 0.22 41);
+  --chart-2: oklch(0.58 0.18 200);
+  --chart-3: oklch(0.56 0.2 280);
+  --chart-4: oklch(0.7 0.2 140);
+  --chart-5: oklch(0.68 0.18 310);
+  --sidebar: oklch(0.985 0.005 250);
+  --sidebar-foreground: var(--foreground);
+  --sidebar-primary: var(--primary);
+  --sidebar-primary-foreground: var(--primary-foreground);
+  --sidebar-accent: var(--accent);
+  --sidebar-accent-foreground: var(--accent-foreground);
+  --sidebar-border: var(--border);
+  --sidebar-ring: var(--ring);
+}
+
+.dark {
+  --background: oklch(0.16 0.02 260);
+  --foreground: oklch(0.98 0.02 260);
+  --card: oklch(0.22 0.03 260);
+  --card-foreground: var(--foreground);
+  --popover: oklch(0.22 0.03 260);
+  --popover-foreground: var(--foreground);
+  --primary: oklch(0.72 0.18 230);
+  --primary-foreground: oklch(0.14 0.03 230);
+  --secondary: oklch(0.26 0.02 260);
+  --secondary-foreground: var(--foreground);
+  --muted: oklch(0.24 0.01 260);
+  --muted-foreground: oklch(0.82 0.03 260);
+  --accent: oklch(0.32 0.05 310);
+  --accent-foreground: var(--foreground);
+  --destructive: oklch(0.66 0.2 20);
+  --border: oklch(1 0 0 / 14%);
+  --input: oklch(1 0 0 / 2 0%);
+  --ring: oklch(0.6 0.14 230);
+  --chart-1: oklch(0.58 0.23 264);
+  --chart-2: oklch(0.68 0.17 162);
+  --chart-3: oklch(0.74 0.22 70);
+  --chart-4: oklch(0.56 0.25 304);
+  --chart-5: oklch(0.63 0.21 16);
+  --sidebar: oklch(0.22 0.03 260);
+  --sidebar-foreground: var(--foreground);
+  --sidebar-primary: var(--primary);
+  --sidebar-primary-foreground: var(--primary-foreground);
+  --sidebar-accent: var(--accent);
+  --sidebar-accent-foreground: var(--accent-foreground);
+  --sidebar-border: oklch(1 0 0 / 14%);
+  --sidebar-ring: var(--ring);
+}
+
+@layer base {
+  * {
+    @apply border-border outline-ring/50;
+  }
+  body {
+    @apply bg-background text-foreground;
+  }
+}
+
+/* Simple shake animation used on incorrect key attempt */
+@keyframes shake {
+  10%, 90% { transform: translateX(-1px); }
+  20%, 80% { transform: translateX(2px); }
+  30%, 50%, 70% { transform: translateX(-4px); }
+  40%, 60% { transform: translateX(4px); }
+}
+
+[data-shake] {
+  --shake: shake 180ms ease-in-out;
+}
+
+/* Skeuomorphic Poker Table Theme */
+.poker-room {
+  /* Dimmed room backdrop */
+  background: radial-gradient(1200px 600px at 50% -10%, oklch(0.22 0.04 160 / 80%), transparent 60%),
+              radial-gradient(900px 500px at 20% 110%, oklch(0.18 0.03 260 / 70%), transparent 60%),
+              linear-gradient(180deg, oklch(0.14 0.02 260), oklch(0.12 0.02 260));
+}
+
+.poker-table {
+  /* Responsive container width */
+  max-width: min(1400px, 100vw);
+  padding: 0.75rem;
+  /* Mobile-first responsive padding */
+}
+
+@media (min-width: 640px) {
+  .poker-table {
+    padding: 1rem;
+  }
+}
+
+@media (min-width: 1024px) {
+  .poker-table {
+    padding: 1.25rem;
+  }
+}
+
+.wood-rim {
+  /* Responsive border radius and padding */
+  border-radius: 24px;
+  padding: 8px; /* thinner rim on mobile */
+  background:
+    /* wood grain approximation */
+    linear-gradient(90deg, oklch(0.45 0.12 60) 0%, oklch(0.42 0.12 60) 7%, oklch(0.5 0.14 60) 14%, oklch(0.42 0.12 60) 21%, oklch(0.5 0.14 60) 28%, oklch(0.44 0.12 60) 35%, oklch(0.5 0.14 60) 42%, oklch(0.42 0.12 60) 49%, oklch(0.45 0.12 60) 56%, oklch(0.42 0.12 60) 63%, oklch(0.5 0.14 60) 70%, oklch(0.42 0.12 60) 77%, oklch(0.5 0.14 60) 84%, oklch(0.44 0.12 60) 91%, oklch(0.45 0.12 60) 100%),
+    oklch(0.45 0.12 60);
+  box-shadow: inset 0 1px 0 oklch(1 0 0 / 6%), inset 0 -1px 0 oklch(0 0 0 / 20%), 0 12px 30px -10px oklch(0 0 0 / 40%);
+}
+
+@media (min-width: 640px) {
+  .wood-rim {
+    border-radius: 48px;
+    padding: 12px;
+    box-shadow: inset 0 2px 0 oklch(1 0 0 / 6%), inset 0 -2px 0 oklch(0 0 0 / 20%), 0 18px 45px -15px oklch(0 0 0 / 45%);
+  }
+}
+
+@media (min-width: 1024px) {
+  .wood-rim {
+    border-radius: 64px;
+    padding: 14px;
+    box-shadow: inset 0 2px 0 oklch(1 0 0 / 6%), inset 0 -2px 0 oklch(0 0 0 / 20%), 0 24px 60px -20px oklch(0 0 0 / 50%);
+  }
+}
+
+.felt {
+  position: relative;
+  border-radius: 16px;
+  padding: 12px;
+  background:
+    radial-gradient(100% 120% at 50% 30%, oklch(0.32 0.08 160) 0%, oklch(0.28 0.07 160) 60%, oklch(0.24 0.06 160) 100%),
+    /* speckled felt */
+    radial-gradient(2px 2px at 20% 30%, oklch(1 0 0 / 8%), transparent 40%),
+    radial-gradient(1.5px 1.5px at 70% 60%, oklch(0 0 0 / 6%), transparent 40%),
+    radial-gradient(1.5px 1.5px at 40% 80%, oklch(1 0 0 / 5%), transparent 40%),
+    oklch(0.28 0.07 160);
+  box-shadow: inset 0 6px 20px oklch(0 0 0 / 30%), inset 0 -4px 12px oklch(0 0 0 / 20%);
+}
+
+@media (min-width: 640px) {
+  .felt {
+    border-radius: 32px;
+    padding: 16px;
+    box-shadow: inset 0 8px 25px oklch(0 0 0 / 32%), inset 0 -5px 14px oklch(0 0 0 / 22%);
+  }
+}
+
+@media (min-width: 1024px) {
+  .felt {
+    border-radius: 48px;
+    padding: 18px;
+    box-shadow: inset 0 10px 30px oklch(0 0 0 / 35%), inset 0 -6px 16px oklch(0 0 0 / 25%);
+  }
+}
+
+/* Ensure content on the felt has high contrast */
+.felt, .felt *:where(.playing-card, .card-surface, input, textarea, button, a, code) {
+  color: inherit;
+}
+.felt > .table-content,
+.felt > .table-content :where(h1,h2,h3,h4,h5,h6,p,span,small,li,div,code,strong,em) {
+  color: white;
+}
+
+/* Ensure table content sits above the graph canvas */
+.felt > .table-content {
+  position: relative;
+  z-index: 2;
+}
+
+/* Ensure light-surface controls (e.g., outline buttons) use dark text
+   inside the white-text table area to maintain contrast */
+/* High-specificity overrides so light surfaces show dark text even within
+   the white-typed table-content region. */
+.felt > .table-content :is(.playing-card, .card-surface, .bg-background, .bg-card) {
+  color: oklch(0.1 0.03 250);
+}
+.felt > .table-content :is(.playing-card, .card-surface, .bg-background, .bg-card)
+  :is(h1,h2,h3,h4,h5,h6,p,span,small,li,div,code,strong,em,a,button) {
+  color: oklch(0.1 0.03 250);
+}
+
+/* Ensure components (cards/panels) use dark readable text */
+.playing-card, .playing-card *:not(svg) {
+  color: oklch(0.1 0.03 250);
+}
+.card-surface, .card-surface *:not(svg) {
+  color: oklch(0.1 0.03 250);
+}
+
+.table-content {
+  /* Responsive min-height for mobile-first */
+  min-height: min(50vh, 400px);
+}
+
+@media (min-width: 640px) {
+  .table-content {
+    min-height: min(55vh, 600px);
+  }
+}
+
+@media (min-width: 1024px) {
+  .table-content {
+    min-height: min(60vh, 900px);
+  }
+}
+
+/* Playing card surface */
+.playing-card {
+  /* Warm parchment paper look */
+  background:
+    radial-gradient(800px 200px at 50% -40%, oklch(1 0 0 / 90%), transparent 60%),
+    radial-gradient(1200px 600px at 50% 120%, oklch(0 0 0 / 4%), transparent 60%),
+    /* cool off-white paper */
+    linear-gradient(180deg, oklch(0.97 0.01 230) 0%, oklch(0.95 0.01 230) 100%);
+  border-radius: 14px;
+  border: 1px solid oklch(0.88 0.02 230);
+  box-shadow:
+    0 2px 0 oklch(1 0 0 / 80%) inset,
+    0 -2px 0 oklch(0 0 0 / 2%) inset,
+    0 12px 24px -12px oklch(0 0 0 / 40%),
+    0 2px 8px -2px oklch(0 0 0 / 25%);
+}
+
+/* Subtle inner surface used for textarea host */
+.card-surface {
+  background: linear-gradient(180deg, oklch(0.98 0.01 230) 0%, oklch(0.96 0.01 230) 100%);
+}
+
+/* Poker chip-y button accent without redefining the Button component */
+.chip {
+  border-radius: 9999px !important;
+  position: relative;
+  box-shadow: 0 6px 14px -6px oklch(0 0 0 / 45%);
+  /* Ensure consistent minimum touch target across all screen sizes */
+  min-width: 44px;
+  min-height: 44px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* ----- Global background graph canvas ----- */
+.bg-network {
+  /* blend softly over the room gradient */
+  mix-blend-mode: soft-light;
+}
+
+.bg-network--table {
+  /* a touch stronger on the felt to be visible */
+  mix-blend-mode: overlay;
+}
+
+.bg-network--debug {
+  /* force normal compositing for clear visibility */
+  mix-blend-mode: normal !important;
+}
+
+/* ----- Header + Brand styling ----- */
+.table-header {
+  position: sticky;
+  top: 0;
+  z-index: 20;
+  backdrop-filter: saturate(115%) blur(8px);
+  background: linear-gradient(
+      to bottom,
+      color-mix(in oklch, var(--background), black 4%) 0%,
+      color-mix(in oklch, var(--background), black 0%) 100%
+    );
+  border-bottom: 1px solid oklch(0 0 0 / 6%);
+}
+
+.brand {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  text-decoration: none;
+}
+
+.brand > span {
+  font-size: clamp(1.15rem, 2vw + 0.6rem, 1.8rem);
+  font-weight: 800;
+  letter-spacing: -0.02em;
+  background: linear-gradient(90deg, var(--primary), color-mix(in oklch, var(--accent), white 25%));
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  /* subtle glow that works in light/dark */
+  text-shadow:
+    0 1px 0 oklch(1 0 0 / 35%),
+    0 6px 18px color-mix(in oklch, var(--primary), transparent 86%);
+  transition: filter 200ms ease, transform 120ms ease;
+}
+
+.brand:hover > span {
+  filter: brightness(1.06) saturate(1.05);
+}
+
+.brand:active > span {
+  transform: translateY(1px) scale(0.995);
+}
+.chip::before {
+  /* Remove chip striping overlay; keep the pill shape/shadow from .chip */
+  content: none;
+}
+
+/* Smooth entrance easing and paint hints to reduce flicker on card animations */
+.card-enter {
+  animation-timing-function: cubic-bezier(0.16, 1, 0.3, 1);
+  will-change: transform, opacity;
+  transform: translateZ(0);
+  backface-visibility: hidden;
+}
+
+/* Generic reveal transition (used instead of animate-in for stability) */
+:root {
+  --ease-out-smooth: cubic-bezier(0.16, 1, 0.3, 1);
+}
+.reveal {
+  opacity: 0;
+  transform: translate3d(0, 10px, 0);
+  transition: opacity 420ms var(--ease-out-smooth), transform 420ms var(--ease-out-smooth);
+  will-change: transform, opacity;
+  backface-visibility: hidden;
+}
+.reveal[data-reveal='in'] {
+  opacity: 1;
+  transform: translate3d(0, 0, 0);
+}
+@media (prefers-reduced-motion: reduce) {
+  .reveal {
+    transition: none !important;
+    opacity: 1 !important;
+    transform: none !important;
+  }
+}
+
+/* Header: wood bar with gilded brand */
+.table-header {
+  /* Billiard-table blue header bar */
+  background:
+    radial-gradient(100% 120% at 50% -40%, oklch(1 0 0 / 10%), transparent 60%),
+    linear-gradient(180deg, oklch(0.38 0.10 230), oklch(0.30 0.08 230));
+  box-shadow: 0 10px 24px -12px oklch(0 0 0 / 60%), inset 0 -2px 0 oklch(0 0 0 / 25%);
+  border-bottom: 1px solid oklch(1 0 0 / 12%);
+}
+
+/* (BackBar was reverted to neutral background via utility classes) */
+.table-header .brand {
+  font-weight: 700;
+  /* Cursive, stylish brand title */
+  font-family: "Pacifico", "Brush Script MT", "Segoe Script", "Lucida Handwriting", cursive;
+  letter-spacing: 0.4px;
+  color: oklch(0.86 0.14 230);
+  text-shadow: 0 1px 0 oklch(0 0 0 / 50%), 0 2px 6px oklch(0 0 0 / 40%);
+  font-size: clamp(1.1rem, 4vw, 1.75rem);
+}
+.table-header .nav-chip {
+  color: oklch(0.98 0.01 230);
+  background: transparent;
+  border-radius: 9999px;
+  border: 1px solid oklch(1 0 0 / 18%);
+  padding-left: 0.75rem;
+  padding-right: 0.75rem;
+}
+.table-header .nav-chip:hover {
+  background: oklch(1 0 0 / 10%);
+}
+
+/* Force black text on any clickable button-like element */
+/* (Revert) No global button text override */
