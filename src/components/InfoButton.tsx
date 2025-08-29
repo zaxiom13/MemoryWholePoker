@@ -47,7 +47,7 @@ export default function InfoButton() {
               <li>Inside a deck, use <span className="font-medium">Add Card</span> to add title + content.</li>
               <li>
                 Optional: <span className="font-medium">Generate with AI</span> to create cards from a prompt
-                (set your API key in <code>src/AI_KEY.ts</code> or <code>.env</code> as <code>VITE_GEMINI_API_KEY</code>).
+                (set <code>VITE_GEMINI_API_KEY</code> in your environment, e.g., in Netlify).
               </li>
               <li>
                 Start a session with <span className="font-medium">Study Deck</span> (all cards) or a card’s

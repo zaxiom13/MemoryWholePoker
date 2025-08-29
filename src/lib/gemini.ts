@@ -1,5 +1,5 @@
 import { GoogleGenAI } from '@google/genai'
-import { GEMINI_API_KEY } from '@/AI_KEY'
+const ENV_GEMINI_API_KEY = import.meta.env.VITE_GEMINI_API_KEY as string | undefined
 
 type GenCard = { title: string; content: string }
 
@@ -83,11 +83,12 @@ function parseFromTitleLines(text: string): GenCard[] | null {
 }
 
 export async function generateCardsWithGemini(prompt: string): Promise<Array<{ title: string; content: string }>> {
-  if (!GEMINI_API_KEY || GEMINI_API_KEY === 'PUT_YOUR_GEMINI_API_KEY_HERE') {
-    throw new Error('Gemini API key missing. Set VITE_GEMINI_API_KEY in .env or edit src/AI_KEY.ts')
+  const apiKey = ENV_GEMINI_API_KEY
+  if (!apiKey || apiKey === 'PUT_YOUR_GEMINI_API_KEY_HERE') {
+    throw new Error('Gemini API key missing. Set VITE_GEMINI_API_KEY in your Netlify env or .env')
   }
 
-  const ai = new GoogleGenAI({ apiKey: GEMINI_API_KEY })
+  const ai = new GoogleGenAI({ apiKey })
   const model = 'gemini-2.5-flash-lite'
   const contents = [
     {

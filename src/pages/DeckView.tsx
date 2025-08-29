@@ -127,7 +127,7 @@ export default function DeckView() {
                       <Textarea id="gen-prompt" rows={6} value={genPrompt} onChange={(e) => setGenPrompt(e.target.value)} />
                     </div>
                     <p className="text-xs text-muted-foreground">
-                      Set your API key in <code>src/AI_KEY.ts</code> or <code>.env</code> as <code>VITE_GEMINI_API_KEY</code>.
+                      Set <code>VITE_GEMINI_API_KEY</code> in your environment (e.g., Netlify env var).
                     </p>
                   </form>
                   <DialogFooter>
