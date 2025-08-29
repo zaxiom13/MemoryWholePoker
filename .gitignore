@@ -19,9 +19,9 @@ dist-ssr
 .env.test.local
 .env.production.local
 src/AI_KEY.ts
-**/API_KEY*
-**/*key*.ts
-**/*KEY*.ts
+**/API_KEY.ts
+**/*_KEY.ts
+!**/*.template.ts
 
 # Editor directories and files
 .vscode/*
