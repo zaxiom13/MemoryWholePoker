@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useRef, useState } from 'react'
+import type { ReactNode } from 'react'
 import { useLocation, useNavigate, useParams } from 'react-router-dom'
 import { useData } from '@/contexts/DataContext'
 import type { AssistanceOptions, Card, UUID } from '@/types'
@@ -69,6 +70,7 @@ export default function StudySession() {
   const timer = useRef(useTimer()).current
   const [, setTickCount] = useState(0)
   const cardStartRef = useRef(0)
+  const textareaRef = useRef<HTMLTextAreaElement | null>(null)
 
   const card = cards[index]
   const target = card?.content ?? ''
@@ -150,9 +152,46 @@ export default function StudySession() {
     }
   }, [index, cards.length, timer, addTimeRecord, deckId, navigate, options])
 
-  if (!card) return <p className="text-sm text-muted-foreground">Nothing to study.</p>
-
   const nextChars = target.slice(correctUntil, correctUntil + 8)
+
+  const typedFragments = useMemo(() => {
+    if (!input) return null
+
+    const nodes: ReactNode[] = []
+    const lines = input.split('\n')
+
+    lines.forEach((line, lineIndex) => {
+      if (lineIndex > 0) {
+        nodes.push(<br key={`br-${lineIndex}`} />)
+      }
+
+      Array.from(line).forEach((char, charIndex) => {
+        const key = `${lineIndex}-${charIndex}`
+
+        if (char === ' ') {
+          nodes.push(
+            <span
+              key={`space-${key}`}
+              className="inline-block min-w-[0.5ch] rounded-sm bg-emerald-500/20 text-emerald-500"
+            >
+              &nbsp;
+            </span>
+          )
+          return
+        }
+
+        nodes.push(
+          <span key={`char-${key}`} className="text-emerald-500">
+            {char}
+          </span>
+        )
+      })
+    })
+
+    return nodes
+  }, [input])
+
+  if (!card) return <p className="text-sm text-muted-foreground">Nothing to study.</p>
 
   return (
     <div className="max-w-3xl mx-auto space-y-4 sm:space-y-6 px-2 sm:px-0">
@@ -178,15 +217,12 @@ export default function StudySession() {
         {/* Combined highlighter + input */}
         <div
           className="relative rounded-md border bg-muted/30 min-h-[120px] sm:min-h-[160px] [animation:var(--shake,none)] card-surface"
-          onClick={(e) => {
-            const el = (e.currentTarget.querySelector('textarea') as HTMLTextAreaElement | null)
-            el?.focus()
-          }}
+          onClick={() => textareaRef.current?.focus()}
         >
           {/* Highlighter layer */}
           <div className="pointer-events-none p-2 sm:p-3 font-mono text-sm sm:text-base whitespace-pre-wrap">
             {/* Typed (always correct, since we block wrong input) */}
-            <span className="text-green-600">{input}</span>
+            {typedFragments}
             {/* Inline ghost suggestion */}
             {options.ghostText && pausedSince !== null && nextChars.length > 0 && (
               <span className="text-foreground/40 italic animate-in fade-in-0 duration-150">{nextChars}</span>
@@ -198,6 +234,7 @@ export default function StudySession() {
             className="absolute inset-0 w-full h-full resize-none bg-transparent p-2 sm:p-3 font-mono text-sm sm:text-base text-transparent caret-foreground focus:outline-none"
             rows={5}
             autoFocus
+            ref={textareaRef}
             value={input}
             onKeyDown={(e) => {
               if (e.key === 'Backspace') {
@@ -206,50 +243,78 @@ export default function StudySession() {
               }
             }}
             onBeforeInput={(e) => {
-              const data = (e as unknown as InputEvent).data
-              const inputType = (e as unknown as InputEvent).inputType
-              // Disallow deletions, pastes of multiple chars, and history actions
+              const nativeEvent = e.nativeEvent as InputEvent
+              const data = nativeEvent.data ?? ''
+              const inputType = nativeEvent.inputType ?? ''
+
               if (inputType && (inputType.startsWith('delete') || inputType.startsWith('history'))) {
                 e.preventDefault()
                 return
               }
-              if (data == null || data.length === 0) return
-              // If a paste attempts multiple characters, block (we only accept single next char at a time)
-              if (data.length > 1) {
-                e.preventDefault()
+
+              if (inputType === 'insertCompositionText') {
                 return
               }
 
-              const i = correctUntil
-              const t1 = target[i]
-              if (!t1) {
-                e.preventDefault()
+              if (!data) {
                 return
               }
-              const dc = normalizeChar(data)
-              const n1 = normalizeChar(t1)
 
-              // Direct match (case-insensitive when autocorrect)
-              const directOk = options.autocorrect ? n1.toLowerCase() === dc.toLowerCase() : n1 === dc
-              if (directOk) return // allow default
+              const field = e.currentTarget
+              const { selectionStart, selectionEnd } = field
 
-              // Autocorrect: skip punctuation in target by auto-inserting it
-              if (options.autocorrect && isPunctuation(n1)) {
-                const t2 = target[i + 1]
-                if (t2) {
-                  const n2 = normalizeChar(t2)
-                  const nextOk = n2.toLowerCase() === dc.toLowerCase()
-                  if (nextOk) {
-                    // Prevent default and auto-advance by inserting the punctuation + char
-                    e.preventDefault()
-                    setInput(target.slice(0, i + 2))
-                    return
-                  }
+              if (selectionStart !== input.length || selectionEnd !== input.length) {
+                e.preventDefault()
+                requestAnimationFrame(() => {
+                  const end = input.length
+                  textareaRef.current?.setSelectionRange(end, end)
+                })
+                return
+              }
+
+              let cursor = correctUntil
+              const chars = Array.from(data)
+              let consumed = 0
+
+              while (consumed < chars.length && cursor < target.length) {
+                const targetChar = target[cursor]
+                if (!targetChar) break
+
+                const normalizedTarget = normalizeChar(targetChar)
+                const normalizedIncoming = normalizeChar(chars[consumed])
+
+                const matches = options.autocorrect
+                  ? normalizedTarget.toLowerCase() === normalizedIncoming.toLowerCase()
+                  : normalizedTarget === normalizedIncoming
+
+                if (matches) {
+                  cursor += 1
+                  consumed += 1
+                  continue
                 }
+
+                if (options.autocorrect && isPunctuation(normalizedTarget)) {
+                  cursor += 1
+                  continue
+                }
+
+                break
               }
 
-              // Otherwise reject and shake
-              const host = (e.currentTarget.parentElement as HTMLElement | null)
+              if (consumed === chars.length) {
+                e.preventDefault()
+                if (cursor !== correctUntil) {
+                  const nextSlice = target.slice(0, cursor)
+                  setInput(nextSlice)
+                  requestAnimationFrame(() => {
+                    const end = nextSlice.length
+                    textareaRef.current?.setSelectionRange(end, end)
+                  })
+                }
+                return
+              }
+
+              const host = e.currentTarget.parentElement as HTMLElement | null
               if (host) {
                 host.dataset.shake = '1'
                 setTimeout(() => host.removeAttribute('data-shake'), 200)
@@ -296,8 +361,8 @@ function compareInput(target: string, input: string, options: AssistanceOptions)
   let i = 0
   let j = 0
   while (i < target.length && j < input.length) {
-    let tc = normalizeChar(target[i])
-    let ic = normalizeChar(input[j])
+    const tc = normalizeChar(target[i])
+    const ic = normalizeChar(input[j])
 
     // Autocorrect: ignore case mismatches
     const eq = options.autocorrect ? tc.toLowerCase() === ic.toLowerCase() : tc === ic
