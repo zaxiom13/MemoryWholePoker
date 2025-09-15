@@ -44,16 +44,16 @@ export default function DeckView() {
         titleEditable
         onTitleChange={(val) => { if (val && val !== deck.name) updateDeck(deck.id, { name: val }) }}
       />
-      <div className="flex flex-row items-center justify-between gap-2 sm:gap-4 flex-nowrap overflow-hidden">
-        <div className="flex items-center gap-2 flex-wrap min-w-0 flex-1">
+      <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
+        <div className="flex w-full flex-wrap items-center gap-2">
           {/* Primary flow: Study */}
-          <Button disabled={cards.length === 0} className="chip" asChild>
+          <Button disabled={cards.length === 0} className="chip flex w-full justify-center sm:w-auto" asChild>
             <Link to={`/study/deck/${deck.id}/setup`} className="truncate whitespace-nowrap">Study Deck</Link>
           </Button>
         </div>
 
         {/* Hamburger menu for deck actions - moved to right side */}
-        <div className="flex items-center gap-2 flex-shrink-0">
+        <div className="flex w-full items-center justify-end gap-2 sm:w-auto">
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
               <Button variant="outline" size="icon" className="chip" title="Deck Actions">
