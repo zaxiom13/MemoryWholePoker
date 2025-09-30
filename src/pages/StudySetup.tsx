@@ -18,11 +18,11 @@ export default function StudySetup() {
   }
 
   return (
-    <div className="max-w-xl mx-auto space-y-6">
+    <div className="max-w-xl mx-auto space-y-6 px-4 sm:px-0">
       <BackBar to={mode === 'card' ? '/' : `/decks/${deckId}`} title="Study Options" />
-      <p className="text-sm text-muted-foreground animate-in fade-in-0 slide-in-from-top-2 duration-300">Choose optional assistance for this session. Settings apply only to this run.</p>
+      <p className="text-sm sm:text-base text-muted-foreground animate-in fade-in-0 slide-in-from-top-2 duration-300">Choose optional assistance for this session. Settings apply only to this run.</p>
 
-      <Reveal as="div" className="grid gap-3 playing-card p-4" delay={60}>
+      <Reveal as="div" className="grid gap-4 playing-card p-4 sm:p-6" delay={60}>
         <ToggleRow
           label="Ghost Text"
           description="Faintly show the next few characters inline as you type."
@@ -44,7 +44,7 @@ export default function StudySetup() {
       </Reveal>
 
       <div>
-        <Button onClick={start} className="animate-in fade-in-0 slide-in-from-bottom-2 duration-300">Start</Button>
+        <Button onClick={start} className="animate-in fade-in-0 slide-in-from-bottom-2 duration-300 w-full sm:w-auto">Start</Button>
       </div>
     </div>
   )

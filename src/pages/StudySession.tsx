@@ -177,14 +177,14 @@ export default function StudySession() {
 
         {/* Combined highlighter + input */}
         <div
-          className="relative rounded-md border bg-muted/30 min-h-[120px] sm:min-h-[160px] [animation:var(--shake,none)] card-surface"
+          className="relative rounded-md border bg-muted/30 min-h-[180px] sm:min-h-[200px] md:min-h-[160px] [animation:var(--shake,none)] card-surface"
           onClick={(e) => {
             const el = (e.currentTarget.querySelector('textarea') as HTMLTextAreaElement | null)
             el?.focus()
           }}
         >
           {/* Highlighter layer */}
-          <div className="pointer-events-none p-2 sm:p-3 font-mono text-sm sm:text-base whitespace-pre-wrap">
+          <div className="pointer-events-none p-3 sm:p-3 font-mono text-base sm:text-base whitespace-pre-wrap leading-relaxed">
             {/* Typed (always correct, since we block wrong input) */}
             <span className="text-green-600">{input}</span>
             {/* Inline ghost suggestion */}
@@ -195,7 +195,7 @@ export default function StudySession() {
 
           {/* Invisible text input with visible caret overlaying highlighter */}
           <textarea
-            className="absolute inset-0 w-full h-full resize-none bg-transparent p-2 sm:p-3 font-mono text-sm sm:text-base text-transparent caret-foreground focus:outline-none"
+            className="absolute inset-0 w-full h-full resize-none bg-transparent p-3 sm:p-3 font-mono text-base sm:text-base text-transparent caret-foreground focus:outline-none leading-relaxed"
             rows={5}
             autoFocus
             value={input}

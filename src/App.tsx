@@ -63,14 +63,14 @@ const router = createBrowserRouter([
   const assistance = usr.assistance as { ghostText: boolean; fullText: boolean; autocorrect: boolean } | undefined
   const flags = assistance ? ['ghostText', 'fullText', 'autocorrect'].filter((k) => (assistance as any)[k]).join(', ') : undefined
   return (
-    <div className="max-w-xl mx-auto text-center space-y-4 sm:space-y-6 px-4 sm:px-0">
-      <h1 className="text-xl sm:text-2xl font-bold inline-block">Great job!</h1>
+    <div className="max-w-xl mx-auto text-center space-y-4 sm:space-y-6 px-4 py-8 sm:px-0">
+      <h1 className="text-2xl sm:text-3xl font-bold">Great job!</h1>
       {elapsed != null && (
-        <p className="inline-block text-sm sm:text-base">
+        <p className="text-base sm:text-lg">
           Completed {mode === 'deck' ? 'deck' : 'card'} {title ? `"${title}" ` : ''}in <strong>{format(elapsed)}</strong>{flags ? ` (assistance: ${flags})` : ''}.
         </p>
       )}
-      <div className="flex items-center justify-center gap-3">
+      <div className="flex items-center justify-center gap-3 pt-4">
         <Button asChild className="w-full sm:w-auto">
           <Link to="/"><span>Back to Decks</span></Link>
         </Button>

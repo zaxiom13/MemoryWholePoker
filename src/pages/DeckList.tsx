@@ -34,7 +34,7 @@ export default function DeckList() {
   }
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-6 px-4 sm:px-0">
       <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-3">
         <h1 className="text-2xl sm:text-3xl font-bold animate-in fade-in-0 slide-in-from-top-2 duration-300">Decks</h1>
         <div className="flex flex-col sm:flex-row gap-2 w-full sm:w-auto">
@@ -67,10 +67,10 @@ export default function DeckList() {
       </div>
 
       {state.decks.length === 0 ? (
-        <div className="text-center py-8 sm:py-12 rounded-lg border bg-card playing-card animate-in fade-in-0 zoom-in-95 duration-300 mx-2 sm:mx-0">
+        <div className="text-center py-8 sm:py-12 rounded-lg border bg-card playing-card animate-in fade-in-0 zoom-in-95 duration-300">
           <h2 className="text-lg sm:text-xl text-muted-foreground">No decks yet.</h2>
           <p className="mt-2 text-sm sm:text-base text-muted-foreground">Create a new deck to get started.</p>
-          <div className="mt-4 flex flex-col sm:flex-row justify-center gap-2">
+          <div className="mt-4 flex flex-col sm:flex-row justify-center gap-2 px-4 sm:px-0">
             <Button onClick={() => setOpen(true)} className="flex items-center justify-center gap-2"><Plus className="h-4 w-4" /> New Deck</Button>
             <Button variant="outline" onClick={loadDemoData} className="text-black">Load Default Decks</Button>
           </div>
