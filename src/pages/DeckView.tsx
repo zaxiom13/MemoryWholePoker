@@ -37,14 +37,14 @@ export default function DeckView() {
   }
 
   return (
-    <div className="max-w-4xl mx-auto space-y-6 sm:space-y-8 px-2 sm:px-0">
+    <div className="max-w-4xl mx-auto space-y-6 sm:space-y-8 px-4 sm:px-0">
       <BackBar
         to="/"
         title={deck.name}
         titleEditable
         onTitleChange={(val) => { if (val && val !== deck.name) updateDeck(deck.id, { name: val }) }}
       />
-      <div className="flex flex-row items-center justify-between gap-2 sm:gap-4 flex-nowrap overflow-hidden">
+      <div className="flex flex-row items-center justify-between gap-2 sm:gap-4 flex-nowrap">
         <div className="flex items-center gap-2 flex-wrap min-w-0 flex-1">
           {/* Primary flow: Study */}
           <Button disabled={cards.length === 0} className="chip" asChild>
@@ -157,9 +157,9 @@ export default function DeckView() {
       </div>
 
       <div className="flex items-start justify-between">
-        <div className="py-2 max-w-3xl animate-in fade-in-0 slide-in-from-top-2 duration-300">
+        <div className="py-2 max-w-3xl animate-in fade-in-0 slide-in-from-top-2 duration-300 w-full">
           <p
-            className="mt-1 text-black/80 outline-none focus:ring-2 ring-primary/30 rounded-sm min-h-[1.5rem]"
+            className="mt-1 text-black/80 outline-none focus:ring-2 ring-primary/30 rounded-sm min-h-[1.5rem] text-sm sm:text-base"
             contentEditable
             suppressContentEditableWarning
             spellCheck={false}
@@ -181,7 +181,7 @@ export default function DeckView() {
       </div>
 
       <section className="space-y-3">
-        <h2 className="font-semibold">Cards</h2>
+        <h2 className="font-semibold text-base sm:text-lg">Cards</h2>
         <ul className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
           {cards.map((c, i) => (
             <Reveal as="li" key={c.id} delay={i * 60} className="playing-card p-4 sm:p-6 flex flex-col justify-between hover:shadow-lg hover:scale-[1.01] transition text-black">
