@@ -8,7 +8,7 @@ import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Textarea } from '@/components/ui/textarea'
 import BackBar from '@/components/BackBar'
-import { generateCardsWithGemini } from '@/lib/gemini'
+import { generateMoreCardsWithGemini } from '@/lib/gemini'
 import { Trash2, Menu, Plus, Sparkles } from 'lucide-react'
 import Reveal from '@/components/Reveal'
 
@@ -22,8 +22,6 @@ export default function DeckView() {
   const [addOpen, setAddOpen] = useState(false)
   const [newTitle, setNewTitle] = useState('')
   const [newContent, setNewContent] = useState('')
-  const [genOpen, setGenOpen] = useState(false)
-  const [genPrompt, setGenPrompt] = useState('Generate 5 concise flashcards about ...')
   const [genLoading, setGenLoading] = useState(false)
 
   if (!deck) return <p className="text-sm text-muted-foreground">Deck not found.</p>
@@ -89,53 +87,28 @@ export default function DeckView() {
                 </DialogContent>
               </Dialog>
 
-              <Dialog open={genOpen} onOpenChange={setGenOpen}>
-                <DialogTrigger asChild>
-                  <DropdownMenuItem onSelect={(e) => e.preventDefault()}>
-                    <Sparkles className="mr-2 h-4 w-4" />
-                    Generate with AI
-                  </DropdownMenuItem>
-                </DialogTrigger>
-                <DialogContent className="max-w-md">
-                  <DialogHeader>
-                    <DialogTitle>Generate Cards with Gemini</DialogTitle>
-                  </DialogHeader>
-                  <form
-                    id="gen-cards"
-                    className="grid gap-3"
-                    onSubmit={async (e) => {
-                      e.preventDefault()
-                      if (!deck) return
-                      setGenLoading(true)
-                      try {
-                        const cards = await generateCardsWithGemini(genPrompt)
-                        for (const c of cards) {
-                          const t = c.title?.trim() || 'Untitled'
-                          const cnt = c.content?.trim() || ''
-                          if (cnt) createCard({ deckId: deck.id, title: t, content: cnt })
-                        }
-                        setGenOpen(false)
-                      } catch (err: any) {
-                        alert(err?.message || 'Failed to generate cards')
-                      } finally {
-                        setGenLoading(false)
-                      }
-                    }}
-                  >
-                    <div className="grid gap-1">
-                      <Label htmlFor="gen-prompt">Prompt</Label>
-                      <Textarea id="gen-prompt" rows={6} value={genPrompt} onChange={(e) => setGenPrompt(e.target.value)} />
-                    </div>
-                    <p className="text-xs text-muted-foreground">
-                      Set <code>VITE_GEMINI_API_KEY</code> in your environment (e.g., Netlify env var).
-                    </p>
-                  </form>
-                  <DialogFooter>
-                    <Button variant="outline" onClick={() => setGenOpen(false)} disabled={genLoading}>Cancel</Button>
-                    <Button type="submit" form="gen-cards" disabled={genLoading}>{genLoading ? 'Generating…' : 'Generate'}</Button>
-                  </DialogFooter>
-                </DialogContent>
-              </Dialog>
+              <DropdownMenuItem
+                onSelect={async () => {
+                  if (!deck) return
+                  setGenLoading(true)
+                  try {
+                    const newCards = await generateMoreCardsWithGemini(deck.name, cards)
+                    for (const c of newCards) {
+                      const t = c.title?.trim() || 'Untitled'
+                      const cnt = c.content?.trim() || ''
+                      if (cnt) createCard({ deckId: deck.id, title: t, content: cnt })
+                    }
+                  } catch (err: any) {
+                    alert(err?.message || 'Failed to generate cards')
+                  } finally {
+                    setGenLoading(false)
+                  }
+                }}
+                disabled={genLoading}
+              >
+                <Sparkles className="mr-2 h-4 w-4" />
+                {genLoading ? 'Generating…' : 'Generate with AI'}
+              </DropdownMenuItem>
 
               <DropdownMenuSeparator />
               

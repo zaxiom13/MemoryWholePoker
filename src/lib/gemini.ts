@@ -144,6 +144,69 @@ export async function generateCardsWithGemini(prompt: string): Promise<Array<{ t
   return lines.slice(0, 5).map((l, i) => ({ title: l.slice(0, 40) || `Card ${i + 1}`, content: l }))
 }
 
+export async function generateMoreCardsWithGemini(deckName: string, existingCards: Array<{ title: string; content: string }>): Promise<Array<{ title: string; content: string }>> {
+  const apiKey = ENV_GEMINI_API_KEY
+  if (!apiKey || apiKey === 'PUT_YOUR_GEMINI_API_KEY_HERE') {
+    throw new Error('Gemini API key missing. Set VITE_GEMINI_API_KEY in your Netlify env or .env')
+  }
+
+  const ai = new GoogleGenAI({ apiKey })
+  const model = 'gemini-2.5-flash-lite'
+  const cardsContext = existingCards.map((c) => `- Title: ${c.title}\n  Content: ${c.content}`).join('\n')
+  const contents = [
+    {
+      role: 'user',
+      parts: [
+        {
+          text: [
+            'You are an assistant that creates flashcards.',
+            'Respond with ONLY a JSON object, no markdown, no code fences, no extra text.',
+            'Schema: {"cards": [{"title": string, "content": string}, ...]}',
+            'Max 10 cards. Keep each content under 400 characters.',
+            '',
+            'Generate more flashcards similar to the existing ones in this deck.',
+            '',
+            `Deck Name: ${deckName}`,
+            '',
+            'Existing cards:',
+            cardsContext,
+            '',
+            'Generate 5-8 new cards that fit the same topic and style.',
+          ].join('\n'),
+        },
+      ],
+    },
+  ]
+  const config = { thinkingConfig: { thinkingBudget: 0 } }
+
+  const stream = await ai.models.generateContentStream({ model, contents, config })
+  let acc = ''
+  for await (const chunk of stream) {
+    acc += chunk.text ?? ''
+  }
+  let text = acc.trim()
+  text = sanitizeFence(text)
+  let cards = tryParseJSON(text)
+  if (!cards) {
+    const js = extractJSONString(text)
+    if (js) cards = tryParseJSON(js)
+  }
+  if (!cards) {
+    cards = parseFromLooseObjects(text)
+  }
+  if (!cards) {
+    cards = parseFromTitleLines(text)
+  }
+  if (cards && cards.length) {
+    return cards
+      .map((c) => ({ title: String(c.title || '').trim(), content: String(c.content || '').trim() }))
+      .filter((c) => c.title || c.content)
+      .slice(0, 20)
+  }
+  const lines = text.split(/\r?\n/).map((l) => l.trim()).filter(Boolean)
+  return lines.slice(0, 5).map((l, i) => ({ title: l.slice(0, 40) || `Card ${i + 1}`, content: l }))
+}
+
 export async function generateDeckWithAI(topic: string): Promise<{ name: string; description: string; cards: Array<{ title: string; content: string }> }> {
   const apiKey = ENV_GEMINI_API_KEY
   if (!apiKey || apiKey === 'PUT_YOUR_GEMINI_API_KEY_HERE') {
