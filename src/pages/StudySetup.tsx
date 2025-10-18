@@ -18,11 +18,11 @@ export default function StudySetup() {
   }
 
   return (
-    <div className="max-w-xl mx-auto space-y-6 px-4 sm:px-0">
+    <div className="max-w-xl mx-auto space-y-6 px-3 sm:px-4 md:px-0">
       <BackBar to={mode === 'card' ? '/' : `/decks/${deckId}`} title="Study Options" />
-      <p className="text-sm sm:text-base text-muted-foreground animate-in fade-in-0 slide-in-from-top-2 duration-300">Choose optional assistance for this session. Settings apply only to this run.</p>
+      <p className="text-base sm:text-lg text-muted-foreground animate-in fade-in-0 slide-in-from-top-2 duration-300 leading-relaxed">Choose optional assistance for this session. Settings apply only to this run.</p>
 
-      <Reveal as="div" className="grid gap-4 playing-card p-4 sm:p-6" delay={60}>
+      <Reveal as="div" className="grid gap-5 playing-card p-5 sm:p-6" delay={60}>
         <ToggleRow
           label="Ghost Text"
           description="Faintly show the next few characters inline as you type."
@@ -44,7 +44,7 @@ export default function StudySetup() {
       </Reveal>
 
       <div>
-        <Button onClick={start} className="animate-in fade-in-0 slide-in-from-bottom-2 duration-300 w-full sm:w-auto">Start</Button>
+        <Button onClick={start} className="animate-in fade-in-0 slide-in-from-bottom-2 duration-300 w-full sm:w-auto min-h-[44px] text-base">Start</Button>
       </div>
     </div>
   )
@@ -52,11 +52,11 @@ export default function StudySetup() {
 
 function ToggleRow({ label, description, checked, onChange }: { label: string; description: string; checked: boolean; onChange: (v: boolean) => void }) {
   return (
-    <label className="flex items-start gap-3">
-      <input type="checkbox" className="mt-1" checked={checked} onChange={(e) => onChange(e.target.checked)} />
+    <label className="flex items-start gap-3 cursor-pointer">
+      <input type="checkbox" className="mt-1 w-5 h-5 cursor-pointer" checked={checked} onChange={(e) => onChange(e.target.checked)} />
       <span>
-        <span className="block font-medium">{label}</span>
-        <span className="block text-sm text-muted-foreground">{description}</span>
+        <span className="block font-medium text-base sm:text-lg">{label}</span>
+        <span className="block text-sm sm:text-base text-muted-foreground leading-relaxed">{description}</span>
       </span>
     </label>
   )

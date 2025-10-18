@@ -58,31 +58,31 @@ export default function DeckList() {
   }
 
   return (
-    <div className="space-y-6 px-4 sm:px-0">
-      <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-3">
-        <h1 className="text-2xl sm:text-3xl font-bold animate-in fade-in-0 slide-in-from-top-2 duration-300">Decks</h1>
-        <div className="flex flex-col sm:flex-row gap-2 w-full sm:w-auto">
+    <div className="space-y-6 px-3 sm:px-4 md:px-0">
+      <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-4">
+        <h1 className="text-3xl sm:text-4xl font-bold animate-in fade-in-0 slide-in-from-top-2 duration-300">Decks</h1>
+        <div className="flex flex-col sm:flex-row gap-2.5 w-full sm:w-auto">
           <Dialog open={open} onOpenChange={setOpen}>
             <DialogTrigger asChild>
               <Button className="flex items-center justify-center gap-2 w-full sm:w-auto"><Plus className="h-4 w-4" /> New Deck</Button>
             </DialogTrigger>
-            <DialogContent className="mx-4">
+            <DialogContent className="mx-3 sm:mx-4 max-w-[calc(100vw-1.5rem)] sm:max-w-lg">
               <DialogHeader>
-                <DialogTitle>Create Deck</DialogTitle>
+                <DialogTitle className="text-lg sm:text-xl">Create Deck</DialogTitle>
               </DialogHeader>
-              <form id="new-deck" onSubmit={onCreate} className="grid gap-3">
-                <div className="grid gap-1">
-                  <Label htmlFor="deck-name">Name</Label>
-                  <Input id="deck-name" value={name} onChange={(e) => setName(e.target.value)} placeholder="e.g. Sonnets" />
+              <form id="new-deck" onSubmit={onCreate} className="grid gap-4">
+                <div className="grid gap-2">
+                  <Label htmlFor="deck-name" className="text-base">Name</Label>
+                  <Input id="deck-name" value={name} onChange={(e) => setName(e.target.value)} placeholder="e.g. Sonnets" className="text-base" />
                 </div>
-                <div className="grid gap-1">
-                  <Label htmlFor="deck-desc">Description (optional)</Label>
-                  <Textarea id="deck-desc" value={description} onChange={(e) => setDescription(e.target.value)} placeholder="Short description" />
+                <div className="grid gap-2">
+                  <Label htmlFor="deck-desc" className="text-base">Description (optional)</Label>
+                  <Textarea id="deck-desc" value={description} onChange={(e) => setDescription(e.target.value)} placeholder="Short description" className="text-base min-h-[100px]" />
                 </div>
               </form>
-              <DialogFooter className="flex-col sm:flex-row gap-2">
-                <Button variant="outline" onClick={() => setOpen(false)} className="w-full sm:w-auto">Cancel</Button>
-                <Button type="submit" form="new-deck" className="w-full sm:w-auto">Create</Button>
+              <DialogFooter className="flex-col sm:flex-row gap-2.5">
+                <Button variant="outline" onClick={() => setOpen(false)} className="w-full sm:w-auto min-h-[44px]">Cancel</Button>
+                <Button type="submit" form="new-deck" className="w-full sm:w-auto min-h-[44px]">Create</Button>
               </DialogFooter>
             </DialogContent>
           </Dialog>
@@ -90,22 +90,22 @@ export default function DeckList() {
             <DialogTrigger asChild>
               <Button variant="outline" className="flex items-center justify-center gap-2 w-full sm:w-auto text-black"><Sparkles className="h-4 w-4" /> Generate with AI</Button>
             </DialogTrigger>
-            <DialogContent className="mx-4">
+            <DialogContent className="mx-3 sm:mx-4 max-w-[calc(100vw-1.5rem)] sm:max-w-lg">
               <DialogHeader>
-                <DialogTitle>Generate Deck with AI</DialogTitle>
+                <DialogTitle className="text-lg sm:text-xl">Generate Deck with AI</DialogTitle>
               </DialogHeader>
-              <form id="gen-deck" onSubmit={onGenerateAI} className="grid gap-3">
-                <div className="grid gap-1">
-                  <Label htmlFor="ai-topic">Topic</Label>
-                  <Textarea id="ai-topic" rows={4} value={aiTopic} onChange={(e) => setAiTopic(e.target.value)} placeholder="e.g. World capitals, Shakespeare quotes, Biology basics..." />
+              <form id="gen-deck" onSubmit={onGenerateAI} className="grid gap-4">
+                <div className="grid gap-2">
+                  <Label htmlFor="ai-topic" className="text-base">Topic</Label>
+                  <Textarea id="ai-topic" rows={5} value={aiTopic} onChange={(e) => setAiTopic(e.target.value)} placeholder="e.g. World capitals, Shakespeare quotes, Biology basics..." className="text-base min-h-[120px]" />
                 </div>
-                <p className="text-xs text-muted-foreground">
+                <p className="text-sm text-muted-foreground">
                   Set <code>VITE_GEMINI_API_KEY</code> in your environment (e.g., Netlify env var).
                 </p>
               </form>
-              <DialogFooter className="flex-col sm:flex-row gap-2">
-                <Button variant="outline" onClick={() => setAiOpen(false)} disabled={aiLoading} className="w-full sm:w-auto">Cancel</Button>
-                <Button type="submit" form="gen-deck" disabled={aiLoading} className="w-full sm:w-auto">{aiLoading ? 'Generating…' : 'Generate'}</Button>
+              <DialogFooter className="flex-col sm:flex-row gap-2.5">
+                <Button variant="outline" onClick={() => setAiOpen(false)} disabled={aiLoading} className="w-full sm:w-auto min-h-[44px]">Cancel</Button>
+                <Button type="submit" form="gen-deck" disabled={aiLoading} className="w-full sm:w-auto min-h-[44px]">{aiLoading ? 'Generating…' : 'Generate'}</Button>
               </DialogFooter>
             </DialogContent>
           </Dialog>
@@ -114,37 +114,37 @@ export default function DeckList() {
       </div>
 
       {state.decks.length === 0 ? (
-        <div className="text-center py-8 sm:py-12 rounded-lg border bg-card playing-card animate-in fade-in-0 zoom-in-95 duration-300">
-          <h2 className="text-lg sm:text-xl text-muted-foreground">No decks yet.</h2>
-          <p className="mt-2 text-sm sm:text-base text-muted-foreground">Create a new deck to get started.</p>
-          <div className="mt-4 flex flex-col sm:flex-row justify-center gap-2 px-4 sm:px-0">
-            <Button onClick={() => setOpen(true)} className="flex items-center justify-center gap-2"><Plus className="h-4 w-4" /> New Deck</Button>
-            <Button variant="outline" onClick={loadDemoData} className="text-black">Load Default Decks</Button>
+        <div className="text-center py-10 sm:py-12 rounded-lg border bg-card playing-card animate-in fade-in-0 zoom-in-95 duration-300 mx-1">
+          <h2 className="text-xl sm:text-2xl text-muted-foreground font-semibold">No decks yet.</h2>
+          <p className="mt-3 text-base sm:text-lg text-muted-foreground">Create a new deck to get started.</p>
+          <div className="mt-6 flex flex-col sm:flex-row justify-center gap-3 px-4 sm:px-0">
+            <Button onClick={() => setOpen(true)} className="flex items-center justify-center gap-2 min-h-[44px]"><Plus className="h-4 w-4" /> New Deck</Button>
+            <Button variant="outline" onClick={loadDemoData} className="text-black min-h-[44px]">Load Default Decks</Button>
           </div>
         </div>
       ) : (
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-5 lg:gap-6">
           {state.decks.map((d, i) => {
             const count = deckCounts[d.id] ?? 0
             return (
-              <Reveal key={d.id} as="div" delay={i * 60} className="playing-card p-4 sm:p-6 flex flex-col justify-between hover:shadow-lg hover:scale-[1.01] transition text-black">
+              <Reveal key={d.id} as="div" delay={i * 60} className="playing-card p-5 sm:p-6 flex flex-col justify-between hover:shadow-lg hover:scale-[1.01] transition text-black">
                 <Link to={`/decks/${d.id}`} className="block">
                   <div>
-                    <h2 className="text-base sm:text-lg font-bold truncate text-black">{d.name}</h2>
-                    <p className="text-xs sm:text-sm mt-2 line-clamp-3 min-h-[3rem] sm:min-h-[3.5rem] text-black/80">{d.description}</p>
-                    <p className="text-xs mt-3 sm:mt-4 text-black/70">{count} card{count !== 1 && 's'}</p>
+                    <h2 className="text-lg sm:text-xl font-bold truncate text-black">{d.name}</h2>
+                    <p className="text-sm sm:text-base mt-2.5 line-clamp-3 min-h-[3.5rem] sm:min-h-[4rem] text-black/80 leading-relaxed">{d.description}</p>
+                    <p className="text-sm mt-4 text-black/70 font-medium">{count} card{count !== 1 && 's'}</p>
                   </div>
                 </Link>
-                <div className="flex justify-end gap-1 mt-3 sm:mt-4">
+                <div className="flex justify-end gap-2 mt-4">
                   <Dialog open={bestOpenId === d.id} onOpenChange={(v) => setBestOpenId(v ? d.id : null)}>
                     <DialogTrigger asChild>
                       <Button size="icon" variant="ghost" className="chip" title="Best Times">
                         <Trophy className="h-4 w-4" />
                       </Button>
                     </DialogTrigger>
-                    <DialogContent className="max-w-xl">
+                    <DialogContent className="max-w-xl mx-3 sm:mx-4 max-w-[calc(100vw-1.5rem)] sm:max-w-xl">
                       <DialogHeader>
-                        <DialogTitle>Best Times — {d.name}</DialogTitle>
+                        <DialogTitle className="text-lg sm:text-xl">Best Times — {d.name}</DialogTitle>
                       </DialogHeader>
                       <div className="space-y-4">
                         <div>

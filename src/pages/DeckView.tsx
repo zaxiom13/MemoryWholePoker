@@ -35,17 +35,17 @@ export default function DeckView() {
   }
 
   return (
-    <div className="max-w-4xl mx-auto space-y-6 sm:space-y-8 px-4 sm:px-0">
+    <div className="max-w-4xl mx-auto space-y-6 sm:space-y-8 px-3 sm:px-4 md:px-0">
       <BackBar
         to="/"
         title={deck.name}
         titleEditable
         onTitleChange={(val) => { if (val && val !== deck.name) updateDeck(deck.id, { name: val }) }}
       />
-      <div className="flex flex-row items-center justify-between gap-2 sm:gap-4 flex-nowrap">
-        <div className="flex items-center gap-2 flex-wrap min-w-0 flex-1">
+      <div className="flex flex-row items-center justify-between gap-3 sm:gap-4 flex-nowrap">
+        <div className="flex items-center gap-2.5 flex-wrap min-w-0 flex-1">
           {/* Primary flow: Study */}
-          <Button disabled={cards.length === 0} className="chip" asChild>
+          <Button disabled={cards.length === 0} className="chip text-base" asChild>
             <Link to={`/study/deck/${deck.id}/setup`} className="truncate whitespace-nowrap">Study Deck</Link>
           </Button>
         </div>
@@ -66,23 +66,23 @@ export default function DeckView() {
                     Add Card
                   </DropdownMenuItem>
                 </DialogTrigger>
-                <DialogContent className="mx-4">
+                <DialogContent className="mx-3 sm:mx-4 max-w-[calc(100vw-1.5rem)] sm:max-w-lg">
                   <DialogHeader>
-                    <DialogTitle>New Card</DialogTitle>
+                    <DialogTitle className="text-lg sm:text-xl">New Card</DialogTitle>
                   </DialogHeader>
-                  <form id="add-card" onSubmit={addCard} className="grid gap-3">
-                    <div className="grid gap-1">
-                      <Label htmlFor="title">Title</Label>
-                      <Input id="title" value={newTitle} onChange={(e) => setNewTitle(e.target.value)} />
+                  <form id="add-card" onSubmit={addCard} className="grid gap-4">
+                    <div className="grid gap-2">
+                      <Label htmlFor="title" className="text-base">Title</Label>
+                      <Input id="title" value={newTitle} onChange={(e) => setNewTitle(e.target.value)} className="text-base" />
                     </div>
-                    <div className="grid gap-1">
-                      <Label htmlFor="content">Content</Label>
-                      <Textarea id="content" value={newContent} onChange={(e) => setNewContent(e.target.value)} rows={6} className="resize-none" />
+                    <div className="grid gap-2">
+                      <Label htmlFor="content" className="text-base">Content</Label>
+                      <Textarea id="content" value={newContent} onChange={(e) => setNewContent(e.target.value)} rows={7} className="resize-none text-base min-h-[140px]" />
                     </div>
                   </form>
-                  <DialogFooter className="flex-col sm:flex-row gap-2">
-                    <Button variant="outline" onClick={() => setAddOpen(false)} className="w-full sm:w-auto">Cancel</Button>
-                    <Button type="submit" form="add-card" onClick={() => setAddOpen(false)} className="w-full sm:w-auto">Add</Button>
+                  <DialogFooter className="flex-col sm:flex-row gap-2.5">
+                    <Button variant="outline" onClick={() => setAddOpen(false)} className="w-full sm:w-auto min-h-[44px]">Cancel</Button>
+                    <Button type="submit" form="add-card" onClick={() => setAddOpen(false)} className="w-full sm:w-auto min-h-[44px]">Add</Button>
                   </DialogFooter>
                 </DialogContent>
               </Dialog>
@@ -132,7 +132,7 @@ export default function DeckView() {
       <div className="flex items-start justify-between">
         <div className="py-2 max-w-3xl animate-in fade-in-0 slide-in-from-top-2 duration-300 w-full">
           <p
-            className="mt-1 text-black/80 outline-none focus:ring-2 ring-primary/30 rounded-sm min-h-[1.5rem] text-sm sm:text-base"
+            className="mt-1 text-black/80 outline-none focus:ring-2 ring-primary/30 rounded-sm min-h-[1.5rem] text-base sm:text-lg leading-relaxed"
             contentEditable
             suppressContentEditableWarning
             spellCheck={false}
@@ -153,26 +153,26 @@ export default function DeckView() {
         </div>
       </div>
 
-      <section className="space-y-3">
-        <h2 className="font-semibold text-base sm:text-lg">Cards</h2>
-        <ul className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
+      <section className="space-y-4">
+        <h2 className="font-semibold text-lg sm:text-xl">Cards</h2>
+        <ul className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-5 lg:gap-6">
           {cards.map((c, i) => (
-            <Reveal as="li" key={c.id} delay={i * 60} className="playing-card p-4 sm:p-6 flex flex-col justify-between hover:shadow-lg hover:scale-[1.01] transition text-black">
+            <Reveal as="li" key={c.id} delay={i * 60} className="playing-card p-5 sm:p-6 flex flex-col justify-between hover:shadow-lg hover:scale-[1.01] transition text-black">
               <div>
-                <div className="text-base sm:text-lg font-bold truncate text-black">{c.title}</div>
-                <p className="text-xs sm:text-sm mt-2 line-clamp-4 min-h-[3rem] sm:min-h-[4rem] text-black/80 whitespace-pre-wrap">
+                <div className="text-lg sm:text-xl font-bold truncate text-black">{c.title}</div>
+                <p className="text-sm sm:text-base mt-2.5 line-clamp-4 min-h-[3.5rem] sm:min-h-[4.5rem] text-black/80 whitespace-pre-wrap leading-relaxed">
                   {c.content}
                 </p>
               </div>
-              <div className="flex justify-end gap-1 sm:gap-2 mt-3 sm:mt-4">
-                <Button className="chip" asChild>
+              <div className="flex justify-end gap-2 mt-4">
+                <Button className="chip text-sm" asChild>
                   <Link to={`/study/card/${c.id}/setup`}>Study</Link>
                 </Button>
                 <EditCardButton
                   title={c.title}
                   content={c.content}
                   onSave={(t, cnt) => updateCard(c.id, { title: t, content: cnt })}
-                  className="chip"
+                  className="chip text-sm"
                 />
                 <Button size="icon" variant="ghost" className="chip" title="Delete Card" onClick={() => deleteCard(c.id)}>
                   <Trash2 className="h-4 w-4 text-red-500" />
@@ -180,7 +180,7 @@ export default function DeckView() {
               </div>
             </Reveal>
           ))}
-          {cards.length === 0 && <li className="text-sm text-muted-foreground">No cards yet.</li>}
+          {cards.length === 0 && <li className="text-base text-muted-foreground">No cards yet.</li>}
         </ul>
       </section>
 
@@ -198,23 +198,23 @@ function EditCardButton({ title, content, onSave, className }: { title: string; 
       <DialogTrigger asChild>
         <Button variant="outline" className={className}>Edit</Button>
       </DialogTrigger>
-      <DialogContent>
+      <DialogContent className="mx-3 sm:mx-4 max-w-[calc(100vw-1.5rem)] sm:max-w-lg">
         <DialogHeader>
-          <DialogTitle>Edit Card</DialogTitle>
+          <DialogTitle className="text-lg sm:text-xl">Edit Card</DialogTitle>
         </DialogHeader>
-        <div className="grid gap-3">
-          <div className="grid gap-1">
-            <Label htmlFor="t">Title</Label>
-            <Input id="t" value={t} onChange={(e) => setT(e.target.value)} />
+        <div className="grid gap-4">
+          <div className="grid gap-2">
+            <Label htmlFor="t" className="text-base">Title</Label>
+            <Input id="t" value={t} onChange={(e) => setT(e.target.value)} className="text-base" />
           </div>
-          <div className="grid gap-1">
-            <Label htmlFor="c">Content</Label>
-            <Textarea id="c" rows={8} value={cnt} onChange={(e) => setCnt(e.target.value)} />
+          <div className="grid gap-2">
+            <Label htmlFor="c" className="text-base">Content</Label>
+            <Textarea id="c" rows={9} value={cnt} onChange={(e) => setCnt(e.target.value)} className="text-base min-h-[180px]" />
           </div>
         </div>
-        <DialogFooter>
-          <Button variant="outline" onClick={() => setOpen(false)}>Cancel</Button>
-          <Button onClick={() => { onSave(t, cnt); setOpen(false) }}>Save</Button>
+        <DialogFooter className="flex-col sm:flex-row gap-2.5">
+          <Button variant="outline" onClick={() => setOpen(false)} className="w-full sm:w-auto min-h-[44px]">Cancel</Button>
+          <Button onClick={() => { onSave(t, cnt); setOpen(false) }} className="w-full sm:w-auto min-h-[44px]">Save</Button>
         </DialogFooter>
       </DialogContent>
     </Dialog>

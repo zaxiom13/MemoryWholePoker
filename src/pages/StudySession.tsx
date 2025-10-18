@@ -153,49 +153,59 @@ export default function StudySession() {
   if (!card) return <p className="text-sm text-muted-foreground">Nothing to study.</p>
 
   const nextChars = target.slice(correctUntil, correctUntil + 8)
+  const cardProgress = target.length > 0 ? Math.round((correctUntil / target.length) * 100) : 0
+  const deckProgress = cards.length > 1 ? Math.round(((index + (correctUntil / target.length)) / cards.length) * 100) : 100
 
   return (
-    <div className="max-w-3xl mx-auto space-y-4 sm:space-y-6 px-2 sm:px-0">
+    <div className="max-w-3xl mx-auto space-y-4 sm:space-y-6 px-3 sm:px-4">
       <BackBar
         to={deckId ? `/decks/${deckId}` : '/'}
         label="Exit"
         title={card.title}
         actions={
-          <div className="flex items-center gap-2">
-            {cards.length > 1 && <div className="text-xs sm:text-sm text-muted-foreground">Card {index + 1} / {cards.length}</div>}
+          <div className="flex items-center gap-2 sm:gap-3">
+            {cards.length > 1 && (
+              <>
+                <div className="text-sm sm:text-base text-muted-foreground">Card {index + 1} / {cards.length}</div>
+                <div className="text-sm sm:text-base font-medium text-primary">{deckProgress}%</div>
+              </>
+            )}
           </div>
         }
-        rightSlot={<div className="text-xs sm:text-sm">Elapsed: {formatTime(timer.read())}</div>}
+        rightSlot={<div className="text-sm sm:text-base font-medium">Elapsed: {formatTime(timer.read())}</div>}
       />
 
       {options.fullText && (
-        <Reveal as="div" className="p-3 sm:p-4 playing-card text-xs sm:text-sm whitespace-pre-wrap" delay={60}>{target}</Reveal>
+        <Reveal as="div" className="p-4 sm:p-5 playing-card text-sm sm:text-base whitespace-pre-wrap leading-relaxed" delay={60}>{target}</Reveal>
       )}
 
-      <Reveal as="div" className="playing-card p-3 sm:p-4" delay={90}>
-        <div className="text-xs sm:text-sm mb-2">Type the text exactly. Only correct characters are accepted.</div>
+      <Reveal as="div" className="playing-card p-4 sm:p-5" delay={90}>
+        <div className="flex items-center justify-between mb-3">
+          <div className="text-sm sm:text-base font-medium">Type the text exactly. Only correct characters are accepted.</div>
+          <div className="text-sm sm:text-base font-medium text-primary">{cardProgress}%</div>
+        </div>
 
         {/* Combined highlighter + input */}
         <div
-          className="relative rounded-md border bg-muted/30 min-h-[180px] sm:min-h-[200px] md:min-h-[160px] [animation:var(--shake,none)] card-surface"
+          className="relative rounded-md border bg-muted/30 min-h-[240px] sm:min-h-[220px] md:min-h-[200px] [animation:var(--shake,none)] card-surface"
           onClick={(e) => {
             const el = (e.currentTarget.querySelector('textarea') as HTMLTextAreaElement | null)
             el?.focus()
           }}
         >
           {/* Highlighter layer */}
-          <div className="pointer-events-none p-3 sm:p-3 font-mono text-base sm:text-base whitespace-pre-wrap leading-relaxed">
+          <div className="pointer-events-none p-4 sm:p-4 font-mono text-base sm:text-lg whitespace-pre-wrap leading-relaxed">
             {/* Typed (always correct, since we block wrong input) */}
             <span className="text-green-600">{input}</span>
             {/* Inline ghost suggestion */}
             {options.ghostText && pausedSince !== null && nextChars.length > 0 && (
-              <span className="text-foreground/40 italic animate-in fade-in-0 duration-150">{nextChars}</span>
+              <span className="text-foreground/40 italic animate-in fade-in-0 duration-150 break-words">{nextChars}</span>
             )}
           </div>
 
           {/* Invisible text input with visible caret overlaying highlighter */}
           <textarea
-            className="absolute inset-0 w-full h-full resize-none bg-transparent p-3 sm:p-3 font-mono text-base sm:text-base text-transparent caret-foreground focus:outline-none leading-relaxed"
+            className="absolute inset-0 w-full h-full resize-none bg-transparent p-4 sm:p-4 font-mono text-base sm:text-lg text-transparent caret-foreground focus:outline-none leading-relaxed"
             rows={5}
             autoFocus
             value={input}

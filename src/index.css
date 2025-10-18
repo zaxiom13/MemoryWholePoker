@@ -207,7 +207,7 @@ body {
 .poker-table {
   /* Responsive container width */
   max-width: min(1400px, 100vw);
-  padding: 0.75rem;
+  padding: 0.5rem;
   /* Mobile-first responsive padding */
 }
 
@@ -219,14 +219,14 @@ body {
 
 @media (min-width: 1024px) {
   .poker-table {
-    padding: 1.25rem;
+    padding: 1.5rem;
   }
 }
 
 .wood-rim {
   /* Responsive border radius and padding */
-  border-radius: 24px;
-  padding: 8px; /* thinner rim on mobile */
+  border-radius: 20px;
+  padding: 6px; /* thinner rim on mobile */
   background:
     /* wood grain approximation */
     linear-gradient(90deg, oklch(0.45 0.12 60) 0%, oklch(0.42 0.12 60) 7%, oklch(0.5 0.14 60) 14%, oklch(0.42 0.12 60) 21%, oklch(0.5 0.14 60) 28%, oklch(0.44 0.12 60) 35%, oklch(0.5 0.14 60) 42%, oklch(0.42 0.12 60) 49%, oklch(0.45 0.12 60) 56%, oklch(0.42 0.12 60) 63%, oklch(0.5 0.14 60) 70%, oklch(0.42 0.12 60) 77%, oklch(0.5 0.14 60) 84%, oklch(0.44 0.12 60) 91%, oklch(0.45 0.12 60) 100%),
@@ -252,8 +252,8 @@ body {
 
 .felt {
   position: relative;
-  border-radius: 16px;
-  padding: 12px;
+  border-radius: 14px;
+  padding: 10px;
   background:
     radial-gradient(100% 120% at 50% 30%, oklch(0.32 0.08 160) 0%, oklch(0.28 0.07 160) 60%, oklch(0.24 0.06 160) 100%),
     /* speckled felt */
@@ -267,7 +267,7 @@ body {
 @media (min-width: 640px) {
   .felt {
     border-radius: 32px;
-    padding: 16px;
+    padding: 18px;
     box-shadow: inset 0 8px 25px oklch(0 0 0 / 32%), inset 0 -5px 14px oklch(0 0 0 / 22%);
   }
 }
@@ -275,7 +275,7 @@ body {
 @media (min-width: 1024px) {
   .felt {
     border-radius: 48px;
-    padding: 18px;
+    padding: 22px;
     box-shadow: inset 0 10px 30px oklch(0 0 0 / 35%), inset 0 -6px 16px oklch(0 0 0 / 25%);
   }
 }
@@ -317,18 +317,21 @@ body {
 
 .table-content {
   /* Responsive min-height for mobile-first */
-  min-height: min(50vh, 400px);
+  min-height: min(60vh, 500px);
+  padding: 0.75rem 0;
 }
 
 @media (min-width: 640px) {
   .table-content {
-    min-height: min(55vh, 600px);
+    min-height: min(65vh, 650px);
+    padding: 1rem 0;
   }
 }
 
 @media (min-width: 1024px) {
   .table-content {
-    min-height: min(60vh, 900px);
+    min-height: min(70vh, 900px);
+    padding: 1.5rem 0;
   }
 }
 
@@ -340,13 +343,19 @@ body {
     radial-gradient(1200px 600px at 50% 120%, oklch(0 0 0 / 4%), transparent 60%),
     /* cool off-white paper */
     linear-gradient(180deg, oklch(0.97 0.01 230) 0%, oklch(0.95 0.01 230) 100%);
-  border-radius: 14px;
+  border-radius: 12px;
   border: 1px solid oklch(0.88 0.02 230);
   box-shadow:
     0 2px 0 oklch(1 0 0 / 80%) inset,
     0 -2px 0 oklch(0 0 0 / 2%) inset,
     0 12px 24px -12px oklch(0 0 0 / 40%),
     0 2px 8px -2px oklch(0 0 0 / 25%);
+}
+
+@media (min-width: 640px) {
+  .playing-card {
+    border-radius: 14px;
+  }
 }
 
 /* Subtle inner surface used for textarea host */
