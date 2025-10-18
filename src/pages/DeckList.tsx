@@ -112,7 +112,6 @@ export default function DeckList() {
               </DialogFooter>
             </DialogContent>
           </Dialog>
-          <Button variant="outline" onClick={loadDemoData} className="text-black w-full sm:w-auto">Load Default Decks</Button>
         </div>
       </div>
 
