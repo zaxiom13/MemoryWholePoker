@@ -8,6 +8,7 @@ import { Label } from '@/components/ui/label'
 import { Textarea } from '@/components/ui/textarea'
 import { Trash2, Plus, Trophy, Sparkles } from 'lucide-react'
 import Reveal from '@/components/Reveal'
+import LoadingModal from '@/components/LoadingModal'
 import { generateDeckWithAI } from '@/lib/gemini'
 
 export default function DeckList() {
@@ -58,8 +59,10 @@ export default function DeckList() {
   }
 
   return (
-    <div className="space-y-6 px-3 sm:px-4 md:px-0">
-      <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-4">
+    <>
+      <LoadingModal open={aiLoading} message="Generating deck with AI..." />
+      <div className="space-y-6 px-3 sm:px-4 md:px-0">
+        <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-4">
         <h1 className="text-3xl sm:text-4xl font-bold animate-in fade-in-0 slide-in-from-top-2 duration-300">Decks</h1>
         <div className="flex flex-col sm:flex-row gap-2.5 w-full sm:w-auto">
           <Dialog open={open} onOpenChange={setOpen}>
@@ -185,7 +188,8 @@ export default function DeckList() {
           })}
         </div>
       )}
-    </div>
+      </div>
+    </>
   )
 }
 

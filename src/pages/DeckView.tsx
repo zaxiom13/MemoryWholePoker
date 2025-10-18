@@ -8,6 +8,7 @@ import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Textarea } from '@/components/ui/textarea'
 import BackBar from '@/components/BackBar'
+import LoadingModal from '@/components/LoadingModal'
 import { generateMoreCardsWithGemini } from '@/lib/gemini'
 import { Trash2, Menu, Plus, Sparkles } from 'lucide-react'
 import Reveal from '@/components/Reveal'
@@ -35,13 +36,15 @@ export default function DeckView() {
   }
 
   return (
-    <div className="max-w-4xl mx-auto space-y-6 sm:space-y-8 px-3 sm:px-4 md:px-0">
-      <BackBar
-        to="/"
-        title={deck.name}
-        titleEditable
-        onTitleChange={(val) => { if (val && val !== deck.name) updateDeck(deck.id, { name: val }) }}
-      />
+    <>
+      <LoadingModal open={genLoading} message="Generating cards with AI..." />
+      <div className="max-w-4xl mx-auto space-y-6 sm:space-y-8 px-3 sm:px-4 md:px-0">
+        <BackBar
+          to="/"
+          title={deck.name}
+          titleEditable
+          onTitleChange={(val) => { if (val && val !== deck.name) updateDeck(deck.id, { name: val }) }}
+        />
       <div className="flex flex-row items-center justify-between gap-3 sm:gap-4 flex-nowrap">
         <div className="flex items-center gap-2.5 flex-wrap min-w-0 flex-1">
           {/* Primary flow: Study */}
@@ -185,7 +188,8 @@ export default function DeckView() {
       </section>
 
       {/* add card handled by dialog above */}
-    </div>
+      </div>
+    </>
   )
 }
 
