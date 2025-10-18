@@ -6,15 +6,19 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger, Dialog
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Textarea } from '@/components/ui/textarea'
-import { Trash2, Plus, Trophy } from 'lucide-react'
+import { Trash2, Plus, Trophy, Sparkles } from 'lucide-react'
 import Reveal from '@/components/Reveal'
+import { generateDeckWithAI } from '@/lib/gemini'
 
 export default function DeckList() {
-  const { state, createDeck, deleteDeck, loadDemoData, getBestTimes } = useData()
+  const { state, createDeck, deleteDeck, loadDemoData, getBestTimes, createCard } = useData()
   const [open, setOpen] = useState(false)
   const [bestOpenId, setBestOpenId] = useState<string | null>(null)
   const [name, setName] = useState('')
   const [description, setDescription] = useState('')
+  const [aiOpen, setAiOpen] = useState(false)
+  const [aiTopic, setAiTopic] = useState('')
+  const [aiLoading, setAiLoading] = useState(false)
   const navigate = useNavigate()
 
   const deckCounts = useMemo(() => {
@@ -31,6 +35,26 @@ export default function DeckList() {
     setDescription('')
     setOpen(false)
     navigate(`/decks/${deck.id}`)
+  }
+
+  async function onGenerateAI(e: React.FormEvent) {
+    e.preventDefault()
+    if (!aiTopic.trim()) return
+    setAiLoading(true)
+    try {
+      const result = await generateDeckWithAI(aiTopic)
+      const deck = createDeck({ name: result.name, description: result.description })
+      for (const card of result.cards) {
+        createCard({ deckId: deck.id, title: card.title, content: card.content })
+      }
+      setAiTopic('')
+      setAiOpen(false)
+      navigate(`/decks/${deck.id}`)
+    } catch (err: any) {
+      alert(err?.message || 'Failed to generate deck')
+    } finally {
+      setAiLoading(false)
+    }
   }
 
   return (
@@ -59,6 +83,29 @@ export default function DeckList() {
               <DialogFooter className="flex-col sm:flex-row gap-2">
                 <Button variant="outline" onClick={() => setOpen(false)} className="w-full sm:w-auto">Cancel</Button>
                 <Button type="submit" form="new-deck" className="w-full sm:w-auto">Create</Button>
+              </DialogFooter>
+            </DialogContent>
+          </Dialog>
+          <Dialog open={aiOpen} onOpenChange={setAiOpen}>
+            <DialogTrigger asChild>
+              <Button variant="outline" className="flex items-center justify-center gap-2 w-full sm:w-auto text-black"><Sparkles className="h-4 w-4" /> Generate with AI</Button>
+            </DialogTrigger>
+            <DialogContent className="mx-4">
+              <DialogHeader>
+                <DialogTitle>Generate Deck with AI</DialogTitle>
+              </DialogHeader>
+              <form id="gen-deck" onSubmit={onGenerateAI} className="grid gap-3">
+                <div className="grid gap-1">
+                  <Label htmlFor="ai-topic">Topic</Label>
+                  <Textarea id="ai-topic" rows={4} value={aiTopic} onChange={(e) => setAiTopic(e.target.value)} placeholder="e.g. World capitals, Shakespeare quotes, Biology basics..." />
+                </div>
+                <p className="text-xs text-muted-foreground">
+                  Set <code>VITE_GEMINI_API_KEY</code> in your environment (e.g., Netlify env var).
+                </p>
+              </form>
+              <DialogFooter className="flex-col sm:flex-row gap-2">
+                <Button variant="outline" onClick={() => setAiOpen(false)} disabled={aiLoading} className="w-full sm:w-auto">Cancel</Button>
+                <Button type="submit" form="gen-deck" disabled={aiLoading} className="w-full sm:w-auto">{aiLoading ? 'Generating…' : 'Generate'}</Button>
               </DialogFooter>
             </DialogContent>
           </Dialog>

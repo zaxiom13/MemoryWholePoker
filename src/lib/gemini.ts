@@ -143,3 +143,76 @@ export async function generateCardsWithGemini(prompt: string): Promise<Array<{ t
   const lines = text.split(/\r?\n/).map((l) => l.trim()).filter(Boolean)
   return lines.slice(0, 5).map((l, i) => ({ title: l.slice(0, 40) || `Card ${i + 1}`, content: l }))
 }
+
+export async function generateDeckWithAI(topic: string): Promise<{ name: string; description: string; cards: Array<{ title: string; content: string }> }> {
+  const apiKey = ENV_GEMINI_API_KEY
+  if (!apiKey || apiKey === 'PUT_YOUR_GEMINI_API_KEY_HERE') {
+    throw new Error('Gemini API key missing. Set VITE_GEMINI_API_KEY in your Netlify env or .env')
+  }
+
+  const ai = new GoogleGenAI({ apiKey })
+  const model = 'gemini-2.5-flash-lite'
+  const contents = [
+    {
+      role: 'user',
+      parts: [
+        {
+          text: [
+            'You are an assistant that creates study decks.',
+            'Respond with ONLY a JSON object, no markdown, no code fences, no extra text.',
+            'Schema: {"name": string, "description": string, "cards": [{"title": string, "content": string}, ...]}',
+            'Create a creative, concise deck name (max 30 chars).',
+            'Create a short description (max 100 chars).',
+            'Generate 5-8 flashcards. Keep each content under 400 characters.',
+            '',
+            'Topic:',
+            topic,
+          ].join('\n'),
+        },
+      ],
+    },
+  ]
+  const config = { thinkingConfig: { thinkingBudget: 0 } }
+
+  const stream = await ai.models.generateContentStream({ model, contents, config })
+  let acc = ''
+  for await (const chunk of stream) {
+    acc += chunk.text ?? ''
+  }
+  let text = acc.trim()
+  text = sanitizeFence(text)
+  
+  try {
+    const parsed = JSON.parse(text)
+    if (parsed && typeof parsed.name === 'string' && typeof parsed.description === 'string' && Array.isArray(parsed.cards)) {
+      return {
+        name: String(parsed.name).trim().slice(0, 50),
+        description: String(parsed.description).trim().slice(0, 200),
+        cards: parsed.cards
+          .map((c: any) => ({ title: String(c.title || '').trim(), content: String(c.content || '').trim() }))
+          .filter((c: any) => c.title || c.content)
+          .slice(0, 20),
+      }
+    }
+  } catch {}
+  
+  // Fallback: try to extract JSON
+  const js = extractJSONString(text)
+  if (js) {
+    try {
+      const parsed = JSON.parse(js)
+      if (parsed && typeof parsed.name === 'string' && typeof parsed.description === 'string' && Array.isArray(parsed.cards)) {
+        return {
+          name: String(parsed.name).trim().slice(0, 50),
+          description: String(parsed.description).trim().slice(0, 200),
+          cards: parsed.cards
+            .map((c: any) => ({ title: String(c.title || '').trim(), content: String(c.content || '').trim() }))
+            .filter((c: any) => c.title || c.content)
+            .slice(0, 20),
+        }
+      }
+    } catch {}
+  }
+  
+  throw new Error('Failed to parse AI response')
+}
