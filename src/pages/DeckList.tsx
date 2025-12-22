@@ -51,8 +51,9 @@ export default function DeckList() {
       setAiTopic('')
       setAiOpen(false)
       navigate(`/decks/${deck.id}`)
-    } catch (err: any) {
-      alert(err?.message || 'Failed to generate deck')
+    } catch (err: unknown) {
+      const message = err instanceof Error ? err.message : 'Failed to generate deck'
+      alert(message)
     } finally {
       setAiLoading(false)
     }
@@ -129,7 +130,12 @@ export default function DeckList() {
           {state.decks.map((d, i) => {
             const count = deckCounts[d.id] ?? 0
             return (
-              <Reveal key={d.id} as="div" delay={i * 60} className="playing-card p-5 sm:p-6 flex flex-col justify-between hover:shadow-lg hover:scale-[1.01] transition text-black">
+              <Reveal
+                key={d.id}
+                as="div"
+                delay={i * 60}
+                className="playing-card action-card action-pressable p-5 sm:p-6 flex flex-col justify-between text-black"
+              >
                 <Link to={`/decks/${d.id}`} className="block">
                   <div>
                     <h2 className="text-lg sm:text-xl font-bold truncate text-black">{d.name}</h2>

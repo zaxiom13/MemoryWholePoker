@@ -31,7 +31,7 @@ export function DataProvider({ children }: { children: React.ReactNode }) {
     if (state.decks.length === 0 && state.cards.length === 0 && state.records.length === 0) {
       setState(buildDemoState())
     }
-  }, [])
+  }, [state.cards.length, state.decks.length, state.records.length])
 
   function buildDemoState(): AppStateShape {
     const now = storage.now()
@@ -149,6 +149,7 @@ export function DataProvider({ children }: { children: React.ReactNode }) {
   return <DataContext.Provider value={value}>{children}</DataContext.Provider>
 }
 
+// eslint-disable-next-line react-refresh/only-export-components
 export function useData() {
   const ctx = useContext(DataContext)
   if (!ctx) throw new Error('useData must be used within DataProvider')

@@ -15,7 +15,9 @@ function tryParseJSON(text: string): GenCard[] | null {
   try {
     const obj = JSON.parse(text)
     if (obj && Array.isArray(obj.cards)) return obj.cards
-  } catch {}
+  } catch {
+    // swallow JSON parse errors and let fallback parsing handle it
+  }
   return null
 }
 
@@ -40,7 +42,9 @@ function parseFromLooseObjects(text: string): GenCard[] | null {
       if (o && typeof o.title === 'string' && typeof o.content === 'string') {
         objs.push({ title: o.title, content: o.content })
       }
-    } catch {}
+    } catch {
+      // ignore malformed snippets and continue scanning
+    }
   }
   return objs.length ? objs : null
 }
@@ -251,13 +255,12 @@ export async function generateDeckWithAI(topic: string): Promise<{ name: string;
       return {
         name: String(parsed.name).trim().slice(0, 50),
         description: String(parsed.description).trim().slice(0, 200),
-        cards: parsed.cards
-          .map((c: any) => ({ title: String(c.title || '').trim(), content: String(c.content || '').trim() }))
-          .filter((c: any) => c.title || c.content)
-          .slice(0, 20),
+        cards: normalizeCards(parsed.cards),
       }
     }
-  } catch {}
+  } catch {
+    // fall through to JSON extraction heuristics
+  }
   
   // Fallback: try to extract JSON
   const js = extractJSONString(text)
@@ -268,14 +271,28 @@ export async function generateDeckWithAI(topic: string): Promise<{ name: string;
         return {
           name: String(parsed.name).trim().slice(0, 50),
           description: String(parsed.description).trim().slice(0, 200),
-          cards: parsed.cards
-            .map((c: any) => ({ title: String(c.title || '').trim(), content: String(c.content || '').trim() }))
-            .filter((c: any) => c.title || c.content)
-            .slice(0, 20),
+          cards: normalizeCards(parsed.cards),
         }
       }
-    } catch {}
+    } catch {
+      // fall through to final error
+    }
   }
   
   throw new Error('Failed to parse AI response')
+}
+
+function normalizeCards(raw: unknown): Array<{ title: string; content: string }> {
+  if (!Array.isArray(raw)) return []
+  return raw
+    .map((c) => {
+      if (typeof c !== 'object' || c === null) return { title: '', content: '' }
+      const maybeCard = c as Partial<GenCard>
+      return {
+        title: String(maybeCard.title ?? '').trim(),
+        content: String(maybeCard.content ?? '').trim(),
+      }
+    })
+    .filter((c) => c.title || c.content)
+    .slice(0, 20)
 }

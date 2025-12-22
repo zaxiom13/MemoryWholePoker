@@ -70,7 +70,7 @@ export default function BackgroundGraph({ scope = 'fullscreen', className, inten
 
     // Resize handling
     let ro: ResizeObserver | null = null
-    let onFallbackResize: ((this: Window, ev: UIEvent) => any) | null = null
+    let onFallbackResize: ((this: Window, ev: UIEvent) => void) | null = null
     const onWinResize = () => sizeTo(window.innerWidth, window.innerHeight)
     if (scope === 'fullscreen') {
       window.addEventListener('resize', onWinResize)
@@ -128,7 +128,7 @@ export default function BackgroundGraph({ scope = 'fullscreen', className, inten
 
       // Update positions (slow drift, bounce walls)
       if (!reduceMotion) {
-        for (let p of pts) {
+        for (const p of pts) {
           p.x += p.vx * (dt / 16)
           p.y += p.vy * (dt / 16)
           if (p.x < 0) { p.x = 0; p.vx *= -1 }
@@ -188,7 +188,7 @@ export default function BackgroundGraph({ scope = 'fullscreen', className, inten
 
       // Draw nodes
       ctx.fillStyle = dotColor
-      for (let p of pts) {
+      for (const p of pts) {
         const pulse = reduceMotion ? 1 : 1 + 0.22 * Math.sin((ts * 0.001 * p.sp) + p.ph)
         ctx.globalAlpha = clampA(0.22)
         ctx.beginPath()
@@ -227,7 +227,7 @@ export default function BackgroundGraph({ scope = 'fullscreen', className, inten
       document.removeEventListener('visibilitychange', onVis)
       if (rafRef.current != null) cancelAnimationFrame(rafRef.current)
     }
-  }, [])
+  }, [scope, intensity, debugDots, lineColorProp, dotColorProp, className])
 
   return (
     <canvas

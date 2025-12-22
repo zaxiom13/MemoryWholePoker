@@ -361,6 +361,16 @@ body {
 /* Subtle inner surface used for textarea host */
 .card-surface {
   background: linear-gradient(180deg, oklch(0.98 0.01 230) 0%, oklch(0.96 0.01 230) 100%);
+  transition:
+    box-shadow 220ms ease,
+    transform 220ms var(--ease-out-smooth);
+}
+
+.card-surface:focus-within {
+  box-shadow:
+    0 0 0 1px color-mix(in oklch, var(--primary), white 30%),
+    0 6px 16px -10px oklch(0 0 0 / 45%);
+  transform: translateY(-1px);
 }
 
 /* Poker chip-y button accent without redefining the Button component */
@@ -480,6 +490,96 @@ body {
     opacity: 1 !important;
     transform: none !important;
   }
+}
+
+/* Press + hover feedback for all action surfaces */
+.action-pressable {
+  position: relative;
+  isolation: isolate;
+  overflow: hidden;
+  z-index: 0;
+  --press-x: 50%;
+  --press-y: 50%;
+  transition:
+    transform 160ms var(--ease-out-smooth),
+    box-shadow 220ms ease,
+    filter 220ms ease;
+}
+
+.action-pressable:hover:not(:disabled) {
+  transform: translateY(-1px);
+  box-shadow: 0 10px 24px -14px oklch(0 0 0 / 50%);
+  filter: brightness(1.03) saturate(1.02);
+}
+
+.action-pressable:active:not(:disabled) {
+  transform: translateY(0) scale(0.995);
+}
+
+.action-pressable::after {
+  content: "";
+  position: absolute;
+  left: var(--press-x, 50%);
+  top: var(--press-y, 50%);
+  translate: -50% -50%;
+  width: 160%;
+  aspect-ratio: 1;
+  border-radius: 9999px;
+  background: radial-gradient(circle, color-mix(in oklch, var(--primary), transparent 36%) 0%, transparent 60%);
+  pointer-events: none;
+  opacity: 0;
+  transform: translate(-50%, -50%) scale(0.55);
+  will-change: transform, opacity;
+  mix-blend-mode: screen;
+  z-index: 0;
+}
+
+@keyframes action-ripple {
+  from {
+    opacity: 0.4;
+    transform: translate(-50%, -50%) scale(0.75);
+  }
+  to {
+    opacity: 0;
+    transform: translate(-50%, -50%) scale(1.15);
+  }
+}
+
+.action-pressable[data-press-wave='0']::after,
+.action-pressable[data-press-wave='1']::after {
+  animation: action-ripple 540ms var(--ease-out-smooth);
+}
+
+.action-pressable:active::after {
+  animation: action-ripple 540ms var(--ease-out-smooth);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .action-pressable,
+  .action-pressable::after {
+    transition: none !important;
+    animation: none !important;
+  }
+}
+
+.action-card {
+  overflow: hidden;
+  transition:
+    transform 240ms var(--ease-out-smooth),
+    box-shadow 260ms ease,
+    filter 260ms ease;
+}
+
+.action-card:hover {
+  transform: translateY(-4px) scale(1.01);
+  box-shadow:
+    0 14px 30px -16px oklch(0 0 0 / 55%),
+    0 4px 12px -6px oklch(0 0 0 / 30%);
+  filter: brightness(1.01);
+}
+
+.action-card:active {
+  transform: translateY(-2px) scale(0.995);
 }
 
 /* Header: wood bar with gilded brand */

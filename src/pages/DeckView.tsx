@@ -101,8 +101,9 @@ export default function DeckView() {
                       const cnt = c.content?.trim() || ''
                       if (cnt) createCard({ deckId: deck.id, title: t, content: cnt })
                     }
-                  } catch (err: any) {
-                    alert(err?.message || 'Failed to generate cards')
+                  } catch (err: unknown) {
+                    const message = err instanceof Error ? err.message : 'Failed to generate cards'
+                    alert(message)
                   } finally {
                     setGenLoading(false)
                   }
@@ -160,7 +161,12 @@ export default function DeckView() {
         <h2 className="font-semibold text-lg sm:text-xl">Cards</h2>
         <ul className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-5 lg:gap-6">
           {cards.map((c, i) => (
-            <Reveal as="li" key={c.id} delay={i * 60} className="playing-card p-5 sm:p-6 flex flex-col justify-between hover:shadow-lg hover:scale-[1.01] transition text-black">
+            <Reveal
+              as="li"
+              key={c.id}
+              delay={i * 60}
+              className="playing-card action-card action-pressable p-5 sm:p-6 flex flex-col justify-between text-black"
+            >
               <div>
                 <div className="text-lg sm:text-xl font-bold truncate text-black">{c.title}</div>
                 <p className="text-sm sm:text-base mt-2.5 line-clamp-4 min-h-[3.5rem] sm:min-h-[4.5rem] text-black/80 whitespace-pre-wrap leading-relaxed">
