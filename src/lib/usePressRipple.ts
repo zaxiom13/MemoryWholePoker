@@ -6,10 +6,10 @@ import type { PointerEvent } from 'react'
  * Sets CSS variables for the press origin and flips a data attribute so the
  * animation restarts on every pointer down.
  */
-export function usePressRipple() {
+export function usePressRipple<T extends HTMLElement = HTMLElement>() {
   const [wave, setWave] = useState(0)
 
-  const handlePointerDown = useCallback((event: PointerEvent<HTMLElement>) => {
+  const handlePointerDown = useCallback((event: PointerEvent<T>) => {
     const target = event.currentTarget
     const rect = target.getBoundingClientRect()
     const x = event.clientX - rect.left

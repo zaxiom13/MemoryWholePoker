@@ -48,14 +48,14 @@ function Button({
     asChild?: boolean
   }) {
   const Comp = asChild ? Slot : "button"
-  const { wave, handlePointerDown } = usePressRipple()
+  const { wave, handlePointerDown } = usePressRipple<HTMLButtonElement>()
 
   return (
     <Comp
       data-slot="button"
       data-press-wave={wave}
       className={cn("action-pressable", buttonVariants({ variant, size, className }))}
-      onPointerDown={(event: React.PointerEvent<HTMLElement>) => {
+      onPointerDown={(event: React.PointerEvent<HTMLButtonElement>) => {
         handlePointerDown(event)
         onPointerDown?.(event)
       }}
