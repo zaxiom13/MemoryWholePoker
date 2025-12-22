@@ -53,15 +53,22 @@ const router = createBrowserRouter([
   },
 ])
 
+type DoneNavState = {
+  elapsed?: number
+  mode?: 'card' | 'deck'
+  title?: string
+  assistance?: { ghostText: boolean; fullText: boolean; autocorrect: boolean }
+}
+
   function Done() {
-    const { state } = (window as any).history
+    const { state } = window.history as History & { state?: { usr?: DoneNavState } }
   // react-router puts navigation state at history.state.usr
   const usr = state?.usr || {}
   const elapsed = typeof usr.elapsed === 'number' ? usr.elapsed : undefined
-  const mode = usr.mode as 'card' | 'deck' | undefined
-  const title = usr.title as string | undefined
-  const assistance = usr.assistance as { ghostText: boolean; fullText: boolean; autocorrect: boolean } | undefined
-  const flags = assistance ? ['ghostText', 'fullText', 'autocorrect'].filter((k) => (assistance as any)[k]).join(', ') : undefined
+  const mode = usr.mode
+  const title = usr.title
+  const assistance = usr.assistance
+  const flags = assistance ? ['ghostText', 'fullText', 'autocorrect'].filter((k) => assistance[k as keyof typeof assistance]).join(', ') : undefined
   return (
     <div className="max-w-xl mx-auto text-center space-y-5 sm:space-y-6 px-3 sm:px-4 py-10 sm:py-12">
       <h1 className="text-3xl sm:text-4xl font-bold">Great job!</h1>

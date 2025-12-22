@@ -306,8 +306,8 @@ function compareInput(target: string, input: string, options: AssistanceOptions)
   let i = 0
   let j = 0
   while (i < target.length && j < input.length) {
-    let tc = normalizeChar(target[i])
-    let ic = normalizeChar(input[j])
+    const tc = normalizeChar(target[i])
+    const ic = normalizeChar(input[j])
 
     // Autocorrect: ignore case mismatches
     const eq = options.autocorrect ? tc.toLowerCase() === ic.toLowerCase() : tc === ic
