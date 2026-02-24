@@ -5,7 +5,7 @@ import type { AssistanceOptions } from '@/types'
 import { defaultAssistance } from '@/types'
 import BackBar from '@/components/BackBar'
 import Reveal from '@/components/Reveal'
-import { Eye, WandSparkles, Ghost, CircleHelp, Layers } from 'lucide-react'
+import { Eye, WandSparkles, Ghost, Layers } from 'lucide-react'
 
 export default function StudySetup() {
   const navigate = useNavigate()
@@ -35,7 +35,6 @@ export default function StudySetup() {
           label="Ghost Text"
           description="Faintly show the next few characters inline as you type."
           checked={opts.ghostText}
-          tip="Shows upcoming characters after a short pause."
           onChange={(v) => setOpts((o) => ({ ...o, ghostText: v }))}
         />
         <ToggleRow
@@ -43,7 +42,6 @@ export default function StudySetup() {
           label="See Full Text"
           description="Display the entire prose for reference during typing."
           checked={opts.fullText}
-          tip="Useful while learning new text."
           onChange={(v) => setOpts((o) => ({ ...o, fullText: v }))}
         />
         <ToggleRow
@@ -51,7 +49,6 @@ export default function StudySetup() {
           label="Autocorrect"
           description="Ignore case mismatches; auto-insert punctuation after a correct preceding character."
           checked={opts.autocorrect}
-          tip="Makes recall practice smoother by handling punctuation."
           onChange={(v) => setOpts((o) => ({ ...o, autocorrect: v }))}
         />
       </Reveal>
@@ -63,18 +60,13 @@ export default function StudySetup() {
   )
 }
 
-function ToggleRow({ icon, label, description, checked, onChange, tip }: { icon: ReactNode; label: string; description: string; checked: boolean; onChange: (v: boolean) => void; tip: string }) {
+function ToggleRow({ icon, label, description, checked, onChange }: { icon: ReactNode; label: string; description: string; checked: boolean; onChange: (v: boolean) => void }) {
   return (
     <label className="flex items-start gap-3 cursor-pointer">
       <span className="mt-0.5">{icon}</span>
       <input type="checkbox" className="mt-1 w-5 h-5 cursor-pointer" checked={checked} onChange={(e) => onChange(e.target.checked)} />
       <span className="flex-1">
-        <span className="flex items-center gap-2 font-medium text-base sm:text-lg">
-          {label}
-          <span title={tip} aria-label={tip}>
-            <CircleHelp className="h-4 w-4 text-muted-foreground" />
-          </span>
-        </span>
+        <span className="flex items-center gap-2 font-medium text-base sm:text-lg">{label}</span>
         <span className="block text-sm sm:text-base text-muted-foreground leading-relaxed">{description}</span>
       </span>
     </label>

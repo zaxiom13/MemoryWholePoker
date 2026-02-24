@@ -104,7 +104,7 @@ export async function generateCardsWithGemini(prompt: string): Promise<Array<{ t
             'Output contract (mandatory): return ONLY valid JSON, with no markdown and no extra text.',
             'Schema: {"cards":[{"title":string,"content":string}]}',
             'Card rules:',
-            '- Generate 6-10 cards.',
+            '- Generate 5-8 cards.',
             '- Each card tests one idea only.',
             '- "title" must be a direct question or a clear term (4-80 chars).',
             '- "content" must be the correct answer/explanation (1-3 short sentences, <= 260 chars).',
