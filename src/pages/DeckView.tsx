@@ -2,18 +2,25 @@ import { useMemo, useState } from 'react'
 import { Link, useNavigate, useParams } from 'react-router-dom'
 import { useData } from '@/contexts/DataContext'
 import { Button } from '@/components/ui/button'
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu'
 import BackBar from '@/components/BackBar'
 import LoadingModal from '@/components/LoadingModal'
 import ConfirmModal from '@/components/ConfirmModal'
 import MessageModal from '@/components/MessageModal'
 import { generateMoreCardsWithGemini } from '@/lib/gemini'
-import { Trash2, Plus, Sparkles, Pencil, BookOpen, Loader2 } from 'lucide-react'
+import { Trash2, Plus, Sparkles, Pencil, BookOpen, Loader2, Menu } from 'lucide-react'
 import Reveal from '@/components/Reveal'
 
 export default function DeckView() {
   const { deckId } = useParams()
   const navigate = useNavigate()
-  const { state, updateDeck, deleteDeck, createCard, deleteCard } = useData()
+  const { state, deleteDeck, createCard, deleteCard } = useData()
   const deck = state.decks.find((d) => d.id === deckId)
   const cards = useMemo(() => state.cards.filter((c) => c.deckId === deckId), [state.cards, deckId])
 
@@ -21,6 +28,24 @@ export default function DeckView() {
   const [genError, setGenError] = useState<string | null>(null)
   const [deleteDeckOpen, setDeleteDeckOpen] = useState(false)
   const [cardIdToDelete, setCardIdToDelete] = useState<string | null>(null)
+
+  async function onGenerateCards() {
+    if (!deck) return
+    setGenLoading(true)
+    try {
+      const newCards = await generateMoreCardsWithGemini(deck.name, cards)
+      for (const c of newCards) {
+        const t = c.title?.trim() || 'Untitled'
+        const cnt = c.content?.trim() || ''
+        if (cnt) createCard({ deckId: deck.id, title: t, content: cnt })
+      }
+    } catch (err: unknown) {
+      const message = err instanceof Error ? err.message : 'Failed to generate cards'
+      setGenError(message)
+    } finally {
+      setGenLoading(false)
+    }
+  }
 
   if (!deck) return <p className="text-sm text-muted-foreground">Deck not found.</p>
 
@@ -67,98 +92,61 @@ export default function DeckView() {
         <BackBar
           to="/"
           title={deck.name}
-          titleEditable
-          onTitleChange={(val) => { if (val && val !== deck.name) updateDeck(deck.id, { name: val }) }}
           actionsPlacement="right"
           hideBackLabel
           actions={(
-            <>
-              <Button
-                disabled={cards.length === 0}
-                className="chip h-7 w-7 sm:h-8 sm:w-8 px-0"
-                title="Study Deck"
-                aria-label="Study Deck"
-                asChild
-              >
-                <Link to={`/study/deck/${deck.id}/setup`} className="inline-flex items-center justify-center">
-                  <BookOpen className="h-3.5 w-3.5 sm:h-4 sm:w-4" />
-                </Link>
-              </Button>
-              <Button
-                variant="outline"
-                className="chip h-7 w-7 sm:h-8 sm:w-8 px-0"
-                title="Add Card"
-                aria-label="Add Card"
-                asChild
-              >
-                <Link to={`/decks/${deck.id}/cards/new`} className="inline-flex items-center justify-center">
-                  <Plus className="h-3.5 w-3.5 sm:h-4 sm:w-4" />
-                </Link>
-              </Button>
-              <Button
-                variant="outline"
-                className="chip h-7 w-7 sm:h-8 sm:w-8 px-0"
-                title={genLoading ? 'Generating cards' : 'Generate with AI'}
-                aria-label={genLoading ? 'Generating cards' : 'Generate with AI'}
-                onClick={async () => {
-                  if (!deck) return
-                  setGenLoading(true)
-                  try {
-                    const newCards = await generateMoreCardsWithGemini(deck.name, cards)
-                    for (const c of newCards) {
-                      const t = c.title?.trim() || 'Untitled'
-                      const cnt = c.content?.trim() || ''
-                      if (cnt) createCard({ deckId: deck.id, title: t, content: cnt })
-                    }
-                  } catch (err: unknown) {
-                    const message = err instanceof Error ? err.message : 'Failed to generate cards'
-                    setGenError(message)
-                  } finally {
-                    setGenLoading(false)
-                  }
-                }}
-                disabled={genLoading}
-              >
-                {genLoading ? (
-                  <Loader2 className="h-3.5 w-3.5 sm:h-4 sm:w-4 animate-spin" />
-                ) : (
-                  <Sparkles className="h-3.5 w-3.5 sm:h-4 sm:w-4" />
-                )}
-              </Button>
-              <Button
-                variant="outline"
-                className="chip h-7 w-7 sm:h-8 sm:w-8 px-0 text-destructive border-destructive/40 hover:text-destructive"
-                title="Delete Deck"
-                aria-label="Delete Deck"
-                onClick={() => {
-                  setDeleteDeckOpen(true)
-                }}
-              >
-                <Trash2 className="h-3.5 w-3.5 sm:h-4 sm:w-4" />
-              </Button>
-            </>
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button
+                  variant="outline"
+                  className="chip h-7 w-7 sm:h-8 sm:w-8 px-0"
+                  title="Deck Actions"
+                  aria-label="Deck Actions"
+                >
+                  <Menu className="h-3.5 w-3.5 sm:h-4 sm:w-4" />
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end" className="min-w-56">
+                <DropdownMenuItem className="gap-2" onSelect={() => navigate(`/decks/${deck.id}/edit`)}>
+                  <Pencil className="h-4 w-4" />
+                  <span>Edit Deck</span>
+                </DropdownMenuItem>
+                <DropdownMenuItem
+                  className="gap-2"
+                  onSelect={() => navigate(`/study/deck/${deck.id}/setup`)}
+                  disabled={cards.length === 0}
+                >
+                  <BookOpen className="h-4 w-4" />
+                  <span>Study Deck</span>
+                </DropdownMenuItem>
+                <DropdownMenuItem className="gap-2" onSelect={() => navigate(`/decks/${deck.id}/cards/new`)}>
+                  <Plus className="h-4 w-4" />
+                  <span>Add Card</span>
+                </DropdownMenuItem>
+                <DropdownMenuItem className="gap-2" onSelect={() => void onGenerateCards()} disabled={genLoading}>
+                  {genLoading ? (
+                    <Loader2 className="h-4 w-4 animate-spin" />
+                  ) : (
+                    <Sparkles className="h-4 w-4" />
+                  )}
+                  <span>{genLoading ? 'Generating cards...' : 'Generate with AI'}</span>
+                </DropdownMenuItem>
+                <DropdownMenuSeparator />
+                <DropdownMenuItem
+                  className="gap-2 text-destructive focus:text-destructive focus:bg-destructive/10"
+                  onSelect={() => setDeleteDeckOpen(true)}
+                >
+                  <Trash2 className="h-4 w-4" />
+                  <span>Delete Deck</span>
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
           )}
         />
 
       <div className="flex items-start justify-between">
         <div className="pt-0 pb-2 max-w-3xl animate-in fade-in-0 slide-in-from-top-2 duration-300 w-full">
-          <p
-            className="mt-1 text-black/80 outline-none focus:ring-2 ring-primary/30 rounded-sm min-h-[1.25rem] text-sm sm:text-base leading-relaxed"
-            contentEditable
-            suppressContentEditableWarning
-            spellCheck={false}
-            onKeyDown={(e) => {
-              if (e.key === 'Enter') {
-                e.preventDefault()
-                ;(e.currentTarget as HTMLElement).blur()
-              }
-            }}
-            onBlur={(e) => {
-              const next = e.currentTarget.textContent?.trim()
-              const normalized = next ? next : undefined
-              if (normalized !== deck.description) updateDeck(deck.id, { description: normalized })
-            }}
-          >
+          <p className="mt-1 text-black/80 min-h-[1.25rem] text-sm sm:text-base leading-relaxed">
             {deck.description ?? 'Add a description'}
           </p>
         </div>

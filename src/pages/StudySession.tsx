@@ -255,8 +255,8 @@ export default function StudySession() {
                 return
               }
               if (data == null || data.length === 0) return
+              // Allow multi-character inserts (mobile swipe/autocorrect, replacement text, paste).
               if (data.length > 1) {
-                e.preventDefault()
                 return
               }
 
@@ -268,6 +268,13 @@ export default function StudySession() {
               }
               const dc = normalizeChar(data)
               const n1 = normalizeChar(t1)
+
+              // In autocorrect mode, punctuation is inserted automatically from the target text.
+              // Ignore manual punctuation entry to keep behavior consistent.
+              if (options.autocorrect && isPunctuation(dc)) {
+                e.preventDefault()
+                return
+              }
 
               // Exact match: allow default insert.
               if (n1 === dc) return
@@ -307,6 +314,10 @@ export default function StudySession() {
               let next = v
               if (!v.startsWith(locked)) {
                 next = locked + v.slice(Math.max(correctUntil, 0))
+              }
+              if (options.autocorrect) {
+                const editableSuffix = next.slice(locked.length).replace(/[\p{P}\p{S}]/gu, '')
+                next = locked + editableSuffix
               }
               setInput(next)
             }}

@@ -8,6 +8,7 @@ import GenerateDeckPage from '@/pages/GenerateDeckPage'
 import DeckBestTimesPage from '@/pages/DeckBestTimesPage'
 import AddCardPage from '@/pages/AddCardPage'
 import EditCardPage from '@/pages/EditCardPage'
+import EditDeckPage from '@/pages/EditDeckPage'
 import AboutPage from '@/pages/AboutPage'
 import { DataProvider } from '@/contexts/DataContext'
 import Header from '@/components/Header'
@@ -53,6 +54,7 @@ const router = createBrowserRouter([
       { path: 'decks/new', element: <NewDeckPage /> },
       { path: 'decks/generate', element: <GenerateDeckPage /> },
       { path: 'decks/:deckId/times', element: <DeckBestTimesPage /> },
+      { path: 'decks/:deckId/edit', element: <EditDeckPage /> },
       { path: 'decks/:deckId', element: <DeckView /> },
       { path: 'decks/:deckId/cards/new', element: <AddCardPage /> },
       { path: 'cards/:cardId/edit', element: <EditCardPage /> },
