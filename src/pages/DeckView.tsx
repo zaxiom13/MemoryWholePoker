@@ -166,7 +166,7 @@ export default function DeckView() {
 
       <section className="space-y-4">
         <h2 className="font-semibold text-lg sm:text-xl">Cards</h2>
-        <ul className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-5 lg:gap-6">
+        <ul className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-5 lg:gap-6">
           {cards.map((c, i) => (
             <Reveal
               as="li"
