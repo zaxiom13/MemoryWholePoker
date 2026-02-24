@@ -1,4 +1,5 @@
 @import "tailwindcss";
+@import url("https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700;800&display=swap");
 
 @custom-variant dark (&:is(.dark *));
 @plugin "tailwindcss-animate";
@@ -12,6 +13,7 @@ body,
 
 body {
   @apply antialiased;
+  font-family: "JetBrains Mono", "Consolas", "Menlo", "Monaco", monospace;
   /* Prevent horizontal scrolling on mobile */
   overflow-x: hidden;
   /* Better text rendering on mobile */
@@ -101,6 +103,8 @@ body {
 }
 
 :root {
+  --font-sans: "JetBrains Mono", "Consolas", "Menlo", "Monaco", monospace;
+  --font-mono: "JetBrains Mono", "Consolas", "Menlo", "Monaco", monospace;
   --radius: 0.625rem;
   /* Light theme with improved contrast */
   --background: oklch(0.99 0.005 250);
@@ -318,6 +322,8 @@ body {
 .table-content {
   /* Responsive min-height for mobile-first */
   min-height: min(60vh, 500px);
+  max-width: 1180px;
+  margin-inline: auto;
   padding: 0.75rem 0;
 }
 
@@ -350,12 +356,24 @@ body {
     0 -2px 0 oklch(0 0 0 / 2%) inset,
     0 12px 24px -12px oklch(0 0 0 / 40%),
     0 2px 8px -2px oklch(0 0 0 / 25%);
+  transition:
+    transform 220ms var(--ease-out-smooth),
+    box-shadow 220ms ease;
 }
 
 @media (min-width: 640px) {
   .playing-card {
     border-radius: 14px;
   }
+}
+
+.playing-card:hover {
+  transform: translateY(-2px);
+  box-shadow:
+    0 2px 0 oklch(1 0 0 / 80%) inset,
+    0 -2px 0 oklch(0 0 0 / 2%) inset,
+    0 16px 28px -14px oklch(0 0 0 / 45%),
+    0 4px 12px -4px oklch(0 0 0 / 30%);
 }
 
 /* Subtle inner surface used for textarea host */
@@ -594,17 +612,17 @@ body {
 
 /* (BackBar was reverted to neutral background via utility classes) */
 .table-header .brand {
-  font-weight: 700;
-  /* Cursive, stylish brand title */
-  font-family: "Pacifico", "Brush Script MT", "Segoe Script", "Lucida Handwriting", cursive;
-  letter-spacing: 0.4px;
-  color: oklch(0.86 0.14 230);
-  text-shadow: 0 1px 0 oklch(0 0 0 / 50%), 0 2px 6px oklch(0 0 0 / 40%);
-  font-size: clamp(0.9rem, 4vw, 1.75rem);
   white-space: nowrap;
   /* Allow brand to shrink if needed */
   min-width: 0;
   flex-shrink: 1;
+}
+
+.table-header .brand > span {
+  font-family: "JetBrains Mono", "Consolas", "Menlo", "Monaco", monospace;
+  font-weight: 800;
+  font-size: clamp(0.9rem, 3.8vw, 1.5rem);
+  letter-spacing: 0.03em;
 }
 .table-header .nav-chip {
   color: oklch(0.98 0.01 230);
@@ -642,6 +660,36 @@ body {
   /* Ensure flex containers handle small screens properly */
   .flex.sm\\:justify-between {
     gap: 0.5rem;
+  }
+}
+
+/* Deck list: collapse header actions to icon-only on narrow screens */
+@media (max-width: 640px) {
+  .decklist-actions {
+    flex-direction: row;
+    width: auto;
+    justify-content: flex-end;
+    gap: 0.5rem;
+  }
+
+  .decklist-action-btn {
+    width: 44px !important;
+    height: 44px;
+    min-width: 44px;
+    padding-left: 0.5rem;
+    padding-right: 0.5rem;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0;
+  }
+
+  .decklist-action-btn svg {
+    margin: 0;
+  }
+
+  .decklist-action-label {
+    display: none;
   }
 }
 

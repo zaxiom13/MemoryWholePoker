@@ -6,6 +6,7 @@ import { defaultAssistance } from '@/types'
 // import { Button } from '@/components/ui/button'
 import BackBar from '@/components/BackBar'
 import Reveal from '@/components/Reveal'
+import { Ghost, Eye, WandSparkles } from 'lucide-react'
 // import { Button } from '@/components/ui/button'
 
 type Timer = {
@@ -59,12 +60,15 @@ export default function StudySession() {
       const c = state.cards.find((x) => x.id === cardId)
       return c ? [c] : []
     }
-    return state.cards.filter((c) => c.deckId === deckId)
+    if (deckId) return state.cards.filter((c) => c.deckId === deckId)
+    return [...state.cards].sort((a, b) => a.createdAt - b.createdAt)
   }, [state.cards, cardId, deckId])
 
   const [index, setIndex] = useState(0)
   const [input, setInput] = useState('')
   const [pausedSince, setPausedSince] = useState<number | null>(null)
+  const [isAdvancing, setIsAdvancing] = useState(false)
+  const advanceTimeoutRef = useRef<number | null>(null)
   // Full text visibility now decided on setup page only
   const timer = useRef(useTimer()).current
   const [, setTickCount] = useState(0)
@@ -74,6 +78,7 @@ export default function StudySession() {
   const target = card?.content ?? ''
 
   const { correctUntil } = useMemo(() => compareInput(target, input, options), [target, input, options])
+  const wrongPart = input.slice(correctUntil)
 
   // Start timer on first keystroke
   useEffect(() => {
@@ -99,6 +104,7 @@ export default function StudySession() {
     // Reset pause timer when input changes
     setPausedSince(null)
     if (!options.ghostText) return
+    if (input.length !== correctUntil) return
     if (correctUntil >= target.length) return
     const t = setTimeout(() => setPausedSince(performance.now()), 600)
     return () => clearTimeout(t)
@@ -123,30 +129,44 @@ export default function StudySession() {
   useEffect(() => {
     if (!card) return
     if (correctUntil === target.length) {
+      if (isAdvancing) return
+      setIsAdvancing(true)
       // Card complete
       const totalSoFar = timer.read()
       const cardElapsed = totalSoFar - cardStartRef.current
       addTimeRecord({ scope: 'card', scopeId: card.id, elapsedMs: cardElapsed, assistance: options })
 
       if (cards.length === 1) {
-        const elapsed = timer.stop()
-        navigate('/done', { state: { elapsed, mode: 'card', title: card.title, assistance: options } })
+        advanceTimeoutRef.current = window.setTimeout(() => {
+          const elapsed = timer.stop()
+          navigate('/done', { state: { elapsed, mode: cardId ? 'card' : 'deck', title: cardId ? card.title : 'All Decks', assistance: options } })
+        }, 650)
       } else {
-        // Next card
-        setIndex((i) => i + 1)
-        setInput('')
-        cardStartRef.current = totalSoFar
+        // Next card after a short pause
+        advanceTimeoutRef.current = window.setTimeout(() => {
+          setIndex((i) => i + 1)
+          setInput('')
+          setPausedSince(null)
+          setIsAdvancing(false)
+          cardStartRef.current = totalSoFar
+        }, 650)
       }
     }
-  }, [correctUntil, target.length, card, cards.length, addTimeRecord, navigate, options, timer])
+  }, [correctUntil, target.length, card, cards.length, addTimeRecord, navigate, options, timer, isAdvancing, cardId])
+
+  useEffect(() => {
+    return () => {
+      if (advanceTimeoutRef.current != null) window.clearTimeout(advanceTimeoutRef.current)
+    }
+  }, [])
 
   // On completion of deck
   useEffect(() => {
     if (cards.length > 1 && index === cards.length) {
       const elapsed = timer.stop()
       // Record per last card already, but here record deck
-      addTimeRecord({ scope: 'deck', scopeId: deckId as UUID, elapsedMs: elapsed, assistance: options })
-      navigate('/done', { state: { elapsed, mode: 'deck', title: 'Deck', assistance: options } })
+      addTimeRecord({ scope: 'deck', scopeId: (deckId ?? 'all') as UUID, elapsedMs: elapsed, assistance: options })
+      navigate('/done', { state: { elapsed, mode: 'deck', title: deckId ? 'Deck' : 'All Decks', assistance: options } })
     }
   }, [index, cards.length, timer, addTimeRecord, deckId, navigate, options])
 
@@ -161,7 +181,7 @@ export default function StudySession() {
       <BackBar
         to={deckId ? `/decks/${deckId}` : '/'}
         label="Exit"
-        title={card.title}
+        title={deckId ? card.title : `${card.title} · All Decks`}
         actions={
           <div className="flex items-center gap-2 sm:gap-3">
             {cards.length > 1 && (
@@ -181,8 +201,14 @@ export default function StudySession() {
 
       <Reveal as="div" className="playing-card p-4 sm:p-5" delay={90}>
         <div className="flex items-center justify-between mb-3">
-          <div className="text-sm sm:text-base font-medium">Type the text exactly. Only correct characters are accepted.</div>
+          <div className="text-sm sm:text-base font-medium">Type the text exactly. Correct text turns green; mistakes show in red.</div>
           <div className="text-sm sm:text-base font-medium text-primary">{cardProgress}%</div>
+        </div>
+        <div className="mb-3 flex items-center gap-2 text-xs sm:text-sm text-muted-foreground">
+          {options.ghostText && <span className="inline-flex items-center gap-1 rounded-full border px-2 py-1" title="Ghost text hint is enabled"><Ghost className="h-3.5 w-3.5" /> Ghost</span>}
+          {options.fullText && <span className="inline-flex items-center gap-1 rounded-full border px-2 py-1" title="Full text panel is enabled"><Eye className="h-3.5 w-3.5" /> Full</span>}
+          {options.autocorrect && <span className="inline-flex items-center gap-1 rounded-full border px-2 py-1" title="Autocorrect assist is enabled"><WandSparkles className="h-3.5 w-3.5" /> Auto</span>}
+          {isAdvancing && <span className="text-primary font-medium">Nice. Next card...</span>}
         </div>
 
         {/* Combined highlighter + input */}
@@ -195,36 +221,40 @@ export default function StudySession() {
         >
           {/* Highlighter layer */}
           <div className="pointer-events-none p-4 sm:p-4 font-mono text-base sm:text-lg whitespace-pre-wrap leading-relaxed">
-            {/* Typed (always correct, since we block wrong input) */}
-            <span className="text-green-600">{input}</span>
+            {/* Typed text: green while fully correct; red from first mismatch onward */}
+            <span className="!text-green-600">{input.slice(0, correctUntil)}</span>
+            <span className="!text-red-600">{wrongPart}</span>
             {/* Inline ghost suggestion */}
-            {options.ghostText && pausedSince !== null && nextChars.length > 0 && (
-              <span className="text-foreground/40 italic animate-in fade-in-0 duration-150 break-words">{nextChars}</span>
+            {options.ghostText && pausedSince !== null && input.length === correctUntil && nextChars.length > 0 && (
+              <span className="!text-foreground/25 italic tracking-widest blur-[0.3px] animate-in fade-in-0 duration-150 break-words">{nextChars}</span>
             )}
           </div>
 
           {/* Invisible text input with visible caret overlaying highlighter */}
           <textarea
-            className="absolute inset-0 w-full h-full resize-none bg-transparent p-4 sm:p-4 font-mono text-base sm:text-lg text-transparent caret-foreground focus:outline-none leading-relaxed"
+            className="absolute inset-0 w-full h-full resize-none bg-transparent p-4 sm:p-4 font-mono text-base sm:text-lg !text-transparent caret-foreground focus:outline-none leading-relaxed"
+            style={{ WebkitTextFillColor: 'transparent' }}
             rows={5}
             autoFocus
             value={input}
             onKeyDown={(e) => {
               if (e.key === 'Backspace') {
-                e.preventDefault()
-                e.stopPropagation()
+                const el = e.currentTarget
+                const selStart = el.selectionStart ?? input.length
+                if (selStart <= correctUntil) {
+                  e.preventDefault()
+                  e.stopPropagation()
+                }
               }
             }}
             onBeforeInput={(e) => {
               const data = (e as unknown as InputEvent).data
               const inputType = (e as unknown as InputEvent).inputType
-              // Disallow deletions, pastes of multiple chars, and history actions
-              if (inputType && (inputType.startsWith('delete') || inputType.startsWith('history'))) {
+              if (inputType && inputType.startsWith('history')) {
                 e.preventDefault()
                 return
               }
               if (data == null || data.length === 0) return
-              // If a paste attempts multiple characters, block (we only accept single next char at a time)
               if (data.length > 1) {
                 e.preventDefault()
                 return
@@ -239,9 +269,15 @@ export default function StudySession() {
               const dc = normalizeChar(data)
               const n1 = normalizeChar(t1)
 
-              // Direct match (case-insensitive when autocorrect)
-              const directOk = options.autocorrect ? n1.toLowerCase() === dc.toLowerCase() : n1 === dc
-              if (directOk) return // allow default
+              // Exact match: allow default insert.
+              if (n1 === dc) return
+
+              // Autocorrect case immediately to target casing.
+              if (options.autocorrect && n1.toLowerCase() === dc.toLowerCase()) {
+                e.preventDefault()
+                setInput(target.slice(0, i + 1))
+                return
+              }
 
               // Autocorrect: skip punctuation in target by auto-inserting it
               if (options.autocorrect && isPunctuation(n1)) {
@@ -258,26 +294,21 @@ export default function StudySession() {
                 }
               }
 
-              // Otherwise reject and shake
+              // Keep wrong chars allowed, but still shake for feedback.
               const host = (e.currentTarget.parentElement as HTMLElement | null)
               if (host) {
                 host.dataset.shake = '1'
                 setTimeout(() => host.removeAttribute('data-shake'), 200)
               }
-              e.preventDefault()
             }}
             onChange={(e) => {
-              // Safety for IME/edge cases: fold to longest matching prefix (case-insensitive if autocorrect)
               const v = e.target.value
-              let k = 0
-              while (k < v.length && k < target.length) {
-                const tc = normalizeChar(target[k])
-                const vc = normalizeChar(v[k])
-                const eq = options.autocorrect ? tc.toLowerCase() === vc.toLowerCase() : tc === vc
-                if (!eq) break
-                k++
+              const locked = target.slice(0, correctUntil)
+              let next = v
+              if (!v.startsWith(locked)) {
+                next = locked + v.slice(Math.max(correctUntil, 0))
               }
-              setInput(target.slice(0, k))
+              setInput(next)
             }}
           />
         </div>

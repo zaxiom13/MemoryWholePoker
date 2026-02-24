@@ -2,38 +2,22 @@ import { useMemo, useState } from 'react'
 import { Link, useNavigate, useParams } from 'react-router-dom'
 import { useData } from '@/contexts/DataContext'
 import { Button } from '@/components/ui/button'
-import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog'
-import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger } from '@/components/ui/dropdown-menu'
-import { Input } from '@/components/ui/input'
-import { Label } from '@/components/ui/label'
-import { Textarea } from '@/components/ui/textarea'
 import BackBar from '@/components/BackBar'
 import LoadingModal from '@/components/LoadingModal'
 import { generateMoreCardsWithGemini } from '@/lib/gemini'
-import { Trash2, Menu, Plus, Sparkles } from 'lucide-react'
+import { Trash2, Plus, Sparkles, Pencil, BookOpen, Loader2 } from 'lucide-react'
 import Reveal from '@/components/Reveal'
 
 export default function DeckView() {
   const { deckId } = useParams()
   const navigate = useNavigate()
-  const { state, updateDeck, deleteDeck, createCard, updateCard, deleteCard } = useData()
+  const { state, updateDeck, deleteDeck, createCard, deleteCard } = useData()
   const deck = state.decks.find((d) => d.id === deckId)
   const cards = useMemo(() => state.cards.filter((c) => c.deckId === deckId), [state.cards, deckId])
 
-  const [addOpen, setAddOpen] = useState(false)
-  const [newTitle, setNewTitle] = useState('')
-  const [newContent, setNewContent] = useState('')
   const [genLoading, setGenLoading] = useState(false)
 
   if (!deck) return <p className="text-sm text-muted-foreground">Deck not found.</p>
-
-  function addCard(e: React.FormEvent) {
-    e.preventDefault()
-    if (!deck || !newTitle.trim() || !newContent.trim()) return
-    createCard({ deckId: deck.id, title: newTitle.trim(), content: newContent })
-    setNewTitle('')
-    setNewContent('')
-  }
 
   return (
     <>
@@ -44,54 +28,38 @@ export default function DeckView() {
           title={deck.name}
           titleEditable
           onTitleChange={(val) => { if (val && val !== deck.name) updateDeck(deck.id, { name: val }) }}
-        />
-      <div className="flex flex-row items-center justify-between gap-3 sm:gap-4 flex-nowrap">
-        <div className="flex items-center gap-2.5 flex-wrap min-w-0 flex-1">
-          {/* Primary flow: Study */}
-          <Button disabled={cards.length === 0} className="chip text-base" asChild>
-            <Link to={`/study/deck/${deck.id}/setup`} className="truncate whitespace-nowrap">Study Deck</Link>
-          </Button>
-        </div>
-
-        {/* Hamburger menu for deck actions - moved to right side */}
-        <div className="flex items-center gap-2 flex-shrink-0">
-          <DropdownMenu>
-            <DropdownMenuTrigger asChild>
-              <Button variant="outline" size="icon" className="chip" title="Deck Actions">
-                <Menu className="h-4 w-4" />
+          actionsPlacement="right"
+          hideBackLabel
+          actions={(
+            <>
+              <Button
+                disabled={cards.length === 0}
+                className="chip h-7 w-7 sm:h-8 sm:w-8 px-0"
+                title="Study Deck"
+                aria-label="Study Deck"
+                asChild
+              >
+                <Link to={`/study/deck/${deck.id}/setup`} className="inline-flex items-center justify-center">
+                  <BookOpen className="h-3.5 w-3.5 sm:h-4 sm:w-4" />
+                </Link>
               </Button>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent align="end">
-              <Dialog open={addOpen} onOpenChange={setAddOpen}>
-                <DialogTrigger asChild>
-                  <DropdownMenuItem onSelect={(e) => e.preventDefault()}>
-                    <Plus className="mr-2 h-4 w-4" />
-                    Add Card
-                  </DropdownMenuItem>
-                </DialogTrigger>
-                <DialogContent className="mx-3 sm:mx-4 max-w-[calc(100vw-1.5rem)] sm:max-w-lg">
-                  <DialogHeader>
-                    <DialogTitle className="text-lg sm:text-xl">New Card</DialogTitle>
-                  </DialogHeader>
-                  <form id="add-card" onSubmit={addCard} className="grid gap-4">
-                    <div className="grid gap-2">
-                      <Label htmlFor="title" className="text-base">Title</Label>
-                      <Input id="title" value={newTitle} onChange={(e) => setNewTitle(e.target.value)} className="text-base" />
-                    </div>
-                    <div className="grid gap-2">
-                      <Label htmlFor="content" className="text-base">Content</Label>
-                      <Textarea id="content" value={newContent} onChange={(e) => setNewContent(e.target.value)} rows={7} className="resize-none text-base min-h-[140px]" />
-                    </div>
-                  </form>
-                  <DialogFooter className="flex-col sm:flex-row gap-2.5">
-                    <Button variant="outline" onClick={() => setAddOpen(false)} className="w-full sm:w-auto min-h-[44px]">Cancel</Button>
-                    <Button type="submit" form="add-card" onClick={() => setAddOpen(false)} className="w-full sm:w-auto min-h-[44px]">Add</Button>
-                  </DialogFooter>
-                </DialogContent>
-              </Dialog>
-
-              <DropdownMenuItem
-                onSelect={async () => {
+              <Button
+                variant="outline"
+                className="chip h-7 w-7 sm:h-8 sm:w-8 px-0"
+                title="Add Card"
+                aria-label="Add Card"
+                asChild
+              >
+                <Link to={`/decks/${deck.id}/cards/new`} className="inline-flex items-center justify-center">
+                  <Plus className="h-3.5 w-3.5 sm:h-4 sm:w-4" />
+                </Link>
+              </Button>
+              <Button
+                variant="outline"
+                className="chip h-7 w-7 sm:h-8 sm:w-8 px-0"
+                title={genLoading ? 'Generating cards' : 'Generate with AI'}
+                aria-label={genLoading ? 'Generating cards' : 'Generate with AI'}
+                onClick={async () => {
                   if (!deck) return
                   setGenLoading(true)
                   try {
@@ -110,33 +78,34 @@ export default function DeckView() {
                 }}
                 disabled={genLoading}
               >
-                <Sparkles className="mr-2 h-4 w-4" />
-                {genLoading ? 'Generating…' : 'Generate with AI'}
-              </DropdownMenuItem>
-
-              <DropdownMenuSeparator />
-              
-              <DropdownMenuItem 
-                className="text-destructive focus:text-destructive"
-                onSelect={() => {
-                  if (confirm('Delete deck and all cards?')) { 
-                    deleteDeck(deck.id); 
-                    navigate('/') 
+                {genLoading ? (
+                  <Loader2 className="h-3.5 w-3.5 sm:h-4 sm:w-4 animate-spin" />
+                ) : (
+                  <Sparkles className="h-3.5 w-3.5 sm:h-4 sm:w-4" />
+                )}
+              </Button>
+              <Button
+                variant="outline"
+                className="chip h-7 w-7 sm:h-8 sm:w-8 px-0 text-destructive border-destructive/40 hover:text-destructive"
+                title="Delete Deck"
+                aria-label="Delete Deck"
+                onClick={() => {
+                  if (confirm('Delete deck and all cards?')) {
+                    deleteDeck(deck.id)
+                    navigate('/')
                   }
                 }}
               >
-                <Trash2 className="mr-2 h-4 w-4" />
-                Delete Deck
-              </DropdownMenuItem>
-            </DropdownMenuContent>
-          </DropdownMenu>
-        </div>
-      </div>
+                <Trash2 className="h-3.5 w-3.5 sm:h-4 sm:w-4" />
+              </Button>
+            </>
+          )}
+        />
 
       <div className="flex items-start justify-between">
-        <div className="py-2 max-w-3xl animate-in fade-in-0 slide-in-from-top-2 duration-300 w-full">
+        <div className="pt-0 pb-2 max-w-3xl animate-in fade-in-0 slide-in-from-top-2 duration-300 w-full">
           <p
-            className="mt-1 text-black/80 outline-none focus:ring-2 ring-primary/30 rounded-sm min-h-[1.5rem] text-base sm:text-lg leading-relaxed"
+            className="mt-1 text-black/80 outline-none focus:ring-2 ring-primary/30 rounded-sm min-h-[1.25rem] text-sm sm:text-base leading-relaxed"
             contentEditable
             suppressContentEditableWarning
             spellCheck={false}
@@ -177,12 +146,9 @@ export default function DeckView() {
                 <Button className="chip text-sm" asChild>
                   <Link to={`/study/card/${c.id}/setup`}>Study</Link>
                 </Button>
-                <EditCardButton
-                  title={c.title}
-                  content={c.content}
-                  onSave={(t, cnt) => updateCard(c.id, { title: t, content: cnt })}
-                  className="chip text-sm"
-                />
+                <Button variant="outline" className="chip text-sm" asChild>
+                  <Link to={`/cards/${c.id}/edit`}><Pencil className="h-4 w-4" /> Edit</Link>
+                </Button>
                 <Button size="icon" variant="ghost" className="chip" title="Delete Card" onClick={() => deleteCard(c.id)}>
                   <Trash2 className="h-4 w-4 text-red-500" />
                 </Button>
@@ -192,41 +158,7 @@ export default function DeckView() {
           {cards.length === 0 && <li className="text-base text-muted-foreground">No cards yet.</li>}
         </ul>
       </section>
-
-      {/* add card handled by dialog above */}
       </div>
     </>
-  )
-}
-
-function EditCardButton({ title, content, onSave, className }: { title: string; content: string; onSave: (title: string, content: string) => void; className?: string }) {
-  const [open, setOpen] = useState(false)
-  const [t, setT] = useState(title)
-  const [cnt, setCnt] = useState(content)
-  return (
-    <Dialog open={open} onOpenChange={(o) => { setOpen(o); if (o) { setT(title); setCnt(content) } }}>
-      <DialogTrigger asChild>
-        <Button variant="outline" className={className}>Edit</Button>
-      </DialogTrigger>
-      <DialogContent className="mx-3 sm:mx-4 max-w-[calc(100vw-1.5rem)] sm:max-w-lg">
-        <DialogHeader>
-          <DialogTitle className="text-lg sm:text-xl">Edit Card</DialogTitle>
-        </DialogHeader>
-        <div className="grid gap-4">
-          <div className="grid gap-2">
-            <Label htmlFor="t" className="text-base">Title</Label>
-            <Input id="t" value={t} onChange={(e) => setT(e.target.value)} className="text-base" />
-          </div>
-          <div className="grid gap-2">
-            <Label htmlFor="c" className="text-base">Content</Label>
-            <Textarea id="c" rows={9} value={cnt} onChange={(e) => setCnt(e.target.value)} className="text-base min-h-[180px]" />
-          </div>
-        </div>
-        <DialogFooter className="flex-col sm:flex-row gap-2.5">
-          <Button variant="outline" onClick={() => setOpen(false)} className="w-full sm:w-auto min-h-[44px]">Cancel</Button>
-          <Button onClick={() => { onSave(t, cnt); setOpen(false) }} className="w-full sm:w-auto min-h-[44px]">Save</Button>
-        </DialogFooter>
-      </DialogContent>
-    </Dialog>
   )
 }

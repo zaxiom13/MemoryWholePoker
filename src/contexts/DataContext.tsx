@@ -35,17 +35,37 @@ export function DataProvider({ children }: { children: React.ReactNode }) {
 
   function buildDemoState(): AppStateShape {
     const now = storage.now()
-    const d1: Deck = { id: storage.uuid(), name: 'Sonnets & Verse', description: 'Short poems for memorization practice.', createdAt: now, updatedAt: now }
-    const d2: Deck = { id: storage.uuid(), name: 'Famous Speeches', description: 'Iconic excerpts to rehearse.', createdAt: now, updatedAt: now }
+    const d1: Deck = { id: storage.uuid(), name: 'Scientific Reasoning', description: 'Core ideas in logic, evidence, and inference.', createdAt: now, updatedAt: now }
+    const d2: Deck = { id: storage.uuid(), name: 'World History Milestones', description: 'Turning points that reshaped institutions and ideas.', createdAt: now, updatedAt: now }
+    const d3: Deck = { id: storage.uuid(), name: 'Constitutional Government', description: 'Key principles behind modern democratic systems.', createdAt: now, updatedAt: now }
+    const d4: Deck = { id: storage.uuid(), name: 'Economics in One Page', description: 'High-leverage concepts from micro and macroeconomics.', createdAt: now, updatedAt: now }
     const cards: Card[] = [
-      { id: storage.uuid(), deckId: d1.id, title: 'Sonnet 18 (opening)', content: "Shall I compare thee to a summer’s day?\nThou art more lovely and more temperate:", createdAt: now, updatedAt: now },
-      { id: storage.uuid(), deckId: d1.id, title: 'If— (excerpt)', content: "If you can keep your head when all about you\nAre losing theirs and blaming it on you,", createdAt: now, updatedAt: now },
-      { id: storage.uuid(), deckId: d2.id, title: 'I Have a Dream (excerpt)', content: "I have a dream that one day this nation will rise up and live out the true meaning of its creed.", createdAt: now, updatedAt: now },
-      { id: storage.uuid(), deckId: d2.id, title: 'Their Finest Hour (excerpt)', content: "Let us therefore brace ourselves to our duties, and so bear ourselves that...", createdAt: now, updatedAt: now },
-    ]
-    return { decks: [d1, d2], cards, records: [] }
-  }
+      { id: storage.uuid(), deckId: d1.id, title: 'Falsifiability', content: 'A scientific claim must be testable in a way that could prove it wrong, not only confirm it.', createdAt: now, updatedAt: now },
+      { id: storage.uuid(), deckId: d1.id, title: 'Null and Alternative Hypotheses', content: 'The null hypothesis states no effect or no difference; evidence must be strong enough to reject it in favor of an alternative.', createdAt: now, updatedAt: now },
+      { id: storage.uuid(), deckId: d1.id, title: 'Correlation vs Causation', content: 'Correlation shows variables move together. Causation means one variable produces change in another; this requires stronger evidence.', createdAt: now, updatedAt: now },
+      { id: storage.uuid(), deckId: d1.id, title: 'Bayes Rule (plain language)', content: 'Update your belief by combining prior probability with new evidence, weighted by how likely that evidence is under each explanation.', createdAt: now, updatedAt: now },
+      { id: storage.uuid(), deckId: d1.id, title: 'Occams Razor', content: 'Among explanations that fit the facts, prefer the one with the fewest unnecessary assumptions.', createdAt: now, updatedAt: now },
 
+      { id: storage.uuid(), deckId: d2.id, title: 'Magna Carta (1215)', content: 'Limited royal power and advanced the principle that rulers are subject to law.', createdAt: now, updatedAt: now },
+      { id: storage.uuid(), deckId: d2.id, title: 'Printing Press (15th century)', content: 'Cheap reproduction of texts accelerated literacy, scholarship, and religious and political debate.', createdAt: now, updatedAt: now },
+      { id: storage.uuid(), deckId: d2.id, title: 'Peace of Westphalia (1648)', content: 'Helped establish the norm of state sovereignty and non-interference in domestic affairs.', createdAt: now, updatedAt: now },
+      { id: storage.uuid(), deckId: d2.id, title: 'Industrial Revolution', content: 'Mechanization and fossil-fuel energy drove productivity growth, urbanization, and major social transformation.', createdAt: now, updatedAt: now },
+      { id: storage.uuid(), deckId: d2.id, title: 'Fall of the Berlin Wall (1989)', content: 'Symbolized the collapse of communist regimes in Eastern Europe and the approaching end of the Cold War.', createdAt: now, updatedAt: now },
+
+      { id: storage.uuid(), deckId: d3.id, title: 'Separation of Powers', content: 'Government authority is split among legislative, executive, and judicial branches to reduce concentration of power.', createdAt: now, updatedAt: now },
+      { id: storage.uuid(), deckId: d3.id, title: 'Checks and Balances', content: 'Each branch has tools to constrain the others, such as vetoes, judicial review, and legislative oversight.', createdAt: now, updatedAt: now },
+      { id: storage.uuid(), deckId: d3.id, title: 'Federalism', content: 'Sovereign authority is divided between national and subnational governments with distinct responsibilities.', createdAt: now, updatedAt: now },
+      { id: storage.uuid(), deckId: d3.id, title: 'Due Process', content: 'The state must follow fair procedures and respect legal rights before depriving anyone of life, liberty, or property.', createdAt: now, updatedAt: now },
+      { id: storage.uuid(), deckId: d3.id, title: 'Rule of Law', content: 'Laws govern both citizens and leaders, and legal rules are applied predictably rather than by arbitrary power.', createdAt: now, updatedAt: now },
+
+      { id: storage.uuid(), deckId: d4.id, title: 'Opportunity Cost', content: 'The true cost of a choice is the value of the best alternative you give up.', createdAt: now, updatedAt: now },
+      { id: storage.uuid(), deckId: d4.id, title: 'Comparative Advantage', content: 'Trade benefits parties when each specializes in what they produce at lower opportunity cost.', createdAt: now, updatedAt: now },
+      { id: storage.uuid(), deckId: d4.id, title: 'Marginal Analysis', content: 'Good decisions compare additional benefit with additional cost at the margin, not total averages.', createdAt: now, updatedAt: now },
+      { id: storage.uuid(), deckId: d4.id, title: 'Inflation', content: 'A sustained rise in the general price level reduces purchasing power; real values adjust nominal values for inflation.', createdAt: now, updatedAt: now },
+      { id: storage.uuid(), deckId: d4.id, title: 'Monetary vs Fiscal Policy', content: 'Monetary policy uses interest rates and money conditions; fiscal policy uses taxes and public spending.', createdAt: now, updatedAt: now },
+    ]
+    return { decks: [d1, d2, d3, d4], cards, records: [] }
+  }
   const createDeck: DataContextType['createDeck'] = useCallback((input) => {
     const now = storage.now()
     const deck: Deck = { id: storage.uuid(), name: input.name.trim(), description: input.description?.trim(), createdAt: now, updatedAt: now }
@@ -155,3 +175,4 @@ export function useData() {
   if (!ctx) throw new Error('useData must be used within DataProvider')
   return ctx
 }
+

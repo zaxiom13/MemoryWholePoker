@@ -3,6 +3,12 @@ import DeckList from '@/pages/DeckList'
 import DeckView from '@/pages/DeckView'
 import StudySetup from '@/pages/StudySetup'
 import StudySession from '@/pages/StudySession'
+import NewDeckPage from '@/pages/NewDeckPage'
+import GenerateDeckPage from '@/pages/GenerateDeckPage'
+import DeckBestTimesPage from '@/pages/DeckBestTimesPage'
+import AddCardPage from '@/pages/AddCardPage'
+import EditCardPage from '@/pages/EditCardPage'
+import AboutPage from '@/pages/AboutPage'
 import { DataProvider } from '@/contexts/DataContext'
 import Header from '@/components/Header'
 import BackgroundGraph from '@/components/BackgroundGraph'
@@ -11,7 +17,7 @@ import { Button } from '@/components/ui/button'
 
 function Layout() {
   return (
-    <div className="relative min-h-screen font-sans poker-room">
+    <div className="relative min-h-screen poker-room">
       <div className="relative z-10">
         <Header />
         <div className="poker-table mx-auto">
@@ -43,11 +49,19 @@ const router = createBrowserRouter([
     element: <Layout />,
     children: [
       { index: true, element: <DeckList /> },
+      { path: 'about', element: <AboutPage /> },
+      { path: 'decks/new', element: <NewDeckPage /> },
+      { path: 'decks/generate', element: <GenerateDeckPage /> },
+      { path: 'decks/:deckId/times', element: <DeckBestTimesPage /> },
       { path: 'decks/:deckId', element: <DeckView /> },
+      { path: 'decks/:deckId/cards/new', element: <AddCardPage /> },
+      { path: 'cards/:cardId/edit', element: <EditCardPage /> },
       { path: 'study/card/:cardId/setup', element: <StudySetup /> },
       { path: 'study/deck/:deckId/setup', element: <StudySetup /> },
+      { path: 'study/all/setup', element: <StudySetup /> },
       { path: 'study/card/:cardId', element: <StudySession /> },
       { path: 'study/deck/:deckId', element: <StudySession /> },
+      { path: 'study/all', element: <StudySession /> },
       { path: 'done', element: <Done /> },
     ],
   },
