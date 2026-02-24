@@ -12,7 +12,7 @@ export default function InfoButton() {
       title="About MemoryWholed"
       asChild
     >
-      <Link to="/about">
+      <Link to="/about" role="button">
         <Info className="h-5 w-5" />
       </Link>
     </Button>

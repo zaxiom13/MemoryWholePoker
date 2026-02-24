@@ -7,12 +7,14 @@ import { Textarea } from '@/components/ui/textarea'
 import { useData } from '@/contexts/DataContext'
 import { generateDeckWithAI } from '@/lib/gemini'
 import LoadingModal from '@/components/LoadingModal'
+import MessageModal from '@/components/MessageModal'
 
 export default function GenerateDeckPage() {
   const { createDeck, createCard } = useData()
   const navigate = useNavigate()
   const [topic, setTopic] = useState('')
   const [loading, setLoading] = useState(false)
+  const [error, setError] = useState<string | null>(null)
 
   async function onGenerate(e: React.FormEvent) {
     e.preventDefault()
@@ -25,7 +27,7 @@ export default function GenerateDeckPage() {
       navigate(`/decks/${deck.id}`)
     } catch (err: unknown) {
       const message = err instanceof Error ? err.message : 'Failed to generate deck'
-      alert(message)
+      setError(message)
     } finally {
       setLoading(false)
     }
@@ -34,6 +36,14 @@ export default function GenerateDeckPage() {
   return (
     <>
       <LoadingModal open={loading} message="Generating deck with AI..." />
+      <MessageModal
+        open={error != null}
+        onOpenChange={(open) => {
+          if (!open) setError(null)
+        }}
+        title="Could not generate deck"
+        message={error ?? ''}
+      />
       <div className="max-w-xl mx-auto space-y-6 px-3 sm:px-4 md:px-0">
         <BackBar to="/" title="Generate Deck with AI" />
         <form onSubmit={onGenerate} className="playing-card p-5 sm:p-6 grid gap-4">

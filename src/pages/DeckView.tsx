@@ -4,6 +4,8 @@ import { useData } from '@/contexts/DataContext'
 import { Button } from '@/components/ui/button'
 import BackBar from '@/components/BackBar'
 import LoadingModal from '@/components/LoadingModal'
+import ConfirmModal from '@/components/ConfirmModal'
+import MessageModal from '@/components/MessageModal'
 import { generateMoreCardsWithGemini } from '@/lib/gemini'
 import { Trash2, Plus, Sparkles, Pencil, BookOpen, Loader2 } from 'lucide-react'
 import Reveal from '@/components/Reveal'
@@ -16,12 +18,51 @@ export default function DeckView() {
   const cards = useMemo(() => state.cards.filter((c) => c.deckId === deckId), [state.cards, deckId])
 
   const [genLoading, setGenLoading] = useState(false)
+  const [genError, setGenError] = useState<string | null>(null)
+  const [deleteDeckOpen, setDeleteDeckOpen] = useState(false)
+  const [cardIdToDelete, setCardIdToDelete] = useState<string | null>(null)
 
   if (!deck) return <p className="text-sm text-muted-foreground">Deck not found.</p>
 
   return (
     <>
       <LoadingModal open={genLoading} message="Generating cards with AI..." />
+      <MessageModal
+        open={genError != null}
+        onOpenChange={(open) => {
+          if (!open) setGenError(null)
+        }}
+        title="Could not generate cards"
+        message={genError ?? ''}
+      />
+      <ConfirmModal
+        open={deleteDeckOpen}
+        onOpenChange={setDeleteDeckOpen}
+        title="Delete deck?"
+        description="This will delete the deck and all of its cards."
+        confirmLabel="Delete"
+        onConfirm={() => {
+          deleteDeck(deck.id)
+          setDeleteDeckOpen(false)
+          navigate('/')
+        }}
+        destructive
+      />
+      <ConfirmModal
+        open={cardIdToDelete != null}
+        onOpenChange={(open) => {
+          if (!open) setCardIdToDelete(null)
+        }}
+        title="Delete card?"
+        description="This card will be permanently deleted."
+        confirmLabel="Delete"
+        onConfirm={() => {
+          if (!cardIdToDelete) return
+          deleteCard(cardIdToDelete)
+          setCardIdToDelete(null)
+        }}
+        destructive
+      />
       <div className="max-w-4xl mx-auto space-y-6 sm:space-y-8 px-3 sm:px-4 md:px-0">
         <BackBar
           to="/"
@@ -71,7 +112,7 @@ export default function DeckView() {
                     }
                   } catch (err: unknown) {
                     const message = err instanceof Error ? err.message : 'Failed to generate cards'
-                    alert(message)
+                    setGenError(message)
                   } finally {
                     setGenLoading(false)
                   }
@@ -90,10 +131,7 @@ export default function DeckView() {
                 title="Delete Deck"
                 aria-label="Delete Deck"
                 onClick={() => {
-                  if (confirm('Delete deck and all cards?')) {
-                    deleteDeck(deck.id)
-                    navigate('/')
-                  }
+                  setDeleteDeckOpen(true)
                 }}
               >
                 <Trash2 className="h-3.5 w-3.5 sm:h-4 sm:w-4" />
@@ -149,7 +187,13 @@ export default function DeckView() {
                 <Button variant="outline" className="chip text-sm" asChild>
                   <Link to={`/cards/${c.id}/edit`}><Pencil className="h-4 w-4" /> Edit</Link>
                 </Button>
-                <Button size="icon" variant="ghost" className="chip" title="Delete Card" onClick={() => deleteCard(c.id)}>
+                <Button
+                  size="icon"
+                  variant="ghost"
+                  className="chip"
+                  title="Delete Card"
+                  onClick={() => setCardIdToDelete(c.id)}
+                >
                   <Trash2 className="h-4 w-4 text-red-500" />
                 </Button>
               </div>

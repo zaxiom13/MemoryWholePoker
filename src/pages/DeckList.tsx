@@ -1,12 +1,14 @@
-import { useMemo } from 'react'
+import { useMemo, useState } from 'react'
 import { Link } from 'react-router-dom'
 import { useData } from '@/contexts/DataContext'
 import { Button } from '@/components/ui/button'
 import { Trash2, Plus, Trophy, Sparkles, Layers } from 'lucide-react'
 import Reveal from '@/components/Reveal'
+import ConfirmModal from '@/components/ConfirmModal'
 
 export default function DeckList() {
   const { state, deleteDeck, loadDemoData } = useData()
+  const [deckIdToDelete, setDeckIdToDelete] = useState<string | null>(null)
 
   const deckCounts = useMemo(() => {
     const counts: Record<string, number> = {}
@@ -16,6 +18,21 @@ export default function DeckList() {
 
   return (
     <div className="space-y-6 px-3 sm:px-4 md:px-0">
+      <ConfirmModal
+        open={deckIdToDelete != null}
+        onOpenChange={(open) => {
+          if (!open) setDeckIdToDelete(null)
+        }}
+        title="Delete deck?"
+        description="This will delete the deck and all of its cards."
+        confirmLabel="Delete"
+        onConfirm={() => {
+          if (!deckIdToDelete) return
+          deleteDeck(deckIdToDelete)
+          setDeckIdToDelete(null)
+        }}
+        destructive
+      />
       <div className="flex items-center justify-between gap-2">
         <h1 className="text-2xl sm:text-4xl font-bold animate-in fade-in-0 slide-in-from-top-2 duration-300">Decks</h1>
         <div className="decklist-actions ml-auto flex flex-row gap-2 w-auto shrink-0">
@@ -73,7 +90,7 @@ export default function DeckList() {
                       <Trophy className="h-4 w-4" />
                     </Link>
                   </Button>
-                  <Button size="icon" variant="ghost" className="chip" title="Delete Deck" onClick={(e) => { e.stopPropagation(); if (confirm('Delete deck and all cards?')) deleteDeck(d.id) }}>
+                  <Button size="icon" variant="ghost" className="chip" title="Delete Deck" onClick={(e) => { e.stopPropagation(); setDeckIdToDelete(d.id) }}>
                     <Trash2 className="h-4 w-4 text-red-500" />
                   </Button>
                 </div>
