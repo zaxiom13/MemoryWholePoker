@@ -3,7 +3,7 @@ const ENV_GEMINI_API_KEY = import.meta.env.VITE_GEMINI_API_KEY as string | undef
 
 type GenCard = { title: string; content: string }
 
-function sanitizeFence(text: string): string {
+export function sanitizeFence(text: string): string {
   // If wrapped in ```json ... ``` or ``` ... ```, strip fences
   const fence = /```[a-zA-Z]*\n([\s\S]*?)```/g
   const m = fence.exec(text)
@@ -11,7 +11,7 @@ function sanitizeFence(text: string): string {
   return text
 }
 
-function tryParseJSON(text: string): GenCard[] | null {
+export function tryParseJSON(text: string): GenCard[] | null {
   try {
     const obj = JSON.parse(text)
     if (obj && Array.isArray(obj.cards)) return obj.cards
@@ -21,7 +21,7 @@ function tryParseJSON(text: string): GenCard[] | null {
   return null
 }
 
-function extractJSONString(text: string): string | null {
+export function extractJSONString(text: string): string | null {
   // Attempt to grab the largest JSON-looking block
   const start = text.indexOf('{')
   const end = text.lastIndexOf('}')
@@ -31,7 +31,7 @@ function extractJSONString(text: string): string | null {
   return null
 }
 
-function parseFromLooseObjects(text: string): GenCard[] | null {
+export function parseFromLooseObjects(text: string): GenCard[] | null {
   // Find objects like { "title": "...", "content": "..." }
   const objs: GenCard[] = []
   const re = /\{[^}]*\}/g
@@ -49,7 +49,7 @@ function parseFromLooseObjects(text: string): GenCard[] | null {
   return objs.length ? objs : null
 }
 
-function parseFromTitleLines(text: string): GenCard[] | null {
+export function parseFromTitleLines(text: string): GenCard[] | null {
   // Handle lines like: "title": "What is a Sonnet?" and optional next content lines
   const lines = text.split(/\r?\n/).map((l) => l.trim()).filter(Boolean)
   const cards: GenCard[] = []
@@ -127,33 +127,7 @@ export async function generateCardsWithGemini(prompt: string): Promise<Array<{ t
   for await (const chunk of stream) {
     acc += chunk.text ?? ''
   }
-  let text = acc.trim()
-  // 1) Strip code fences
-  text = sanitizeFence(text)
-  // 2) Direct JSON
-  let cards = tryParseJSON(text)
-  if (!cards) {
-    // 3) Extract largest JSON substring and try parse
-    const js = extractJSONString(text)
-    if (js) cards = tryParseJSON(js)
-  }
-  if (!cards) {
-    // 4) Parse individual loose objects
-    cards = parseFromLooseObjects(text)
-  }
-  if (!cards) {
-    // 5) Parse from lines like "title": "..."
-    cards = parseFromTitleLines(text)
-  }
-  if (cards && cards.length) {
-    return cards
-      .map((c) => ({ title: String(c.title || '').trim(), content: String(c.content || '').trim() }))
-      .filter((c) => c.title || c.content)
-      .slice(0, 20)
-  }
-  // 6) Final fallback: naive lines
-  const lines = text.split(/\r?\n/).map((l) => l.trim()).filter(Boolean)
-  return lines.slice(0, 5).map((l, i) => ({ title: l.slice(0, 40) || `Card ${i + 1}`, content: l }))
+  return parseCardsFromText(acc)
 }
 
 export async function generateMoreCardsWithGemini(deckName: string, existingCards: Array<{ title: string; content: string }>): Promise<Array<{ title: string; content: string }>> {
@@ -204,27 +178,7 @@ export async function generateMoreCardsWithGemini(deckName: string, existingCard
   for await (const chunk of stream) {
     acc += chunk.text ?? ''
   }
-  let text = acc.trim()
-  text = sanitizeFence(text)
-  let cards = tryParseJSON(text)
-  if (!cards) {
-    const js = extractJSONString(text)
-    if (js) cards = tryParseJSON(js)
-  }
-  if (!cards) {
-    cards = parseFromLooseObjects(text)
-  }
-  if (!cards) {
-    cards = parseFromTitleLines(text)
-  }
-  if (cards && cards.length) {
-    return cards
-      .map((c) => ({ title: String(c.title || '').trim(), content: String(c.content || '').trim() }))
-      .filter((c) => c.title || c.content)
-      .slice(0, 20)
-  }
-  const lines = text.split(/\r?\n/).map((l) => l.trim()).filter(Boolean)
-  return lines.slice(0, 5).map((l, i) => ({ title: l.slice(0, 40) || `Card ${i + 1}`, content: l }))
+  return parseCardsFromText(acc)
 }
 
 export async function generateDeckWithAI(topic: string): Promise<{ name: string; description: string; cards: Array<{ title: string; content: string }> }> {
@@ -269,11 +223,36 @@ export async function generateDeckWithAI(topic: string): Promise<{ name: string;
   for await (const chunk of stream) {
     acc += chunk.text ?? ''
   }
-  let text = acc.trim()
-  text = sanitizeFence(text)
-  
+  const parsedDeck = parseDeckFromText(acc)
+  if (parsedDeck) return parsedDeck
+  throw new Error('Failed to parse AI response')
+}
+
+export function parseCardsFromText(text: string): Array<{ title: string; content: string }> {
+  const cleaned = sanitizeFence(text.trim())
+  let cards = tryParseJSON(cleaned)
+  if (!cards) {
+    const js = extractJSONString(cleaned)
+    if (js) cards = tryParseJSON(js)
+  }
+  if (!cards) {
+    cards = parseFromLooseObjects(cleaned)
+  }
+  if (!cards) {
+    cards = parseFromTitleLines(cleaned)
+  }
+  if (cards && cards.length) {
+    return normalizeCards(cards)
+  }
+  const lines = cleaned.split(/\r?\n/).map((l) => l.trim()).filter(Boolean)
+  return lines.slice(0, 5).map((l, i) => ({ title: l.slice(0, 40) || `Card ${i + 1}`, content: l }))
+}
+
+export function parseDeckFromText(text: string): { name: string; description: string; cards: Array<{ title: string; content: string }> } | null {
+  const cleaned = sanitizeFence(text.trim())
+
   try {
-    const parsed = JSON.parse(text)
+    const parsed = JSON.parse(cleaned)
     if (parsed && typeof parsed.name === 'string' && typeof parsed.description === 'string' && Array.isArray(parsed.cards)) {
       return {
         name: String(parsed.name).trim().slice(0, 50),
@@ -284,28 +263,27 @@ export async function generateDeckWithAI(topic: string): Promise<{ name: string;
   } catch {
     // fall through to JSON extraction heuristics
   }
-  
-  // Fallback: try to extract JSON
-  const js = extractJSONString(text)
-  if (js) {
-    try {
-      const parsed = JSON.parse(js)
-      if (parsed && typeof parsed.name === 'string' && typeof parsed.description === 'string' && Array.isArray(parsed.cards)) {
-        return {
-          name: String(parsed.name).trim().slice(0, 50),
-          description: String(parsed.description).trim().slice(0, 200),
-          cards: normalizeCards(parsed.cards),
-        }
+
+  const js = extractJSONString(cleaned)
+  if (!js) return null
+
+  try {
+    const parsed = JSON.parse(js)
+    if (parsed && typeof parsed.name === 'string' && typeof parsed.description === 'string' && Array.isArray(parsed.cards)) {
+      return {
+        name: String(parsed.name).trim().slice(0, 50),
+        description: String(parsed.description).trim().slice(0, 200),
+        cards: normalizeCards(parsed.cards),
       }
-    } catch {
-      // fall through to final error
     }
+  } catch {
+    return null
   }
-  
-  throw new Error('Failed to parse AI response')
+
+  return null
 }
 
-function normalizeCards(raw: unknown): Array<{ title: string; content: string }> {
+export function normalizeCards(raw: unknown): Array<{ title: string; content: string }> {
   if (!Array.isArray(raw)) return []
   return raw
     .map((c) => {
