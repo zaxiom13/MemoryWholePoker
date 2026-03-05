@@ -3,6 +3,7 @@ import { useLocation, useNavigate, useParams } from 'react-router-dom'
 import { useData } from '@/contexts/DataContext'
 import type { AssistanceOptions, Card, UUID } from '@/types'
 import { defaultAssistance } from '@/types'
+import { applyBeforeInputEdit, compareInput, isAlphaNumOrSpace, reconcileRawInput } from '@/lib/studyInput'
 // import { Button } from '@/components/ui/button'
 import BackBar from '@/components/BackBar'
 import Reveal from '@/components/Reveal'
@@ -176,6 +177,12 @@ export default function StudySession() {
   const cardProgress = target.length > 0 ? Math.round((correctUntil / target.length) * 100) : 0
   const deckProgress = cards.length > 1 ? Math.round(((index + (correctUntil / target.length)) / cards.length) * 100) : 100
 
+  function showShake(host: HTMLElement | null) {
+    if (!host) return
+    host.dataset.shake = '1'
+    setTimeout(() => host.removeAttribute('data-shake'), 200)
+  }
+
   return (
     <div className="max-w-3xl mx-auto space-y-4 sm:space-y-6 px-3 sm:px-4">
       <BackBar
@@ -238,87 +245,51 @@ export default function StudySession() {
             autoFocus
             value={input}
             onKeyDown={(e) => {
+              const el = e.currentTarget
+              const selStart = el.selectionStart ?? input.length
+              const selEnd = el.selectionEnd ?? selStart
               if (e.key === 'Backspace') {
-                const el = e.currentTarget
-                const selStart = el.selectionStart ?? input.length
-                if (selStart <= correctUntil) {
+                if ((selStart === selEnd && selStart <= correctUntil) || (selStart !== selEnd && selEnd <= correctUntil)) {
+                  e.preventDefault()
+                  e.stopPropagation()
+                }
+              }
+              if (e.key === 'Delete') {
+                if ((selStart === selEnd && selStart < correctUntil) || (selStart !== selEnd && selEnd <= correctUntil)) {
                   e.preventDefault()
                   e.stopPropagation()
                 }
               }
             }}
             onBeforeInput={(e) => {
-              const data = (e as unknown as InputEvent).data
-              const inputType = (e as unknown as InputEvent).inputType
-              if (inputType && inputType.startsWith('history')) {
-                e.preventDefault()
-                return
-              }
-              if (data == null || data.length === 0) return
-              // Allow multi-character inserts (mobile swipe/autocorrect, replacement text, paste).
-              if (data.length > 1) {
-                return
-              }
+              const nativeEvent = e.nativeEvent as InputEvent
+              const result = applyBeforeInputEdit({
+                target,
+                currentInput: input,
+                selectionStart: e.currentTarget.selectionStart,
+                selectionEnd: e.currentTarget.selectionEnd,
+                inputType: nativeEvent.inputType,
+                data: nativeEvent.data,
+                options,
+              })
 
-              const i = correctUntil
-              const t1 = target[i]
-              if (!t1) {
-                e.preventDefault()
-                return
+              if (!result.handled) return
+
+              e.preventDefault()
+              if (result.nextInput !== input) {
+                setInput(result.nextInput)
               }
-              const dc = normalizeChar(data)
-              const n1 = normalizeChar(t1)
-
-              // In autocorrect mode, punctuation is inserted automatically from the target text.
-              // Ignore manual punctuation entry to keep behavior consistent.
-              if (options.autocorrect && isPunctuation(dc)) {
-                e.preventDefault()
-                return
-              }
-
-              // Exact match: allow default insert.
-              if (n1 === dc) return
-
-              // Autocorrect case immediately to target casing.
-              if (options.autocorrect && n1.toLowerCase() === dc.toLowerCase()) {
-                e.preventDefault()
-                setInput(target.slice(0, i + 1))
-                return
-              }
-
-              // Autocorrect: skip punctuation in target by auto-inserting it
-              if (options.autocorrect && isPunctuation(n1)) {
-                const t2 = target[i + 1]
-                if (t2) {
-                  const n2 = normalizeChar(t2)
-                  const nextOk = n2.toLowerCase() === dc.toLowerCase()
-                  if (nextOk) {
-                    // Prevent default and auto-advance by inserting the punctuation + char
-                    e.preventDefault()
-                    setInput(target.slice(0, i + 2))
-                    return
-                  }
-                }
-              }
-
-              // Keep wrong chars allowed, but still shake for feedback.
-              const host = (e.currentTarget.parentElement as HTMLElement | null)
-              if (host) {
-                host.dataset.shake = '1'
-                setTimeout(() => host.removeAttribute('data-shake'), 200)
+              if (result.shouldShake) {
+                showShake(e.currentTarget.parentElement as HTMLElement | null)
               }
             }}
             onChange={(e) => {
-              const v = e.target.value
-              const locked = target.slice(0, correctUntil)
-              let next = v
-              if (!v.startsWith(locked)) {
-                next = locked + v.slice(Math.max(correctUntil, 0))
-              }
-              if (options.autocorrect) {
-                const editableSuffix = next.slice(locked.length).replace(/[\p{P}\p{S}]/gu, '')
-                next = locked + editableSuffix
-              }
+              const next = reconcileRawInput({
+                target,
+                currentInput: input,
+                rawValue: e.target.value,
+                options,
+              })
               setInput(next)
             }}
           />
@@ -330,48 +301,4 @@ export default function StudySession() {
       </Reveal>
     </div>
   )
-}
-
-function normalizeChar(ch: string) {
-  return ch.normalize('NFC')
-}
-
-function isPunctuation(ch: string) {
-  return /[\p{P}\p{S}]/u.test(ch)
-}
-
-function isAlphaNumOrSpace(ch: string) {
-  return /[\p{L}\p{N} ]/u.test(ch)
-}
-
-function compareInput(target: string, input: string, options: AssistanceOptions) {
-  let i = 0
-  let j = 0
-  while (i < target.length && j < input.length) {
-    const tc = normalizeChar(target[i])
-    const ic = normalizeChar(input[j])
-
-    // Autocorrect: ignore case mismatches
-    const eq = options.autocorrect ? tc.toLowerCase() === ic.toLowerCase() : tc === ic
-
-    if (eq) {
-      i++; j++; continue
-    }
-
-    // Autocorrect: allow skipping punctuation present in target
-    if (options.autocorrect && isPunctuation(tc)) {
-      i++
-      continue
-    }
-
-    // mismatch
-    return { correctUntil: i, errorAt: i }
-  }
-
-  // If input longer than target, stop at mismatch
-  if (j < input.length) {
-    return { correctUntil: i, errorAt: i }
-  }
-
-  return { correctUntil: i, errorAt: null as number | null }
 }
