@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useRef, useState } from 'react'
+import { useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react'
 import { useLocation, useNavigate, useParams } from 'react-router-dom'
 import { useData } from '@/contexts/DataContext'
 import type { AssistanceOptions, Card, UUID } from '@/types'
@@ -70,6 +70,8 @@ export default function StudySession() {
   const [pausedSince, setPausedSince] = useState<number | null>(null)
   const [isAdvancing, setIsAdvancing] = useState(false)
   const advanceTimeoutRef = useRef<number | null>(null)
+  const textareaRef = useRef<HTMLTextAreaElement | null>(null)
+  const pendingSelectionRef = useRef<{ start: number; end: number } | null>(null)
   // Full text visibility now decided on setup page only
   const timer = useRef(useTimer()).current
   const [, setTickCount] = useState(0)
@@ -161,6 +163,14 @@ export default function StudySession() {
     }
   }, [])
 
+  useLayoutEffect(() => {
+    const pendingSelection = pendingSelectionRef.current
+    const textarea = textareaRef.current
+    if (!pendingSelection || !textarea) return
+    textarea.setSelectionRange(pendingSelection.start, pendingSelection.end)
+    pendingSelectionRef.current = null
+  }, [input])
+
   // On completion of deck
   useEffect(() => {
     if (cards.length > 1 && index === cards.length) {
@@ -239,6 +249,7 @@ export default function StudySession() {
 
           {/* Invisible text input with visible caret overlaying highlighter */}
           <textarea
+            ref={textareaRef}
             className="absolute inset-0 w-full h-full resize-none bg-transparent p-4 sm:p-4 font-mono text-base sm:text-lg !text-transparent caret-foreground focus:outline-none leading-relaxed"
             style={{ WebkitTextFillColor: 'transparent' }}
             rows={5}
@@ -277,7 +288,12 @@ export default function StudySession() {
 
               e.preventDefault()
               if (result.nextInput !== input) {
+                if (result.selectionStart != null && result.selectionEnd != null) {
+                  pendingSelectionRef.current = { start: result.selectionStart, end: result.selectionEnd }
+                }
                 setInput(result.nextInput)
+              } else if (result.selectionStart != null && result.selectionEnd != null) {
+                e.currentTarget.setSelectionRange(result.selectionStart, result.selectionEnd)
               }
               if (result.shouldShake) {
                 showShake(e.currentTarget.parentElement as HTMLElement | null)

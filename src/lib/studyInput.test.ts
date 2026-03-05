@@ -55,6 +55,8 @@ describe('applyBeforeInputEdit', () => {
       handled: true,
       nextInput: 'hello wor',
       shouldShake: false,
+      selectionStart: 9,
+      selectionEnd: 9,
     })
   })
 
@@ -70,6 +72,8 @@ describe('applyBeforeInputEdit', () => {
     })
 
     expect(result.nextInput).toBe('hello wrong')
+    expect(result.selectionStart).toBe(7)
+    expect(result.selectionEnd).toBe(7)
   })
 
   it('replaces a wrong word with an autocomplete replacement', () => {
@@ -87,6 +91,8 @@ describe('applyBeforeInputEdit', () => {
       handled: true,
       nextInput: 'hello world',
       shouldShake: false,
+      selectionStart: 11,
+      selectionEnd: 11,
     })
   })
 
@@ -102,6 +108,8 @@ describe('applyBeforeInputEdit', () => {
     })
 
     expect(result.nextInput).toBe('hello world')
+    expect(result.selectionStart).toBe(11)
+    expect(result.selectionEnd).toBe(11)
   })
 
   it('canonicalizes single-character case mismatches in autocorrect mode', () => {
@@ -116,6 +124,8 @@ describe('applyBeforeInputEdit', () => {
     })
 
     expect(result.nextInput).toBe('H')
+    expect(result.selectionStart).toBe(1)
+    expect(result.selectionEnd).toBe(1)
   })
 
   it('removes manual punctuation from inserted autocomplete text in autocorrect mode', () => {
@@ -130,6 +140,8 @@ describe('applyBeforeInputEdit', () => {
     })
 
     expect(result.nextInput).toBe('Hello, world')
+    expect(result.selectionStart).toBe(12)
+    expect(result.selectionEnd).toBe(12)
   })
 
   it('keeps a wrong autocomplete word editable after canonicalizing the matching prefix', () => {
@@ -145,6 +157,8 @@ describe('applyBeforeInputEdit', () => {
 
     expect(result.nextInput).toBe('hello planet')
     expect(compareInput('hello world', result.nextInput, plain).correctUntil).toBe(6)
+    expect(result.selectionStart).toBe(12)
+    expect(result.selectionEnd).toBe(12)
   })
 })
 

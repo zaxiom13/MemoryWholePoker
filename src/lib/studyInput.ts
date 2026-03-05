@@ -14,6 +14,8 @@ type StudyEditResult = {
   handled: boolean
   nextInput: string
   shouldShake: boolean
+  selectionStart: number | null
+  selectionEnd: number | null
 }
 
 export function normalizeChar(ch: string) {
@@ -113,7 +115,7 @@ export function applyBeforeInputEdit(args: StudyEditArgs): StudyEditResult {
   const safeSelectionEnd = Math.max(selectionStart, selectionEnd)
 
   if (inputType.startsWith('history')) {
-    return { handled: true, nextInput: currentInput, shouldShake: false }
+    return { handled: true, nextInput: currentInput, shouldShake: false, selectionStart, selectionEnd }
   }
 
   if (inputType.startsWith('delete')) {
@@ -129,16 +131,18 @@ export function applyBeforeInputEdit(args: StudyEditArgs): StudyEditResult {
       handled: true,
       nextInput,
       shouldShake: false,
+      selectionStart: getSafeCaretPosition(target, nextInput, options, safeSelectionStart),
+      selectionEnd: getSafeCaretPosition(target, nextInput, options, safeSelectionStart),
     }
   }
 
   if (inputType.includes('Composition')) {
-    return { handled: false, nextInput: currentInput, shouldShake: false }
+    return { handled: false, nextInput: currentInput, shouldShake: false, selectionStart: null, selectionEnd: null }
   }
 
   const insertedText = getInsertedText(inputType, args.data)
   if (insertedText == null) {
-    return { handled: false, nextInput: currentInput, shouldShake: false }
+    return { handled: false, nextInput: currentInput, shouldShake: false, selectionStart: null, selectionEnd: null }
   }
 
   const replacementStart = Math.max(safeSelectionStart, correctUntil)
@@ -150,17 +154,20 @@ export function applyBeforeInputEdit(args: StudyEditArgs): StudyEditResult {
   }
 
   if (sanitizedText.length === 0) {
-    return { handled: true, nextInput: currentInput, shouldShake: false }
+    return { handled: true, nextInput: currentInput, shouldShake: false, selectionStart, selectionEnd }
   }
 
   const draft = currentInput.slice(0, replacementStart) + sanitizedText + currentInput.slice(replacementEnd)
   const nextInput = canonicalizeInput(target, draft, options)
   const nextCorrectUntil = compareInput(target, nextInput, options).correctUntil
+  const nextCaret = getSafeCaretPosition(target, nextInput, options, replacementStart + sanitizedText.length)
 
   return {
     handled: true,
     nextInput,
     shouldShake: nextCorrectUntil <= correctUntil,
+    selectionStart: nextCaret,
+    selectionEnd: nextCaret,
   }
 }
 
@@ -229,4 +236,9 @@ function applyDeletion(args: {
 
   if (selectionStart <= lockedLength) return currentInput
   return currentInput.slice(0, selectionStart - 1) + currentInput.slice(selectionEnd)
+}
+
+function getSafeCaretPosition(target: string, input: string, options: AssistanceOptions, preferredPosition: number) {
+  const { correctUntil } = compareInput(target, input, options)
+  return clampSelection(Math.max(correctUntil, preferredPosition), input.length)
 }
