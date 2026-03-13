@@ -93,7 +93,7 @@ export async function generateCardsWithGemini(prompt: string): Promise<Array<{ t
   }
 
   const ai = new GoogleGenAI({ apiKey })
-  const model = 'gemini-2.5-flash-lite'
+  const model = 'gemini-3.1-flash-lite-preview'
   const contents = [
     {
       role: 'user',
@@ -137,7 +137,7 @@ export async function generateMoreCardsWithGemini(deckName: string, existingCard
   }
 
   const ai = new GoogleGenAI({ apiKey })
-  const model = 'gemini-2.5-flash-lite'
+  const model = 'gemini-3.1-flash-lite-preview'
   const cardsContext = existingCards.map((c) => `- Title: ${c.title}\n  Content: ${c.content}`).join('\n')
   const contents = [
     {
@@ -188,7 +188,7 @@ export async function generateDeckWithAI(topic: string): Promise<{ name: string;
   }
 
   const ai = new GoogleGenAI({ apiKey })
-  const model = 'gemini-2.5-flash-lite'
+  const model = 'gemini-3.1-flash-lite-preview'
   const contents = [
     {
       role: 'user',
