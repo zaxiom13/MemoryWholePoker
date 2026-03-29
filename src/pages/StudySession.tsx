@@ -4,6 +4,7 @@ import { useData } from '@/contexts/DataContext'
 import type { AssistanceOptions, Card, UUID } from '@/types'
 import { defaultAssistance } from '@/types'
 import { applyBeforeInputEdit, compareInput, isAlphaNumOrSpace, reconcileRawInput } from '@/lib/studyInput'
+import { usePretextLayout } from '@/lib/usePretextLayout'
 // import { Button } from '@/components/ui/button'
 import BackBar from '@/components/BackBar'
 import Reveal from '@/components/Reveal'
@@ -184,6 +185,7 @@ export default function StudySession() {
   if (!card) return <p className="text-sm text-muted-foreground">Nothing to study.</p>
 
   const nextChars = target.slice(correctUntil, correctUntil + 8)
+  const typingSurfaceMinHeight = usePretextLayout(target, { lineHeight: 30, minHeight: 220, paddingY: 40 })
   const cardProgress = target.length > 0 ? Math.round((correctUntil / target.length) * 100) : 0
   const deckProgress = cards.length > 1 ? Math.round(((index + (correctUntil / target.length)) / cards.length) * 100) : 100
 
@@ -230,7 +232,8 @@ export default function StudySession() {
 
         {/* Combined highlighter + input */}
         <div
-          className="relative rounded-md border bg-muted/30 min-h-[240px] sm:min-h-[220px] md:min-h-[200px] [animation:var(--shake,none)] card-surface"
+          className="relative rounded-md border bg-muted/30 [animation:var(--shake,none)] card-surface"
+          style={{ minHeight: `${typingSurfaceMinHeight}px` }}
           onClick={(e) => {
             const el = (e.currentTarget.querySelector('textarea') as HTMLTextAreaElement | null)
             el?.focus()
