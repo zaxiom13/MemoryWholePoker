@@ -19,6 +19,8 @@ export type Deck = {
   id: UUID
   name: string
   description?: string
+  /** Library pack this deck was created from, if any. */
+  packId?: string
   createdAt: number
   updatedAt: number
 }

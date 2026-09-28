@@ -1,6 +1,7 @@
 import { createContext, useCallback, useContext, useEffect, useMemo, useRef, useState } from 'react'
 import { STORAGE_KEY, emptyState, nextStreak, storage } from '@/lib/storage'
-import { buildDemoState } from '@/lib/demoData'
+import { CLASSIC_PACKS, buildDemoState, packToDeck } from '@/lib/demoData'
+import { deckForPack, type Pack } from '@/lib/library'
 import type { AppStateShape, Card, Deck, TimeRecord, UUID } from '@/types'
 
 /** What was removed by a delete, so it can be undone. */
@@ -28,6 +29,8 @@ type DataContextType = {
   completeRun: (input: { chips: number }) => void
 
   loadDemoData: () => void
+  /** Adds library packs that aren't already on the table. Returns the decks added. */
+  addPacks: (packs: Pack[]) => Deck[]
   importData: (incoming: AppStateShape, mode: 'merge' | 'replace') => { decks: number; cards: number }
   resetAll: () => void
 }
@@ -188,20 +191,25 @@ export function DataProvider({ children }: { children: React.ReactNode }) {
     }))
   }, [])
 
-  const loadDemoData: DataContextType['loadDemoData'] = useCallback(() => {
-    const demo = buildDemoState()
+  const addPacks: DataContextType['addPacks'] = useCallback((packs) => {
+    const existing = stateRef.current.decks
+    const now = storage.now()
+    const built = packs.filter((p) => !deckForPack(existing, p)).map((p, i) => packToDeck(p, now + i * 1000))
+    if (built.length === 0) return []
     setState((s) => {
-      const existingNames = new Set(s.decks.map((d) => d.name.trim().toLowerCase()))
-      const decksToAdd = demo.decks.filter((d) => !existingNames.has(d.name.trim().toLowerCase()))
-      if (decksToAdd.length === 0) return s
-      const newDeckIds = new Set(decksToAdd.map((d) => d.id))
+      const fresh = built.filter((b) => !s.decks.some((d) => d.packId === b.deck.packId))
       return {
         ...s,
-        decks: [...s.decks, ...decksToAdd],
-        cards: [...s.cards, ...demo.cards.filter((c) => newDeckIds.has(c.deckId))],
+        decks: [...s.decks, ...fresh.map((b) => b.deck)],
+        cards: [...s.cards, ...fresh.flatMap((b) => b.cards)],
       }
     })
+    return built.map((b) => b.deck)
   }, [])
+
+  const loadDemoData: DataContextType['loadDemoData'] = useCallback(() => {
+    addPacks(CLASSIC_PACKS)
+  }, [addPacks])
 
   const importData: DataContextType['importData'] = useCallback((incoming, mode) => {
     if (mode === 'replace') {
@@ -245,10 +253,11 @@ export function DataProvider({ children }: { children: React.ReactNode }) {
       getBestTimes,
       completeRun,
       loadDemoData,
+      addPacks,
       importData,
       resetAll,
     }),
-    [state, storageError, createDeck, updateDeck, deleteDeck, createCard, createCards, updateCard, deleteCard, restore, addTimeRecord, getBestTimes, completeRun, loadDemoData, importData, resetAll]
+    [state, storageError, createDeck, updateDeck, deleteDeck, createCard, createCards, updateCard, deleteCard, restore, addTimeRecord, getBestTimes, completeRun, loadDemoData, addPacks, importData, resetAll]
   )
 
   return <DataContext.Provider value={value}>{children}</DataContext.Provider>

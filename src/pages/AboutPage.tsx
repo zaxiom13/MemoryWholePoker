@@ -1,4 +1,5 @@
 import { useRef, useState, type ReactNode } from 'react'
+import { Link } from 'react-router-dom'
 import { Download, Upload } from 'lucide-react'
 import PageHeader from '@/components/PageHeader'
 import ConfirmModal from '@/components/ConfirmModal'
@@ -12,7 +13,7 @@ import { parseImport, serializeExport } from '@/lib/storage'
 import type { AppStateShape } from '@/types'
 
 export default function AboutPage() {
-  const { state, importData, resetAll, loadDemoData } = useData()
+  const { state, importData, resetAll } = useData()
   const prefs = usePrefs()
   const toast = useToast()
   const fileRef = useRef<HTMLInputElement | null>(null)
@@ -109,8 +110,8 @@ export default function AboutPage() {
             <Upload /> Import backup
           </Button>
           <input ref={fileRef} type="file" accept="application/json,.json" className="hidden" onChange={(e) => void onFile(e.target.files?.[0])} />
-          <Button variant="ghost" onClick={() => { loadDemoData(); toast({ kind: 'success', message: 'Sample decks added (existing ones kept).' }) }}>
-            Add sample decks
+          <Button variant="ghost" asChild>
+            <Link to="/library">Deck library</Link>
           </Button>
           <Button variant="ghost" className="text-destructive hover:text-destructive" onClick={() => setConfirmReset(true)}>
             Erase everything

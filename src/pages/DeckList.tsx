@@ -1,16 +1,20 @@
 import { useMemo } from 'react'
 import { Link } from 'react-router-dom'
-import { Flame, Layers, Play, Plus, Sparkles } from 'lucide-react'
+import { Flame, Layers, Library, Play, Plus, Sparkles, X } from 'lucide-react'
 import { useData } from '@/contexts/DataContext'
 import { Button } from '@/components/ui/button'
 import HandBadge from '@/components/HandBadge'
 import { useAiAvailable } from '@/lib/ai'
 import { bestHand, suitFor } from '@/lib/records'
+import { LEARNKIT_PACKS, deckForPack } from '@/lib/library'
+import { setPrefs, usePrefs } from '@/lib/prefs'
 
 export default function DeckList() {
   const { state, loadDemoData } = useData()
   const ai = useAiAvailable()
+  const { libraryHintDismissed } = usePrefs()
   const { profile } = state
+  const newPacks = LEARNKIT_PACKS.filter((p) => !deckForPack(state.decks, p)).length
 
   const deckCounts = useMemo(() => {
     const counts: Record<string, number> = {}
@@ -43,8 +47,28 @@ export default function DeckList() {
         )}
       </section>
 
+      {newPacks > 0 && !libraryHintDismissed && (
+        <div className="felt-panel mb-6 flex items-center gap-3 px-4 py-3">
+          <Library className="size-5 shrink-0 text-gold" />
+          <p className="flex-1 text-sm">
+            <strong>New in the library:</strong> {newPacks} decks from LearnKit courses (physics, computing, history, Linux and more).
+          </p>
+          <Button size="sm" asChild>
+            <Link to="/library">Browse</Link>
+          </Button>
+          <button className="grid size-8 place-items-center rounded-full text-muted-foreground hover:bg-white/10" aria-label="Dismiss" onClick={() => setPrefs({ libraryHintDismissed: true })}>
+            <X className="size-4" />
+          </button>
+        </div>
+      )}
+
       <div className="mb-5 flex flex-wrap items-center gap-2">
         <h2 className="mr-auto text-xl font-semibold sm:text-2xl">Decks</h2>
+        <Button variant="secondary" size="sm" asChild>
+          <Link to="/library">
+            <Library /> Library
+          </Link>
+        </Button>
         {state.cards.length > 0 && (
           <Button variant="secondary" size="sm" asChild>
             <Link to="/study/all/setup">
@@ -79,7 +103,12 @@ export default function DeckList() {
                 <Plus /> New deck
               </Link>
             </Button>
-            <Button variant="secondary" onClick={loadDemoData}>
+            <Button variant="secondary" asChild>
+              <Link to="/library">
+                <Library /> Browse the library
+              </Link>
+            </Button>
+            <Button variant="ghost" onClick={loadDemoData}>
               Load sample decks
             </Button>
           </div>

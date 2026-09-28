@@ -20,6 +20,7 @@ function toDeck(v: unknown): Deck | null {
     id: v.id,
     name: v.name,
     description: isStr(v.description) && v.description ? v.description : undefined,
+    ...(isStr(v.packId) ? { packId: v.packId } : {}),
     createdAt: num(v.createdAt, Date.now()),
     updatedAt: num(v.updatedAt, Date.now()),
   }
