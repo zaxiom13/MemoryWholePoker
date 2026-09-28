@@ -1,0 +1,14 @@
+{
+  "name": "MemoryWholed",
+  "short_name": "MemoryWholed",
+  "description": "Type it from memory, get dealt a hand.",
+  "start_url": "/",
+  "scope": "/",
+  "display": "standalone",
+  "orientation": "portrait-primary",
+  "background_color": "#1f4d3a",
+  "theme_color": "#3b2a1c",
+  "icons": [
+    { "src": "/icon.svg", "sizes": "any", "type": "image/svg+xml", "purpose": "any" }
+  ]
+}

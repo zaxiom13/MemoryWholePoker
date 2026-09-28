@@ -1,12 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import {
-  generateCardsWithGemini,
-  generateDeckWithAI,
-  generateMoreCardsWithGemini,
-  normalizeCards,
-  parseCardsFromText,
-  parseDeckFromText,
-} from '@/lib/gemini'
+import { normalizeCards, parseCardsFromText, parseDeckFromText } from './parse'
 
 describe('parseCardsFromText', () => {
   it('parses fenced JSON card output', () => {
@@ -104,18 +97,8 @@ describe('normalizeCards', () => {
       { title: 'Question', content: 'Answer' },
     ])
   })
-})
 
-describe('Gemini API guards', () => {
-  it('throws when generating cards without an API key', async () => {
-    await expect(generateCardsWithGemini('topic')).rejects.toThrow('Gemini API key missing')
-  })
-
-  it('throws when generating more cards without an API key', async () => {
-    await expect(generateMoreCardsWithGemini('deck', [])).rejects.toThrow('Gemini API key missing')
-  })
-
-  it('throws when generating a deck without an API key', async () => {
-    await expect(generateDeckWithAI('topic')).rejects.toThrow('Gemini API key missing')
+  it('dedupes cards by title', () => {
+    expect(normalizeCards([{ title: 'A', content: '1' }, { title: 'a ', content: '2' }])).toEqual([{ title: 'A', content: '1' }])
   })
 })

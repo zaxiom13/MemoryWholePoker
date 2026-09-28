@@ -1,8 +1,11 @@
 import { useMemo } from 'react'
-import { useParams } from 'react-router-dom'
-import { Ghost, Eye, WandSparkles } from 'lucide-react'
-import BackBar from '@/components/BackBar'
+import { Link, useParams } from 'react-router-dom'
+import { Eye, Ghost, Play, Type, WandSparkles } from 'lucide-react'
+import PageHeader from '@/components/PageHeader'
+import HandBadge from '@/components/HandBadge'
 import { useData } from '@/contexts/DataContext'
+import { formatTime } from '@/lib/scoring'
+import type { AssistanceOptions, TimeRecord } from '@/types'
 
 export default function DeckBestTimesPage() {
   const { deckId } = useParams()
@@ -10,78 +13,88 @@ export default function DeckBestTimesPage() {
   const deck = state.decks.find((d) => d.id === deckId)
   const cards = useMemo(() => state.cards.filter((c) => c.deckId === deckId), [state.cards, deckId])
 
-  if (!deck || !deckId) return <p className="text-sm text-muted-foreground">Deck not found.</p>
+  if (!deck) return <PageHeader back="/" backLabel="Decks" title="Deck not found" />
+
+  const deckTimes = getBestTimes('deck', deck.id)
+  const cardRows = cards.map((c) => ({ card: c, times: getBestTimes('card', c.id) }))
+  const played = cardRows.filter((r) => r.times.length > 0)
+  const unplayed = cardRows.length - played.length
 
   return (
-    <div className="max-w-2xl mx-auto space-y-6 px-3 sm:px-4 md:px-0">
-      <BackBar to="/" title={`Best Times - ${deck.name}`} />
-      <div className="playing-card p-4 sm:p-5 space-y-4">
-        <div>
-          <div className="text-sm font-medium mb-1">Deck</div>
-          {renderDeckTimes(getBestTimes('deck', deckId))}
-        </div>
-        <div>
-          <div className="text-sm font-medium mb-1">Cards</div>
-          {cards.length === 0 ? (
-            <div className="text-sm text-black/70">No cards yet.</div>
-          ) : (
-            <ul className="grid gap-2">
-              {cards
-                .map((c) => ({ id: c.id, title: c.title, times: getBestTimes('card', c.id) }))
-                .filter((x) => x.times.length > 0)
-                .map((x) => (
-                  <li key={x.id} className="playing-card p-3">
-                    <div className="font-medium text-black">{x.title}</div>
-                    {renderTimesList(x.times)}
-                  </li>
-                ))}
-              {cards.every((c) => getBestTimes('card', c.id).length === 0) && (
-                <div className="text-sm text-black/70">No times recorded yet.</div>
-              )}
-            </ul>
-          )}
-        </div>
-      </div>
+    <div className="mx-auto max-w-2xl">
+      <PageHeader back={`/decks/${deck.id}`} backLabel={deck.name} title="Best times" subtitle="Your top runs, fastest first." />
+
+      <section className="playing-card mb-5 p-5 sm:p-6" data-suit="♠">
+        <h2 className="mb-3 text-lg font-semibold">Whole deck</h2>
+        {deckTimes.length === 0 ? (
+          <p className="text-sm text-muted-foreground">
+            No full-deck runs yet.{' '}
+            {cards.length > 0 && (
+              <Link to={`/study/deck/${deck.id}/setup`} className="font-semibold text-primary underline-offset-4 hover:underline">
+                Play the deck
+              </Link>
+            )}
+          </p>
+        ) : (
+          <RecordList records={deckTimes} />
+        )}
+      </section>
+
+      <section className="playing-card p-5 sm:p-6" data-suit="♥">
+        <h2 className="mb-3 text-lg font-semibold">Cards</h2>
+        {played.length === 0 ? (
+          <p className="text-sm text-muted-foreground">No card runs yet.</p>
+        ) : (
+          <ul className="divide-y">
+            {played.map(({ card, times }) => (
+              <li key={card.id} className="py-3 first:pt-0 last:pb-0">
+                <div className="mb-1.5 flex items-center gap-2">
+                  <span className="min-w-0 flex-1 truncate font-semibold">{card.title || 'Untitled'}</span>
+                  <Link to={`/study/card/${card.id}/setup`} className="grid size-8 place-items-center rounded-full bg-primary text-primary-foreground" aria-label={`Play ${card.title}`}>
+                    <Play className="size-3.5 translate-x-px fill-current" />
+                  </Link>
+                </div>
+                <RecordList records={times.slice(0, 3)} compact />
+              </li>
+            ))}
+          </ul>
+        )}
+        {unplayed > 0 && played.length > 0 && (
+          <p className="mt-4 text-sm text-muted-foreground">
+            {unplayed} card{unplayed === 1 ? '' : 's'} not played yet.
+          </p>
+        )}
+      </section>
     </div>
   )
 }
 
-function format(ms: number) {
-  const total = Math.floor(ms / 1000)
-  const m = Math.floor(total / 60)
-  const s = total % 60
-  return `${String(m).padStart(2, '0')}:${String(s).padStart(2, '0')}`
-}
-
-function renderFlags(a: { ghostText: boolean; fullText: boolean; autocorrect: boolean }) {
-  if (!a.ghostText && !a.fullText && !a.autocorrect) return null
+function RecordList({ records, compact }: { records: TimeRecord[]; compact?: boolean }) {
   return (
-    <span className="inline-flex items-center gap-1.5 text-muted-foreground align-middle ml-1">
-      {a.ghostText && <span title="Ghost Text" aria-label="Ghost Text"><Ghost className="h-3.5 w-3.5" /></span>}
-      {a.fullText && <span title="See Full Text" aria-label="See Full Text"><Eye className="h-3.5 w-3.5" /></span>}
-      {a.autocorrect && <span title="Autocorrect" aria-label="Autocorrect"><WandSparkles className="h-3.5 w-3.5" /></span>}
-    </span>
-  )
-}
-
-function renderTimesList(times: { id: string; elapsedMs: number; assistance: { ghostText: boolean; fullText: boolean; autocorrect: boolean } }[]) {
-  return (
-    <ol className="text-xs list-decimal list-inside text-black/80">
-      {times.map((r) => (
-        <li key={r.id}>
-          {format(r.elapsedMs)} {renderFlags(r.assistance)}
+    <ol className={compact ? 'space-y-1' : 'space-y-2'}>
+      {records.map((r, i) => (
+        <li key={r.id} className="flex flex-wrap items-center gap-x-3 gap-y-1 text-sm">
+          <span className="w-5 text-muted-foreground tabular-nums">{i + 1}.</span>
+          <span className="font-mono font-semibold tabular-nums">{formatTime(r.elapsedMs)}</span>
+          {r.wpm != null && <span className="text-muted-foreground tabular-nums">{r.wpm} wpm</span>}
+          {r.accuracy != null && <span className="text-muted-foreground tabular-nums">{r.accuracy}%</span>}
+          <HandBadge hand={r.hand} />
+          <Assists a={r.assistance} />
+          {!compact && <span className="ml-auto text-xs text-muted-foreground">{new Date(r.completedAt).toLocaleDateString()}</span>}
         </li>
       ))}
     </ol>
   )
 }
 
-function renderDeckTimes(times: { id: string; elapsedMs: number; assistance: { ghostText: boolean; fullText: boolean; autocorrect: boolean } }[]) {
-  if (times.length === 0) return <div className="text-sm text-black/70">No deck times yet.</div>
+function Assists({ a }: { a: AssistanceOptions }) {
+  if (a.reveal === 'none' && !a.ghostText && !a.autocorrect) return null
   return (
-    <div className="text-sm text-black/80">
-      Best: {format(times[0].elapsedMs)} {renderFlags(times[0].assistance)}
-      {times.length > 1 && <div className="mt-1">{renderTimesList(times)}</div>}
-    </div>
+    <span className="inline-flex items-center gap-1.5 text-muted-foreground">
+      {a.reveal === 'full' && <Eye className="size-3.5" aria-label="Full text" />}
+      {(a.reveal === 'initials' || a.reveal === 'blanks') && <Type className="size-3.5" aria-label={a.reveal === 'initials' ? 'First letters' : 'Blanks'} />}
+      {a.ghostText && <Ghost className="size-3.5" aria-label="Ghost text" />}
+      {a.autocorrect && <WandSparkles className="size-3.5" aria-label="Lenient" />}
+    </span>
   )
 }

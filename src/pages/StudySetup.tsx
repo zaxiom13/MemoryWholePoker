@@ -1,74 +1,141 @@
-import { useState, type ReactNode } from 'react'
+import { useMemo, useState, type ReactNode } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
+import { Ghost, Play, Shuffle, WandSparkles } from 'lucide-react'
 import { Button } from '@/components/ui/button'
-import type { AssistanceOptions } from '@/types'
-import { defaultAssistance } from '@/types'
-import BackBar from '@/components/BackBar'
-import Reveal from '@/components/Reveal'
-import { Eye, WandSparkles, Ghost, Layers } from 'lucide-react'
+import { Switch } from '@/components/ui/switch'
+import { Segmented } from '@/components/ui/segmented'
+import PageHeader from '@/components/PageHeader'
+import { useData } from '@/contexts/DataContext'
+import { getPrefs, sessionToParams, setPrefs } from '@/lib/prefs'
+import { HANDS, assistanceCap } from '@/lib/scoring'
+import { isWhitespace, isWordChar, wordInitials } from '@/lib/studyInput'
+import type { RevealMode, SessionOptions } from '@/types'
+
+const REVEAL_OPTIONS: Array<{ value: RevealMode; label: string; description: string }> = [
+  { value: 'none', label: 'None', description: 'Pure recall. Nothing is shown ahead of your cursor.' },
+  { value: 'blanks', label: 'Blanks', description: 'See the shape of each word, but none of its letters.' },
+  { value: 'initials', label: 'Initials', description: 'First letter of every word: a classic memorization technique.' },
+  { value: 'full', label: 'Full', description: 'Type over the full text. Great for a first read-through.' },
+]
+
+const SAMPLE = 'To be, or not to be, that is the question.'
 
 export default function StudySetup() {
   const navigate = useNavigate()
   const { cardId, deckId } = useParams()
+  const { state } = useData()
   const mode = cardId ? 'card' : deckId ? 'deck' : 'all'
-  const [opts, setOpts] = useState<AssistanceOptions>({ ...defaultAssistance })
+  const [opts, setOpts] = useState<SessionOptions>(() => getPrefs().session)
 
-  function start() {
-    const base = mode === 'card' ? `/study/card/${cardId}` : mode === 'deck' ? `/study/deck/${deckId}` : '/study/all'
-    navigate(base, { state: { options: opts } })
+  const card = cardId ? state.cards.find((c) => c.id === cardId) : undefined
+  const deck = deckId ? state.decks.find((d) => d.id === deckId) : card ? state.decks.find((d) => d.id === card.deckId) : undefined
+  const count = mode === 'card' ? 1 : mode === 'deck' ? state.cards.filter((c) => c.deckId === deckId).length : state.cards.length
+  const backTo = deck ? `/decks/${deck.id}` : '/'
+  const cap = HANDS[assistanceCap(opts)]
+  const sample = card?.content.split('\n')[0].slice(0, 80) || SAMPLE
+
+  function update(patch: Partial<SessionOptions>) {
+    setOpts((o) => ({ ...o, ...patch }))
   }
 
+  function start() {
+    setPrefs({ session: opts })
+    const base = mode === 'card' ? `/study/card/${cardId}` : mode === 'deck' ? `/study/deck/${deckId}` : '/study/all'
+    navigate(base + sessionToParams(opts))
+  }
+
+  if ((mode === 'card' && !card) || (mode === 'deck' && !deck)) {
+    return <PageHeader back="/" title="Not found" subtitle="That card or deck no longer exists." />
+  }
+
+  const heading = mode === 'card' ? card!.title : mode === 'deck' ? deck!.name : 'Every deck'
+
   return (
-    <div className="max-w-xl mx-auto space-y-6 px-3 sm:px-4 md:px-0">
-      <BackBar to={mode === 'card' ? '/' : mode === 'deck' ? `/decks/${deckId}` : '/'} title="Study Options" />
-      {mode === 'all' && (
-        <div className="playing-card p-3 text-sm flex items-center gap-2">
-          <Layers className="h-4 w-4 text-primary" />
-          Studying all cards from all decks.
+    <div className="mx-auto max-w-xl">
+      <PageHeader back={backTo} title={heading} subtitle={`${count} card${count === 1 ? '' : 's'} · pick your house rules`} />
+
+      <div className="playing-card space-y-6 p-5 sm:p-7" data-suit="♣">
+        <section>
+          <h2 className="mb-1 font-sans text-sm font-semibold uppercase tracking-wider text-muted-foreground">Show ahead</h2>
+          <Segmented label="Show ahead" value={opts.reveal} onChange={(reveal) => update({ reveal })} options={REVEAL_OPTIONS} className="mt-2" />
+          <p className="mt-2 text-sm text-muted-foreground">{REVEAL_OPTIONS.find((o) => o.value === opts.reveal)?.description}</p>
+          <RevealPreview text={sample} reveal={opts.reveal} />
+        </section>
+
+        <div className="space-y-1 border-t pt-4">
+          <ToggleRow
+            icon={<Ghost />}
+            label="Ghost text"
+            description="Pause for a moment and the next word fades in."
+            checked={opts.ghostText}
+            onChange={(ghostText) => update({ ghostText })}
+          />
+          <ToggleRow
+            icon={<WandSparkles />}
+            label="Lenient typing"
+            description="Ignore capitals and accents; punctuation types itself. Handy on phones."
+            checked={opts.autocorrect}
+            onChange={(autocorrect) => update({ autocorrect })}
+          />
+          {mode !== 'card' && (
+            <ToggleRow icon={<Shuffle />} label="Shuffle cards" description="Deal the cards in a random order." checked={opts.shuffle} onChange={(shuffle) => update({ shuffle })} />
+          )}
         </div>
-      )}
-      <p className="text-base sm:text-lg text-muted-foreground animate-in fade-in-0 slide-in-from-top-2 duration-300 leading-relaxed">Choose optional assistance for this session. Settings apply only to this run.</p>
 
-      <Reveal as="div" className="grid gap-5 playing-card p-5 sm:p-6" delay={60}>
-        <ToggleRow
-          icon={<Ghost className="h-5 w-5 text-primary" />}
-          label="Ghost Text"
-          description="Faintly show the next few characters inline as you type."
-          checked={opts.ghostText}
-          onChange={(v) => setOpts((o) => ({ ...o, ghostText: v }))}
-        />
-        <ToggleRow
-          icon={<Eye className="h-5 w-5 text-primary" />}
-          label="See Full Text"
-          description="Display the entire prose for reference during typing."
-          checked={opts.fullText}
-          onChange={(v) => setOpts((o) => ({ ...o, fullText: v }))}
-        />
-        <ToggleRow
-          icon={<WandSparkles className="h-5 w-5 text-primary" />}
-          label="Autocorrect"
-          description="Ignore case mismatches; auto-insert punctuation after a correct preceding character."
-          checked={opts.autocorrect}
-          onChange={(v) => setOpts((o) => ({ ...o, autocorrect: v }))}
-        />
-      </Reveal>
+        <div className="flex items-center justify-between gap-3 rounded-xl bg-muted px-4 py-3 text-sm">
+          <span className="text-muted-foreground">Best hand possible</span>
+          <span className="font-semibold">
+            <span className={cap.cards[0].match(/[♥♦]/) ? 'text-suit-red' : ''}>{cap.cards[0]}</span> {cap.name}
+          </span>
+        </div>
+      </div>
 
-      <div>
-        <Button onClick={start} className="animate-in fade-in-0 slide-in-from-bottom-2 duration-300 w-full sm:w-auto min-h-[44px] text-base">Start</Button>
+      <div className="safe-bottom sticky bottom-0 z-10 -mx-4 mt-6 bg-gradient-to-t from-[var(--felt)] via-[color-mix(in_oklch,var(--felt)_85%,transparent)] to-transparent px-4 pt-6">
+        <Button size="lg" className="w-full text-base" onClick={start} disabled={count === 0}>
+          <Play className="fill-current" /> Deal me in
+        </Button>
       </div>
     </div>
   )
 }
 
 function ToggleRow({ icon, label, description, checked, onChange }: { icon: ReactNode; label: string; description: string; checked: boolean; onChange: (v: boolean) => void }) {
+  const id = label.replace(/\s+/g, '-').toLowerCase()
   return (
-    <label className="flex items-start gap-3 cursor-pointer">
-      <span className="mt-0.5">{icon}</span>
-      <input type="checkbox" className="mt-1 w-5 h-5 cursor-pointer" checked={checked} onChange={(e) => onChange(e.target.checked)} />
-      <span className="flex-1">
-        <span className="flex items-center gap-2 font-medium text-base sm:text-lg">{label}</span>
-        <span className="block text-sm sm:text-base text-muted-foreground leading-relaxed">{description}</span>
-      </span>
-    </label>
+    <div className="flex items-center gap-3 py-2">
+      <span className="grid size-10 shrink-0 place-items-center rounded-full bg-muted text-primary [&_svg]:size-5">{icon}</span>
+      <div className="min-w-0 flex-1">
+        <label htmlFor={id} id={`${id}-label`} className="block cursor-pointer font-semibold">
+          {label}
+        </label>
+        <p id={`${id}-desc`} className="text-sm leading-snug text-muted-foreground">
+          {description}
+        </p>
+      </div>
+      <Switch id={id} checked={checked} onCheckedChange={onChange} aria-labelledby={`${id}-label`} aria-describedby={`${id}-desc`} />
+    </div>
+  )
+}
+
+function RevealPreview({ text, reveal }: { text: string; reveal: RevealMode }) {
+  const typed = Math.min(text.length, Math.max(6, text.indexOf(' ', 8)))
+  const initials = useMemo(() => wordInitials(text), [text])
+  const rest = text.slice(typed)
+  return (
+    <div className="study-type mt-3 rounded-xl border border-dashed px-4 py-3 !text-lg" aria-hidden>
+      <span className="t-correct">{text.slice(0, typed)}</span>
+      <span className="caret" />
+      {reveal !== 'none' &&
+        [...rest].map((ch, i) => {
+          const k = typed + i
+          if (isWhitespace(ch)) return <span key={k}>{ch}</span>
+          const cls = reveal === 'full' || !isWordChar(ch) || (reveal === 'initials' && initials[k]) ? 't-hint' : 't-blank'
+          return (
+            <span key={k} className={cls}>
+              {ch}
+            </span>
+          )
+        })}
+    </div>
   )
 }
