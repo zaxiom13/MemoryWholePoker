@@ -1,74 +1,83 @@
-import { createContext, useCallback, useContext, useEffect, useMemo, useState } from 'react'
-import { storage } from '@/lib/storage'
-import type { AppStateShape, AssistanceOptions, Card, Deck, TimeRecord, UUID } from '@/types'
+import { createContext, useCallback, useContext, useEffect, useMemo, useRef, useState } from 'react'
+import { STORAGE_KEY, emptyState, nextStreak, storage } from '@/lib/storage'
+import { buildDemoState } from '@/lib/demoData'
+import type { AppStateShape, Card, Deck, TimeRecord, UUID } from '@/types'
+
+/** What was removed by a delete, so it can be undone. */
+export type Snapshot = { decks: Deck[]; cards: Card[]; records: TimeRecord[] }
+
+type NewRecord = Omit<TimeRecord, 'id' | 'completedAt'>
 
 type DataContextType = {
   state: AppStateShape
+  storageError: string | null
+
   createDeck: (input: { name: string; description?: string }) => Deck
   updateDeck: (id: UUID, input: { name?: string; description?: string }) => void
-  deleteDeck: (id: UUID) => void
+  deleteDeck: (id: UUID) => Snapshot
 
   createCard: (input: { deckId: UUID; title: string; content: string }) => Card
+  createCards: (deckId: UUID, cards: Array<{ title: string; content: string }>) => Card[]
   updateCard: (id: UUID, input: { title?: string; content?: string }) => void
-  deleteCard: (id: UUID) => void
+  deleteCard: (id: UUID) => Snapshot
 
-  addTimeRecord: (input: { scope: 'card' | 'deck'; scopeId: UUID; elapsedMs: number; assistance: AssistanceOptions }) => void
+  restore: (snapshot: Snapshot) => void
+
+  addTimeRecord: (input: NewRecord) => TimeRecord
   getBestTimes: (scope: 'card' | 'deck', scopeId: UUID) => TimeRecord[]
+  completeRun: (input: { chips: number }) => void
+
   loadDemoData: () => void
+  importData: (incoming: AppStateShape, mode: 'merge' | 'replace') => { decks: number; cards: number }
+  resetAll: () => void
 }
+
+/** Best times kept per card / deck. */
+const KEEP_RECORDS = 5
 
 const DataContext = createContext<DataContextType | null>(null)
 
+function initialState(): AppStateShape {
+  const loaded = storage.load()
+  if (loaded.seeded) return loaded
+  // First visit: deal some demo decks so there's something to play right away.
+  return { ...loaded, ...buildDemoState(), seeded: true }
+}
+
 export function DataProvider({ children }: { children: React.ReactNode }) {
-  const [state, setState] = useState<AppStateShape>(() => storage.load())
+  const [state, setState] = useState<AppStateShape>(initialState)
+  const [storageError, setStorageError] = useState<string | null>(null)
+  const skipNextSave = useRef(false)
+  // Latest committed state, for actions that need to report what they changed.
+  const stateRef = useRef(state)
 
   useEffect(() => {
-    storage.save(state)
+    if (skipNextSave.current) {
+      skipNextSave.current = false
+      return
+    }
+    setStorageError(storage.save(state))
   }, [state])
 
-  // Seed sample decks/cards on first run (when no data exists)
   useEffect(() => {
-    if (state.decks.length === 0 && state.cards.length === 0 && state.records.length === 0) {
-      setState(buildDemoState())
+    stateRef.current = state
+  }, [state])
+
+  // Keep multiple open tabs in sync.
+  useEffect(() => {
+    const onStorage = (e: StorageEvent) => {
+      if (e.key !== STORAGE_KEY || e.newValue == null) return
+      skipNextSave.current = true
+      setState(storage.load())
     }
-  }, [state.cards.length, state.decks.length, state.records.length])
+    window.addEventListener('storage', onStorage)
+    return () => window.removeEventListener('storage', onStorage)
+  }, [])
 
-  function buildDemoState(): AppStateShape {
-    const now = storage.now()
-    const d1: Deck = { id: storage.uuid(), name: 'Scientific Reasoning', description: 'Core ideas in logic, evidence, and inference.', createdAt: now, updatedAt: now }
-    const d2: Deck = { id: storage.uuid(), name: 'World History Milestones', description: 'Turning points that reshaped institutions and ideas.', createdAt: now, updatedAt: now }
-    const d3: Deck = { id: storage.uuid(), name: 'Constitutional Government', description: 'Key principles behind modern democratic systems.', createdAt: now, updatedAt: now }
-    const d4: Deck = { id: storage.uuid(), name: 'Economics in One Page', description: 'High-leverage concepts from micro and macroeconomics.', createdAt: now, updatedAt: now }
-    const cards: Card[] = [
-      { id: storage.uuid(), deckId: d1.id, title: 'Falsifiability', content: 'A scientific claim must be testable in a way that could prove it wrong, not only confirm it.', createdAt: now, updatedAt: now },
-      { id: storage.uuid(), deckId: d1.id, title: 'Null and Alternative Hypotheses', content: 'The null hypothesis states no effect or no difference; evidence must be strong enough to reject it in favor of an alternative.', createdAt: now, updatedAt: now },
-      { id: storage.uuid(), deckId: d1.id, title: 'Correlation vs Causation', content: 'Correlation shows variables move together. Causation means one variable produces change in another; this requires stronger evidence.', createdAt: now, updatedAt: now },
-      { id: storage.uuid(), deckId: d1.id, title: 'Bayes Rule (plain language)', content: 'Update your belief by combining prior probability with new evidence, weighted by how likely that evidence is under each explanation.', createdAt: now, updatedAt: now },
-      { id: storage.uuid(), deckId: d1.id, title: 'Occams Razor', content: 'Among explanations that fit the facts, prefer the one with the fewest unnecessary assumptions.', createdAt: now, updatedAt: now },
-
-      { id: storage.uuid(), deckId: d2.id, title: 'Magna Carta (1215)', content: 'Limited royal power and advanced the principle that rulers are subject to law.', createdAt: now, updatedAt: now },
-      { id: storage.uuid(), deckId: d2.id, title: 'Printing Press (15th century)', content: 'Cheap reproduction of texts accelerated literacy, scholarship, and religious and political debate.', createdAt: now, updatedAt: now },
-      { id: storage.uuid(), deckId: d2.id, title: 'Peace of Westphalia (1648)', content: 'Helped establish the norm of state sovereignty and non-interference in domestic affairs.', createdAt: now, updatedAt: now },
-      { id: storage.uuid(), deckId: d2.id, title: 'Industrial Revolution', content: 'Mechanization and fossil-fuel energy drove productivity growth, urbanization, and major social transformation.', createdAt: now, updatedAt: now },
-      { id: storage.uuid(), deckId: d2.id, title: 'Fall of the Berlin Wall (1989)', content: 'Symbolized the collapse of communist regimes in Eastern Europe and the approaching end of the Cold War.', createdAt: now, updatedAt: now },
-
-      { id: storage.uuid(), deckId: d3.id, title: 'Separation of Powers', content: 'Government authority is split among legislative, executive, and judicial branches to reduce concentration of power.', createdAt: now, updatedAt: now },
-      { id: storage.uuid(), deckId: d3.id, title: 'Checks and Balances', content: 'Each branch has tools to constrain the others, such as vetoes, judicial review, and legislative oversight.', createdAt: now, updatedAt: now },
-      { id: storage.uuid(), deckId: d3.id, title: 'Federalism', content: 'Sovereign authority is divided between national and subnational governments with distinct responsibilities.', createdAt: now, updatedAt: now },
-      { id: storage.uuid(), deckId: d3.id, title: 'Due Process', content: 'The state must follow fair procedures and respect legal rights before depriving anyone of life, liberty, or property.', createdAt: now, updatedAt: now },
-      { id: storage.uuid(), deckId: d3.id, title: 'Rule of Law', content: 'Laws govern both citizens and leaders, and legal rules are applied predictably rather than by arbitrary power.', createdAt: now, updatedAt: now },
-
-      { id: storage.uuid(), deckId: d4.id, title: 'Opportunity Cost', content: 'The true cost of a choice is the value of the best alternative you give up.', createdAt: now, updatedAt: now },
-      { id: storage.uuid(), deckId: d4.id, title: 'Comparative Advantage', content: 'Trade benefits parties when each specializes in what they produce at lower opportunity cost.', createdAt: now, updatedAt: now },
-      { id: storage.uuid(), deckId: d4.id, title: 'Marginal Analysis', content: 'Good decisions compare additional benefit with additional cost at the margin, not total averages.', createdAt: now, updatedAt: now },
-      { id: storage.uuid(), deckId: d4.id, title: 'Inflation', content: 'A sustained rise in the general price level reduces purchasing power; real values adjust nominal values for inflation.', createdAt: now, updatedAt: now },
-      { id: storage.uuid(), deckId: d4.id, title: 'Monetary vs Fiscal Policy', content: 'Monetary policy uses interest rates and money conditions; fiscal policy uses taxes and public spending.', createdAt: now, updatedAt: now },
-    ]
-    return { decks: [d1, d2, d3, d4], cards, records: [] }
-  }
   const createDeck: DataContextType['createDeck'] = useCallback((input) => {
     const now = storage.now()
-    const deck: Deck = { id: storage.uuid(), name: input.name.trim(), description: input.description?.trim(), createdAt: now, updatedAt: now }
+    const description = input.description?.trim()
+    const deck: Deck = { id: storage.uuid(), name: input.name.trim(), description: description || undefined, createdAt: now, updatedAt: now }
     setState((s) => ({ ...s, decks: [...s.decks, deck] }))
     return deck
   }, [])
@@ -81,89 +90,165 @@ export function DataProvider({ children }: { children: React.ReactNode }) {
   }, [])
 
   const deleteDeck: DataContextType['deleteDeck'] = useCallback((id) => {
-    setState((s) => ({
-      decks: s.decks.filter((d) => d.id !== id),
-      cards: s.cards.filter((c) => c.deckId !== id),
-      records: s.records.filter((r) => !(r.scope === 'deck' && r.scopeId === id) && !s.cards.some((c) => c.deckId === id && r.scope === 'card' && r.scopeId === c.id)),
+    const s = stateRef.current
+    const cardIds = new Set(s.cards.filter((c) => c.deckId === id).map((c) => c.id))
+    const isGone = (r: TimeRecord) => (r.scope === 'deck' && r.scopeId === id) || (r.scope === 'card' && cardIds.has(r.scopeId))
+    const snapshot: Snapshot = {
+      decks: s.decks.filter((d) => d.id === id),
+      cards: s.cards.filter((c) => cardIds.has(c.id)),
+      records: s.records.filter(isGone),
+    }
+    setState((cur) => ({
+      ...cur,
+      decks: cur.decks.filter((d) => d.id !== id),
+      cards: cur.cards.filter((c) => c.deckId !== id),
+      records: cur.records.filter((r) => !isGone(r)),
     }))
+    return snapshot
   }, [])
 
-  const createCard: DataContextType['createCard'] = useCallback((input) => {
+  const createCards: DataContextType['createCards'] = useCallback((deckId, inputs) => {
     const now = storage.now()
-    const card: Card = { id: storage.uuid(), deckId: input.deckId, title: input.title.trim(), content: input.content, createdAt: now, updatedAt: now }
+    const cards: Card[] = inputs
+      .filter((c) => c.content.trim())
+      .map((c, i) => ({ id: storage.uuid(), deckId, title: c.title.trim() || 'Untitled', content: c.content.trim(), createdAt: now + i, updatedAt: now }))
+    if (cards.length === 0) return []
     setState((s) => ({
       ...s,
-      cards: [...s.cards, card],
-      // Adding a card invalidates best deck times for this deck
-      records: s.records.filter((r) => !(r.scope === 'deck' && r.scopeId === input.deckId)),
+      cards: [...s.cards, ...cards],
+      // A deck time only means something for the exact set of cards it was set with.
+      records: s.records.filter((r) => !(r.scope === 'deck' && r.scopeId === deckId)),
     }))
-    return card
+    return cards
   }, [])
+
+  const createCard: DataContextType['createCard'] = useCallback(
+    (input) => createCards(input.deckId, [input])[0],
+    [createCards]
+  )
 
   const updateCard: DataContextType['updateCard'] = useCallback((id, input) => {
     setState((s) => {
       const existing = s.cards.find((c) => c.id === id)
-      const deckId = existing?.deckId
+      if (!existing) return s
+      const contentChanged = input.content != null && input.content !== existing.content
       const cards = s.cards.map((c) => (c.id === id ? { ...c, ...input, updatedAt: storage.now() } : c))
-      // Changing a card's title/content (or moving deck) invalidates best deck times for that deck
-      const records = deckId ? s.records.filter((r) => !(r.scope === 'deck' && r.scopeId === deckId)) : s.records
+      const records = contentChanged
+        ? s.records.filter((r) => !(r.scope === 'card' && r.scopeId === id) && !(r.scope === 'deck' && r.scopeId === existing.deckId))
+        : s.records
       return { ...s, cards, records }
     })
   }, [])
 
   const deleteCard: DataContextType['deleteCard'] = useCallback((id) => {
+    const existing = stateRef.current.cards.find((c) => c.id === id)
+    if (!existing) return { decks: [], cards: [], records: [] }
+    const isGone = (r: TimeRecord) => (r.scope === 'card' && r.scopeId === id) || (r.scope === 'deck' && r.scopeId === existing.deckId)
+    const snapshot: Snapshot = { decks: [], cards: [existing], records: stateRef.current.records.filter(isGone) }
+    setState((cur) => ({ ...cur, cards: cur.cards.filter((c) => c.id !== id), records: cur.records.filter((r) => !isGone(r)) }))
+    return snapshot
+  }, [])
+
+  const restore: DataContextType['restore'] = useCallback((snap) => {
     setState((s) => {
-      const existing = s.cards.find((c) => c.id === id)
-      const deckId = existing?.deckId
-      const cards = s.cards.filter((c) => c.id !== id)
-      let records = s.records.filter((r) => !(r.scope === 'card' && r.scopeId === id))
-      if (deckId) {
-        // Removing a card invalidates best deck times for that deck
-        records = records.filter((r) => !(r.scope === 'deck' && r.scopeId === deckId))
+      const deckIds = new Set(s.decks.map((d) => d.id))
+      const cardIds = new Set(s.cards.map((c) => c.id))
+      const recordIds = new Set(s.records.map((r) => r.id))
+      return {
+        ...s,
+        decks: [...s.decks, ...snap.decks.filter((d) => !deckIds.has(d.id))],
+        cards: [...s.cards, ...snap.cards.filter((c) => !cardIds.has(c.id))].sort((a, b) => a.createdAt - b.createdAt),
+        records: [...s.records, ...snap.records.filter((r) => !recordIds.has(r.id))],
       }
-      return { ...s, cards, records }
     })
   }, [])
 
-  const addTimeRecord: DataContextType['addTimeRecord'] = useCallback(({ scope, scopeId, elapsedMs, assistance }) => {
-    const rec: TimeRecord = { id: storage.uuid(), scope, scopeId, elapsedMs, assistance, completedAt: storage.now() }
+  const addTimeRecord: DataContextType['addTimeRecord'] = useCallback((input) => {
+    const rec: TimeRecord = { ...input, id: storage.uuid(), completedAt: storage.now() }
     setState((s) => {
-      const records = [...s.records, rec]
-      // maintain top 3 per scope/scopeId
-      const byKey = (r: TimeRecord) => r.scope === scope && r.scopeId === scopeId
-      const top = records.filter(byKey).sort((a, b) => a.elapsedMs - b.elapsedMs).slice(0, 3)
-      const others = records.filter((r) => !byKey(r))
-      return { ...s, records: [...others, ...top] }
+      const same = (r: TimeRecord) => r.scope === rec.scope && r.scopeId === rec.scopeId
+      const top = [...s.records.filter(same), rec].sort((a, b) => a.elapsedMs - b.elapsedMs).slice(0, KEEP_RECORDS)
+      return { ...s, records: [...s.records.filter((r) => !same(r)), ...top] }
     })
+    return rec
   }, [])
 
-  const getBestTimes: DataContextType['getBestTimes'] = useCallback((scope, scopeId) => {
-    return state.records
-      .filter((r) => r.scope === scope && r.scopeId === scopeId)
-      .sort((a, b) => a.elapsedMs - b.elapsedMs)
-      .slice(0, 3)
-  }, [state.records])
+  const getBestTimes: DataContextType['getBestTimes'] = useCallback(
+    (scope, scopeId) =>
+      state.records
+        .filter((r) => r.scope === scope && r.scopeId === scopeId)
+        .sort((a, b) => a.elapsedMs - b.elapsedMs),
+    [state.records]
+  )
+
+  const completeRun: DataContextType['completeRun'] = useCallback(({ chips }) => {
+    setState((s) => ({
+      ...s,
+      profile: { ...s.profile, ...nextStreak(s.profile), chips: s.profile.chips + Math.max(0, Math.round(chips)), runs: s.profile.runs + 1 },
+    }))
+  }, [])
 
   const loadDemoData: DataContextType['loadDemoData'] = useCallback(() => {
     const demo = buildDemoState()
     setState((s) => {
-      // Only add demo decks that are missing (by name). If a deck name exists, skip its cards too.
       const existingNames = new Set(s.decks.map((d) => d.name.trim().toLowerCase()))
       const decksToAdd = demo.decks.filter((d) => !existingNames.has(d.name.trim().toLowerCase()))
       if (decksToAdd.length === 0) return s
       const newDeckIds = new Set(decksToAdd.map((d) => d.id))
-      const cardsToAdd = demo.cards.filter((c) => newDeckIds.has(c.deckId))
       return {
         ...s,
         decks: [...s.decks, ...decksToAdd],
-        cards: [...s.cards, ...cardsToAdd],
+        cards: [...s.cards, ...demo.cards.filter((c) => newDeckIds.has(c.deckId))],
       }
     })
   }, [])
 
+  const importData: DataContextType['importData'] = useCallback((incoming, mode) => {
+    if (mode === 'replace') {
+      setState({ ...incoming, seeded: true })
+      return { decks: incoming.decks.length, cards: incoming.cards.length }
+    }
+    const cur = stateRef.current
+    const deckIds = new Set(cur.decks.map((d) => d.id))
+    const cardIds = new Set(cur.cards.map((c) => c.id))
+    const decks = incoming.decks.filter((d) => !deckIds.has(d.id))
+    const cards = incoming.cards.filter((c) => !cardIds.has(c.id))
+    setState((s) => {
+      const have = { decks: new Set(s.decks.map((d) => d.id)), cards: new Set(s.cards.map((c) => c.id)), records: new Set(s.records.map((r) => r.id)) }
+      return {
+        ...s,
+        decks: [...s.decks, ...incoming.decks.filter((d) => !have.decks.has(d.id))],
+        cards: [...s.cards, ...incoming.cards.filter((c) => !have.cards.has(c.id))],
+        records: [...s.records, ...incoming.records.filter((r) => !have.records.has(r.id))],
+      }
+    })
+    return { decks: decks.length, cards: cards.length }
+  }, [])
+
+  const resetAll: DataContextType['resetAll'] = useCallback(() => {
+    setState({ ...emptyState(), seeded: true })
+  }, [])
+
   const value = useMemo(
-    () => ({ state, createDeck, updateDeck, deleteDeck, createCard, updateCard, deleteCard, addTimeRecord, getBestTimes, loadDemoData }),
-    [state, createDeck, updateDeck, deleteDeck, createCard, updateCard, deleteCard, addTimeRecord, getBestTimes, loadDemoData]
+    () => ({
+      state,
+      storageError,
+      createDeck,
+      updateDeck,
+      deleteDeck,
+      createCard,
+      createCards,
+      updateCard,
+      deleteCard,
+      restore,
+      addTimeRecord,
+      getBestTimes,
+      completeRun,
+      loadDemoData,
+      importData,
+      resetAll,
+    }),
+    [state, storageError, createDeck, updateDeck, deleteDeck, createCard, createCards, updateCard, deleteCard, restore, addTimeRecord, getBestTimes, completeRun, loadDemoData, importData, resetAll]
   )
 
   return <DataContext.Provider value={value}>{children}</DataContext.Provider>
@@ -175,4 +260,3 @@ export function useData() {
   if (!ctx) throw new Error('useData must be used within DataProvider')
   return ctx
 }
-

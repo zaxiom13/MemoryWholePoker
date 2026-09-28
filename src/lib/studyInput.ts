@@ -1,244 +1,182 @@
 import type { AssistanceOptions } from '@/types'
 
-type StudyEditArgs = {
-  target: string
-  currentInput: string
-  selectionStart: number | null
-  selectionEnd: number | null
-  inputType?: string | null
-  data?: string | null
-  options: AssistanceOptions
+/**
+ * Pure typing engine for study sessions.
+ *
+ * The model: the user's input always grows from the end (no caret moves).
+ * Everything that matches the target is a locked "correct prefix"; anything
+ * after the first mismatch is a "wrong suffix" the user has to delete.
+ * All functions here are string -> string so they work the same for desktop
+ * keydown typing, mobile IME composition, autocomplete replacements and
+ * swipe keyboards: the component just feeds in whatever the textarea holds.
+ */
+
+type MatchOptions = Pick<AssistanceOptions, 'autocorrect'>
+
+/** Longest wrong suffix we keep; beyond this extra keystrokes are ignored. */
+export const MAX_WRONG = 24
+
+const PUNCT_OR_SYMBOL = /[\p{P}\p{S}]/u
+const WHITESPACE = /\s/u
+const WORD_CHAR = /[\p{L}\p{N}]/u
+const COMBINING = /\p{M}/gu
+
+// Keyboards (esp. iOS "smart punctuation") substitute typographic characters.
+// Treat them as equivalent so a curly apostrophe is never a memory mistake.
+const FOLD: Record<string, string> = {
+  '‘': "'", '’': "'", '‚': "'", '‛': "'", '′': "'", '`': "'", '´': "'",
+  '“': '"', '”': '"', '„': '"', '‟': '"', '″': '"', '«': '"', '»': '"',
+  '‐': '-', '‑': '-', '‒': '-', '–': '-', '—': '-', '―': '-', '−': '-',
 }
 
-type StudyEditResult = {
-  handled: boolean
-  nextInput: string
-  shouldShake: boolean
-  selectionStart: number | null
-  selectionEnd: number | null
-}
-
-export function normalizeChar(ch: string) {
-  return ch.normalize('NFC')
+export function foldChar(ch: string): string {
+  const c = ch.normalize('NFC')
+  return FOLD[c] ?? c
 }
 
 export function isPunctuation(ch: string) {
-  return /[\p{P}\p{S}]/u.test(ch)
+  return PUNCT_OR_SYMBOL.test(ch)
 }
 
-export function isAlphaNumOrSpace(ch: string) {
-  return /[\p{L}\p{N} ]/u.test(ch)
+export function isWhitespace(ch: string) {
+  return WHITESPACE.test(ch)
 }
 
-export function compareInput(target: string, input: string, options: AssistanceOptions) {
+export function isWordChar(ch: string) {
+  return WORD_CHAR.test(ch)
+}
+
+function loosen(ch: string) {
+  return ch.normalize('NFD').replace(COMBINING, '').toLowerCase()
+}
+
+/** Does typed char `ic` satisfy target char `tc`? */
+export function charsMatch(tc: string, ic: string, options: MatchOptions): boolean {
+  if (isWhitespace(tc) && isWhitespace(ic)) return true // space, Enter and tab are interchangeable
+  const t = foldChar(tc)
+  const i = foldChar(ic)
+  if (t === i) return true
+  return options.autocorrect && loosen(t) === loosen(i)
+}
+
+/** In lenient mode punctuation/symbols are typed for you. */
+function autoTyped(ch: string, options: MatchOptions) {
+  return options.autocorrect && isPunctuation(ch)
+}
+
+/**
+ * Walks target and input together. `correctUntil` is how many target chars
+ * are satisfied; `consumed` is how many input chars that took (they differ in
+ * lenient mode, where skipped punctuation consumes no input).
+ */
+export function compareInput(target: string, input: string, options: MatchOptions) {
   let i = 0
   let j = 0
   while (i < target.length && j < input.length) {
-    const tc = normalizeChar(target[i])
-    const ic = normalizeChar(input[j])
-    const eq = options.autocorrect ? tc.toLowerCase() === ic.toLowerCase() : tc === ic
-
-    if (eq) {
+    if (charsMatch(target[i], input[j], options)) {
       i += 1
       j += 1
-      continue
-    }
-
-    if (options.autocorrect && isPunctuation(tc)) {
+    } else if (autoTyped(target[i], options)) {
       i += 1
-      continue
-    }
-
-    return { correctUntil: i, errorAt: i }
-  }
-
-  if (j < input.length) {
-    return { correctUntil: i, errorAt: i }
-  }
-
-  return { correctUntil: i, errorAt: null as number | null }
-}
-
-export function canonicalizeInput(target: string, input: string, options: AssistanceOptions) {
-  let i = 0
-  let j = 0
-  let canonical = ''
-
-  while (i < target.length && j < input.length) {
-    const tc = normalizeChar(target[i])
-    const ic = normalizeChar(input[j])
-    const eq = options.autocorrect ? tc.toLowerCase() === ic.toLowerCase() : tc === ic
-
-    if (eq) {
-      canonical += target[i]
-      i += 1
-      j += 1
-      continue
-    }
-
-    if (options.autocorrect && isPunctuation(tc)) {
-      canonical += target[i]
-      i += 1
-      continue
-    }
-
-    break
-  }
-
-  return canonical + input.slice(j)
-}
-
-export function reconcileRawInput(args: Omit<StudyEditArgs, 'selectionStart' | 'selectionEnd' | 'inputType' | 'data'> & { rawValue: string }) {
-  const { target, currentInput, rawValue, options } = args
-  const { correctUntil } = compareInput(target, currentInput, options)
-  const lockedPrefix = target.slice(0, correctUntil)
-  let next = rawValue
-
-  if (!next.startsWith(lockedPrefix)) {
-    next = next.length <= lockedPrefix.length ? lockedPrefix : lockedPrefix + next.slice(lockedPrefix.length)
-  }
-
-  if (options.autocorrect) {
-    next = lockedPrefix + stripManualPunctuation(next.slice(lockedPrefix.length))
-  }
-
-  return canonicalizeInput(target, next, options)
-}
-
-export function applyBeforeInputEdit(args: StudyEditArgs): StudyEditResult {
-  const { target, currentInput, options } = args
-  const inputType = args.inputType ?? ''
-  const { correctUntil } = compareInput(target, currentInput, options)
-  const selectionStart = clampSelection(args.selectionStart ?? currentInput.length, currentInput.length)
-  const selectionEnd = clampSelection(args.selectionEnd ?? selectionStart, currentInput.length)
-  const safeSelectionStart = Math.min(selectionStart, selectionEnd)
-  const safeSelectionEnd = Math.max(selectionStart, selectionEnd)
-
-  if (inputType.startsWith('history')) {
-    return { handled: true, nextInput: currentInput, shouldShake: false, selectionStart, selectionEnd }
-  }
-
-  if (inputType.startsWith('delete')) {
-    const nextInput = applyDeletion({
-      currentInput,
-      inputType,
-      lockedLength: correctUntil,
-      selectionStart: safeSelectionStart,
-      selectionEnd: safeSelectionEnd,
-    })
-
-    return {
-      handled: true,
-      nextInput,
-      shouldShake: false,
-      selectionStart: getSafeCaretPosition(target, nextInput, options, safeSelectionStart),
-      selectionEnd: getSafeCaretPosition(target, nextInput, options, safeSelectionStart),
+    } else {
+      break
     }
   }
-
-  if (inputType.includes('Composition')) {
-    return { handled: false, nextInput: currentInput, shouldShake: false, selectionStart: null, selectionEnd: null }
-  }
-
-  const insertedText = getInsertedText(inputType, args.data)
-  if (insertedText == null) {
-    return { handled: false, nextInput: currentInput, shouldShake: false, selectionStart: null, selectionEnd: null }
-  }
-
-  const replacementStart = Math.max(safeSelectionStart, correctUntil)
-  const replacementEnd = Math.max(safeSelectionEnd, correctUntil)
-  let sanitizedText = options.autocorrect ? stripManualPunctuation(insertedText) : insertedText
-  if (safeSelectionStart < correctUntil) {
-    const protectedPrefix = currentInput.slice(safeSelectionStart, correctUntil)
-    sanitizedText = trimProtectedOverlap(sanitizedText, protectedPrefix, options)
-  }
-
-  if (sanitizedText.length === 0) {
-    return { handled: true, nextInput: currentInput, shouldShake: false, selectionStart, selectionEnd }
-  }
-
-  const draft = currentInput.slice(0, replacementStart) + sanitizedText + currentInput.slice(replacementEnd)
-  const nextInput = canonicalizeInput(target, draft, options)
-  const nextCorrectUntil = compareInput(target, nextInput, options).correctUntil
-  const nextCaret = getSafeCaretPosition(target, nextInput, options, replacementStart + sanitizedText.length)
-
-  return {
-    handled: true,
-    nextInput,
-    shouldShake: nextCorrectUntil <= correctUntil,
-    selectionStart: nextCaret,
-    selectionEnd: nextCaret,
-  }
+  return { correctUntil: i, consumed: j, errorAt: j < input.length ? i : null }
 }
 
-function clampSelection(value: number, inputLength: number) {
-  return Math.max(0, Math.min(value, inputLength))
+/** Rewrites the matching prefix with the target's own characters (casing, quotes, punctuation). */
+export function canonicalizeInput(target: string, input: string, options: MatchOptions) {
+  const { correctUntil, consumed } = compareInput(target, input, options)
+  return target.slice(0, correctUntil) + input.slice(consumed)
 }
 
-function stripManualPunctuation(text: string) {
-  return text.replace(/[\p{P}\p{S}]/gu, '')
+/** In lenient mode, once everything typed is correct, fill in upcoming punctuation. */
+export function autoAdvance(target: string, input: string, options: MatchOptions) {
+  if (!options.autocorrect || input.length === 0) return input
+  const { correctUntil, consumed } = compareInput(target, input, options)
+  if (consumed < input.length) return input
+  let i = correctUntil
+  while (i < target.length && isPunctuation(target[i])) i += 1
+  return i > correctUntil ? target.slice(0, i) : input
 }
 
-function getInsertedText(inputType: string, data: string | null | undefined) {
-  if (inputType === 'insertLineBreak') return '\n'
-  if (!inputType.startsWith('insert')) return null
-  return data ?? ''
-}
-
-function trimProtectedOverlap(text: string, protectedPrefix: string, options: AssistanceOptions) {
-  if (protectedPrefix.length === 0) return text
-
-  const maxOverlap = Math.min(protectedPrefix.length, text.length)
-  for (let overlap = maxOverlap; overlap > 0; overlap -= 1) {
-    const protectedSuffix = protectedPrefix.slice(protectedPrefix.length - overlap)
-    if (textStartsWithEquivalent(text, protectedSuffix, options)) {
-      return text.slice(overlap)
-    }
+/**
+ * Turns whatever the text field now contains (`raw`) into the next canonical input,
+ * given the previous canonical input. Guarantees:
+ *  - the previously-correct prefix can never be deleted or altered,
+ *  - in lenient mode, manually typed punctuation is dropped (it's auto-inserted),
+ *  - the wrong suffix never exceeds MAX_WRONG chars.
+ *
+ * `raw` may disagree with `previous` in arbitrary ways: during IME composition we
+ * can't write the canonical text back into the field, autocomplete may replace a
+ * whole word, and swipe keyboards insert several words at once. So rather than
+ * diffing, re-align all of `raw` against the target and only fall back to
+ * "locked prefix + extra" when that would lose progress.
+ */
+export function reconcile(target: string, previous: string, raw: string, options: MatchOptions): string {
+  const lockedLen = compareInput(target, previous, options).correctUntil
+  const clean = (s: string) => {
+    const noCr = s.replace(/\r/g, '')
+    return options.autocorrect ? noCr.replace(/[\p{P}\p{S}]/gu, '') : noCr
   }
 
-  return text
-}
-
-function textStartsWithEquivalent(text: string, prefix: string, options: AssistanceOptions) {
-  if (prefix.length > text.length) return false
-
-  for (let i = 0; i < prefix.length; i += 1) {
-    const prefixChar = normalizeChar(prefix[i])
-    const textChar = normalizeChar(text[i])
-    const eq = options.autocorrect ? prefixChar.toLowerCase() === textChar.toLowerCase() : prefixChar === textChar
-    if (!eq) return false
+  const cleaned = clean(raw)
+  let next = canonicalizeInput(target, cleaned, options)
+  if (compareInput(target, next, options).correctUntil < lockedLen) {
+    // Deleted into, or replaced, the locked prefix: restore it and keep only what
+    // extends beyond its length.
+    const locked = target.slice(0, lockedLen)
+    const lockedCleanLen = clean(locked).length
+    const tail = cleaned.length > lockedCleanLen ? cleaned.slice(lockedCleanLen) : ''
+    next = canonicalizeInput(target, locked + tail, options)
   }
 
-  return true
+  const nextCorrect = compareInput(target, next, options).correctUntil
+  if (next.length - nextCorrect > MAX_WRONG) next = next.slice(0, nextCorrect + MAX_WRONG)
+  return autoAdvance(target, next, options)
 }
 
-function applyDeletion(args: {
-  currentInput: string
-  inputType: string
-  lockedLength: number
-  selectionStart: number
-  selectionEnd: number
-}) {
-  const { currentInput, inputType, lockedLength, selectionStart, selectionEnd } = args
-
-  if (selectionStart !== selectionEnd) {
-    const deleteStart = Math.max(selectionStart, lockedLength)
-    const deleteEnd = Math.max(selectionEnd, lockedLength)
-    if (deleteStart >= deleteEnd) return currentInput
-    return currentInput.slice(0, deleteStart) + currentInput.slice(deleteEnd)
+/**
+ * Index just past the next word starting at `from`: skips whitespace, and skips
+ * punctuation-only fragments (e.g. the "," left after "Hi") so a hint always
+ * reveals at least one real word.
+ */
+export function nextWordEnd(target: string, from: number) {
+  let i = from
+  while (i < target.length) {
+    while (i < target.length && isWhitespace(target[i])) i += 1
+    const start = i
+    while (i < target.length && !isWhitespace(target[i])) i += 1
+    if (WORD_CHAR.test(target.slice(start, i))) return i
   }
-
-  if (inputType.includes('Forward')) {
-    const deleteIndex = Math.max(selectionStart, lockedLength)
-    if (deleteIndex >= currentInput.length) return currentInput
-    return currentInput.slice(0, deleteIndex) + currentInput.slice(deleteIndex + 1)
-  }
-
-  if (selectionStart <= lockedLength) return currentInput
-  return currentInput.slice(0, selectionStart - 1) + currentInput.slice(selectionEnd)
+  return i
 }
 
-function getSafeCaretPosition(target: string, input: string, options: AssistanceOptions, preferredPosition: number) {
+/** Input after using a hint: drops any wrong suffix and completes the next word. */
+export function applyHint(target: string, input: string, options: MatchOptions) {
   const { correctUntil } = compareInput(target, input, options)
-  return clampSelection(Math.max(correctUntil, preferredPosition), input.length)
+  const end = nextWordEnd(target, correctUntil)
+  return autoAdvance(target, target.slice(0, end), options)
+}
+
+/** Per-character flags marking the first letter/number of every word. */
+export function wordInitials(target: string): boolean[] {
+  const flags = new Array<boolean>(target.length).fill(false)
+  let seenInWord = false
+  for (let i = 0; i < target.length; i += 1) {
+    const ch = target[i]
+    if (isWhitespace(ch)) {
+      seenInWord = false
+    } else if (!seenInWord && isWordChar(ch)) {
+      flags[i] = true
+      seenInWord = true
+    }
+  }
+  return flags
+}
+
+export function countWords(text: string) {
+  const m = text.trim().match(/\S+/g)
+  return m ? m.length : 0
 }

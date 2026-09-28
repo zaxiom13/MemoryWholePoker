@@ -1,68 +1,71 @@
 ## MemoryWholed
 
-A React + TypeScript + Vite app for memorization practice. Create decks of cards (quotes, poetry, speeches), then type them from memory. The app times your runs and records best times per card and per deck. Optional assistance modes help you practice:
+A poker-night memorization game. Build decks of things you want to know by heart (quotes, poems, speeches, facts), type them from memory, and get dealt a poker hand for how cleanly you did it. Better hands win more chips; play daily to keep a streak.
 
-- Ghost Text: faintly show the next few characters after a brief pause
-- See Full Text: display the entire reference text
-- Autocorrect: be lenient on case and auto-insert punctuation
+Runs on **Cloudflare Workers**: the React app is served as static assets and a tiny Worker (`worker/index.ts`) proxies AI deck generation to Gemini, so the API key never reaches the browser.
 
-## Quick start
+## How it plays
 
-Prerequisites: Node 20+ and npm (or your preferred package manager).
+- **Type from memory.** Correct letters lock in; a wrong letter shows in red until you delete it. The caret always stays at the end, so there's nothing to fight with on a phone.
+- **House rules** (per run, remembered for next time):
+  - *Show ahead*: None · Blanks (word shapes) · Initials (first letter of each word) · Full text
+  - *Ghost text*: pause and the next word fades in
+  - *Lenient typing*: ignore capitals/accents, punctuation types itself (on by default on phones)
+  - *Shuffle* for whole-deck runs
+- **Hints**: 💡 button or <kbd>Tab</kbd> fills in the next word.
+- **Scoring**: accuracy and hints decide your hand (High Card → Royal Flush). Helpers cap the best hand you can reach instead of reducing your score. Personal bests earn bonus chips.
+
+Keyboard robustness: input goes through a pure engine (`src/lib/studyInput.ts`) that re-aligns whatever the text field contains against the target. That makes it work the same for desktop typing, mobile IME composition (Gboard), autocomplete/autocorrect replacements, swipe typing and iOS smart punctuation (curly quotes/dashes are accepted). Enter and space are interchangeable for line breaks.
+
+Data lives in `localStorage` only. Export/import a JSON backup from the ⓘ page.
+
+## Development
+
+Requires Node 20+.
 
 ```bash
 npm install
-npm run dev
+cp .dev.vars.example .dev.vars   # optional: add GEMINI_API_KEY for AI features
+npm run dev                      # Vite + the Worker running locally in workerd
 ```
-
-Build for production:
 
 ```bash
-npm run build
-npm run preview
+npm test         # unit tests (engine, scoring, storage, worker)
+npm run lint
+npm run build    # typecheck + production build (client + worker)
+npm run preview  # build and serve the production bundle locally
 ```
 
-## Using the app
+## Deploying to workers.dev
 
-- Create a deck and add cards, or click "Load Default Decks" on the Decks page to seed demo content.
-- Open a card or a deck and click "Study" to choose assistance options.
-- Type the content exactly; only correct characters are accepted. Your best times are saved locally and visible via the trophy icon.
+One-time setup:
 
-## Optional: Gemini integration
-
-This project can generate cards with Google Gemini via `@google/genai`. Provide an API key in one of two ways (prefer .env):
-
-1) Create a `.env` file in the project root:
-
-```
-VITE_GEMINI_API_KEY=your_key_here
+```bash
+npx wrangler login
+npx wrangler secret put GEMINI_API_KEY    # optional, enables AI generation
+npm run deploy
 ```
 
-2) Or copy `src/AI_KEY.template.ts` to `src/AI_KEY.ts` and replace the placeholder with your key.
+Wrangler prints the URL, e.g. `https://memorywholed.<your-subdomain>.workers.dev`. The Worker name comes from `wrangler.jsonc`.
 
-Security note: `src/AI_KEY.ts` is ignored by git (see `.gitignore`). Keep keys out of version control and prefer environment variables for production. If a key file is ever committed by mistake, remove it from the remote history and rotate the key immediately.
+**Automatic deploys:** `.github/workflows/ci.yml` lints, tests and builds every push/PR, and deploys `main` once you add two repository secrets: `CLOUDFLARE_API_TOKEN` (a token with the *Edit Cloudflare Workers* template) and `CLOUDFLARE_ACCOUNT_ID`. Alternatively connect the repo in the Cloudflare dashboard (Workers → Create → Import a repository) with build command `npm run build` and deploy command `npx wrangler deploy`.
 
-## Scripts
+Configuration (`wrangler.jsonc`):
 
-- dev: start Vite in development
-- build: type-check and build
-- preview: preview the production build
-- lint: run ESLint
+- `assets.not_found_handling: single-page-application` serves `index.html` for client routes; only `/api/*` runs the Worker.
+- `ratelimits` throttles `/api/generate` to 12 requests/minute per IP so a public URL can't drain your Gemini quota.
+- `vars.GEMINI_MODEL` picks the model; `GEMINI_API_KEY` is a secret.
 
-## Tech stack
+Moving off Netlify: nothing else is needed. Remove the old site in the Netlify dashboard once the workers.dev URL is live (the previous `VITE_GEMINI_API_KEY` build variable is no longer used; rotate that key, since it was bundled into the public JS).
 
-- React 19, TypeScript, Vite 7
-- React Router for navigation
-- Tailwind CSS and small UI primitives
-- Local storage for app state (decks, cards, records)
+## Project layout
 
-## Project structure (selected)
-
-- `src/pages/DeckList.tsx`: manage decks, seed defaults, view best times
-- `src/pages/StudySetup.tsx`: choose assistance options
-- `src/pages/StudySession.tsx`: typing experience, timer, best-time recording
-- `src/contexts/DataContext.tsx`: app state, CRUD, records
-- `src/lib/gemini.ts`: Gemini card generation helpers
+- `worker/` Cloudflare Worker: `/api/health`, `/api/generate` (Gemini proxy), tolerant JSON parsing
+- `src/lib/studyInput.ts` typing engine (pure, heavily tested)
+- `src/lib/scoring.ts` hands, chips, WPM/accuracy
+- `src/lib/storage.ts` validated/migrated localStorage state, import/export
+- `src/pages/StudySession.tsx` the typing experience
+- `src/contexts/DataContext.tsx` decks, cards, records, profile, undo
 
 ## License
 
