@@ -11,6 +11,7 @@ import AddCardPage from '@/pages/AddCardPage'
 import EditCardPage from '@/pages/EditCardPage'
 import EditDeckPage from '@/pages/EditDeckPage'
 import AboutPage from '@/pages/AboutPage'
+import LibraryPage from '@/pages/LibraryPage'
 import { DataProvider, useData } from '@/contexts/DataContext'
 import { ToastProvider } from '@/components/Toaster'
 import Header from '@/components/Header'
@@ -102,6 +103,7 @@ const router = createBrowserRouter([
     children: [
       { index: true, element: <DeckList /> },
       { path: 'about', element: <AboutPage /> },
+      { path: 'library', element: <LibraryPage /> },
       { path: 'decks/new', element: <NewDeckPage /> },
       { path: 'decks/generate', element: <GenerateDeckPage /> },
       { path: 'decks/:deckId', element: <DeckView /> },

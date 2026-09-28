@@ -1,0 +1,1670 @@
+[
+ {
+  "source": "learnkit",
+  "course": "art-map",
+  "icon": "🎨",
+  "id": "learnkit-art-map-ideas",
+  "name": "Art, Music & Design, the Map: key ideas",
+  "description": "The key statement of each lesson in LearnKit's Art, Music & Design, the Map.",
+  "cards": [
+   [
+    "The three questions to ask of any work of art, in order.",
+    "What do I see? How is it made and arranged? What does it mean, and in what context?"
+   ],
+   [
+    "Five movements, each with the thing it cared about most.",
+    "Classical sculpture found contrapposto. The Renaissance found linear perspective. The Baroque chased drama and strong light. Romanticism chased emotion and the sublime. Impressionism chased light and the passing moment."
+   ],
+   [
+    "The key moves of modern art, from Cubism to Conceptual art.",
+    "Cubism showed many viewpoints at once. Duchamp's readymade made a found object art. Abstract Expressionism was gesture and colour. Pop Art took mass culture as its subject. In Conceptual art, the idea is the work."
+   ],
+   [
+    "Four traditions outside Europe, one line each.",
+    "Ukiyo-e are Japanese woodblock prints of the floating world. Shan shui is Chinese mountain-water ink landscape. Arabesque is flowing Islamic vegetal ornament. Rarrk is the cross-hatching of Arnhem Land."
+   ],
+   [
+    "The physics and theory facts every musician leans on.",
+    "An octave is a 2 to 1 frequency ratio and a perfect fifth is about 3 to 2. Equal temperament splits the octave into twelve equal semitones. The strongest cadence is dominant to tonic, five to one."
+   ],
+   [
+    "Three ideas that connect buildings, products and screens.",
+    "Form follows function. An affordance is what an object signals it can do. Fitts' law says the time to hit a target grows with distance and shrinks with size."
+   ]
+  ]
+ },
+ {
+  "source": "learnkit",
+  "course": "art-map",
+  "icon": "🎨",
+  "id": "learnkit-art-map-terms",
+  "name": "Art, Music & Design, the Map: terms",
+  "description": "Flashcard terms from LearnKit's Art, Music & Design, the Map. Type the definition.",
+  "cards": [
+   [
+    "Chiaroscuro",
+    "Light–dark modelling of form."
+   ],
+   [
+    "Sfumato",
+    "Leonardo's soft, smoky transitions."
+   ],
+   [
+    "Impasto",
+    "Thickly applied paint."
+   ],
+   [
+    "Complementary colours",
+    "Opposites on the colour wheel (red/green, blue/orange)."
+   ],
+   [
+    "Iconography",
+    "The meaning of symbols in images."
+   ],
+   [
+    "Contrapposto",
+    "Weight on one leg; relaxed classical pose."
+   ],
+   [
+    "Linear perspective",
+    "Parallel lines meet at a vanishing point."
+   ],
+   [
+    "Baroque",
+    "Drama, movement, strong light."
+   ],
+   [
+    "Romanticism",
+    "Emotion and the sublime."
+   ],
+   [
+    "Impressionism",
+    "Light, moment, visible brushwork."
+   ],
+   [
+    "Cubism",
+    "Multiple viewpoints at once."
+   ],
+   [
+    "Readymade",
+    "Found object declared art (Duchamp)."
+   ],
+   [
+    "Abstract Expressionism",
+    "Gesture and colour fields (Pollock, Rothko)."
+   ],
+   [
+    "Pop Art",
+    "Mass culture as subject (Warhol)."
+   ],
+   [
+    "Conceptual art",
+    "The idea is the work."
+   ],
+   [
+    "Ukiyo-e",
+    "Japanese \"floating world\" woodblock prints."
+   ],
+   [
+    "Shan shui",
+    "Chinese \"mountain-water\" ink landscape."
+   ],
+   [
+    "Arabesque",
+    "Flowing Islamic vegetal ornament."
+   ],
+   [
+    "Japonisme",
+    "Japanese art's influence on 19th-c. Europe."
+   ],
+   [
+    "Rarrk",
+    "Arnhem Land cross-hatching."
+   ],
+   [
+    "Octave",
+    "2:1 frequency ratio."
+   ],
+   [
+    "Equal temperament",
+    "12 equal semitones of 2^(1/12)."
+   ],
+   [
+    "Timbre",
+    "Harmonic spectrum + envelope."
+   ],
+   [
+    "Counterpoint",
+    "Independent melodies combined."
+   ],
+   [
+    "Form follows function",
+    "Sullivan's modernist motto."
+   ],
+   [
+    "Flying buttress",
+    "External support enabling Gothic windows."
+   ],
+   [
+    "Brutalism",
+    "Raw concrete monumental style."
+   ],
+   [
+    "Fitts' law",
+    "Time to hit a target grows with distance, shrinks with size."
+   ],
+   [
+    "Affordance",
+    "What an object signals it can do."
+   ],
+   [
+    "Utzon",
+    "Architect of the Sydney Opera House."
+   ]
+  ]
+ },
+ {
+  "source": "learnkit",
+  "course": "computing-map",
+  "icon": "🧭",
+  "id": "learnkit-computing-map-ideas",
+  "name": "Computing, the Map: key ideas",
+  "description": "The key statement of each lesson in LearnKit's Computing, the Map.",
+  "cards": [
+   [
+    "How languages check types and manage memory.",
+    "Static typing checks types before the program runs; dynamic typing checks them while it runs. Rust's ownership lets the compiler track who owns memory, so there is no garbage collector and no use-after-free."
+   ],
+   [
+    "Four optimisations and ideas worth naming.",
+    "Inlining replaces a call with the function body. SIMD runs one instruction on many data lanes. Profile-guided optimisation recompiles using a profile of real runs. The compiler may assume undefined behaviour never happens."
+   ],
+   [
+    "The four guarantees of a database transaction.",
+    "Atomic: all or nothing. Consistent: rules hold before and after. Isolated: concurrent transactions don't see each other's half-finished work. Durable: once committed, it survives a crash."
+   ],
+   [
+    "The four facts every distributed design is a response to.",
+    "The network is not reliable, latency is not zero, bandwidth is not infinite, and there is no global clock."
+   ],
+   [
+    "What each core cryptographic tool gives you.",
+    "AES encrypts with a shared secret key. Diffie-Hellman agrees a shared secret over a public channel. A digital signature proves who signed and that the data wasn't changed. A certificate binds a public key to an identity, signed by a certificate authority."
+   ],
+   [
+    "How a model learns, and what can go wrong.",
+    "The loss measures how wrong the model is. Gradient descent steps the parameters downhill along the negative gradient of the loss. Overfitting is memorising the training set and failing on new data."
+   ],
+   [
+    "Computability and complexity, in four statements.",
+    "The halting problem is undecidable in general. NP is the class of problems whose solutions can be verified in polynomial time. NP-complete problems are the hardest in NP, and SAT was the first. Erasing a bit costs at least kT ln 2."
+   ],
+   [
+    "The memory gap and how CPUs hide it.",
+    "An L1 cache hit takes about a nanosecond and DRAM about a hundred, a hundredfold gap. Branch prediction guesses which way a branch goes to keep the pipeline full. Out-of-order execution runs ready instructions early and retires them in order."
+   ]
+  ]
+ },
+ {
+  "source": "learnkit",
+  "course": "computing-map",
+  "icon": "🧭",
+  "id": "learnkit-computing-map-terms",
+  "name": "Computing, the Map: terms",
+  "description": "Flashcard terms from LearnKit's Computing, the Map. Type the definition.",
+  "cards": [
+   [
+    "Static vs dynamic typing",
+    "Types checked before running vs while running."
+   ],
+   [
+    "Ownership (Rust)",
+    "Compiler tracks who owns memory — no GC, no use-after-free."
+   ],
+   [
+    "JIT",
+    "Compiles hot code to machine code at runtime (JVM, V8)."
+   ],
+   [
+    "Array language",
+    "Operates on whole arrays at once (APL, q, NumPy style)."
+   ],
+   [
+    "LLVM",
+    "Shared compiler infrastructure behind Clang, Rust, Swift."
+   ],
+   [
+    "Inlining",
+    "Replace a call with the function body."
+   ],
+   [
+    "SIMD",
+    "One instruction, many data lanes."
+   ],
+   [
+    "PGO",
+    "Recompile using a profile of real runs."
+   ],
+   [
+    "Undefined behaviour",
+    "Compiler may assume it never happens."
+   ],
+   [
+    "WebAssembly",
+    "Portable, sandboxed bytecode."
+   ],
+   [
+    "OLTP vs OLAP",
+    "Many small transactions vs big analytical queries."
+   ],
+   [
+    "B-tree",
+    "Balanced sorted tree; the default index."
+   ],
+   [
+    "LSM-tree",
+    "Write-optimised: memtable + sorted files + compaction."
+   ],
+   [
+    "ACID",
+    "Atomic, Consistent, Isolated, Durable."
+   ],
+   [
+    "kdb+/q",
+    "Columnar time-series DB + array language used across trading."
+   ],
+   [
+    "Write skew",
+    "Two transactions each read, then write disjoint rows, jointly breaking a rule."
+   ],
+   [
+    "CAP",
+    "Under partition, pick consistency or availability."
+   ],
+   [
+    "Raft / Paxos",
+    "Consensus algorithms; need a majority."
+   ],
+   [
+    "2f+1",
+    "Nodes needed to tolerate f crash failures."
+   ],
+   [
+    "Lamport clock",
+    "Counter that orders events causally."
+   ],
+   [
+    "CRDT",
+    "Data type whose replicas merge automatically."
+   ],
+   [
+    "Idempotent",
+    "Applying twice has the same effect as once."
+   ],
+   [
+    "AES",
+    "The standard symmetric block cipher."
+   ],
+   [
+    "Diffie–Hellman",
+    "Agree a shared secret over a public channel."
+   ],
+   [
+    "Digital signature",
+    "Proves who signed and that data wasn't changed."
+   ],
+   [
+    "Certificate",
+    "Public key + identity, signed by a CA."
+   ],
+   [
+    "Shor's algorithm",
+    "Quantum factoring — breaks RSA/ECC."
+   ],
+   [
+    "ML-KEM (Kyber)",
+    "NIST post-quantum key encapsulation (lattices)."
+   ],
+   [
+    "Loss",
+    "Number measuring how wrong the model is."
+   ],
+   [
+    "Overfitting",
+    "Memorising the training set; fails on new data."
+   ],
+   [
+    "Embedding",
+    "A learned vector representing a token or item."
+   ],
+   [
+    "RLHF",
+    "Reinforcement learning from human feedback."
+   ],
+   [
+    "Scaling laws",
+    "Loss falls as a power law with compute, data, parameters."
+   ],
+   [
+    "Church–Turing thesis",
+    "Anything algorithmically computable is Turing-computable."
+   ],
+   [
+    "Halting problem",
+    "Undecidable in general."
+   ],
+   [
+    "NP",
+    "Solutions verifiable in polynomial time."
+   ],
+   [
+    "NP-complete",
+    "Hardest problems in NP; SAT was first."
+   ],
+   [
+    "Branch prediction",
+    "CPU guesses branch direction to keep the pipeline full."
+   ],
+   [
+    "Out-of-order execution",
+    "Run ready instructions early, retire in order."
+   ],
+   [
+    "GPU",
+    "Massive parallel throughput for matrix maths."
+   ],
+   [
+    "FPGA",
+    "Reconfigurable hardware; deterministic nanosecond latency."
+   ]
+  ]
+ },
+ {
+  "source": "learnkit",
+  "course": "history-map",
+  "icon": "🏛️",
+  "id": "learnkit-history-map-ideas",
+  "name": "History, the Map: key ideas",
+  "description": "The key statement of each lesson in LearnKit's History, the Map.",
+  "cards": [
+   [
+    "Three dates that anchor the long view of history.",
+    "Farming began in the Fertile Crescent about 12,000 years ago. Sumerian cuneiform appeared about 5,000 years ago. Aboriginal Australians have continuous cultures reaching back 50,000 to 65,000 years."
+   ],
+   [
+    "When it was, and what came out of it.",
+    "The Axial Age ran from about 800 to 200 BCE, when philosophy and the world religions arose. Later, Baghdad's House of Wisdom translated and extended Greek science, and al-Khwarizmi gave us the words algebra and algorithm."
+   ],
+   [
+    "The chain from printing to Newton.",
+    "Gutenberg's press, 1450s. Luther and the Reformation, 1517. Copernicus puts the Sun at the centre, 1543. Newton's Principia, 1687."
+   ],
+   [
+    "The political and industrial turning points, with Australia's place in them.",
+    "The French Revolution began in 1789. Watt's steam engine powered the first industrial revolution, and after about 1800 the West pulled ahead in the Great Divergence. Australia federated on 1 January 1901, and Mabo overturned terra nullius in 1992."
+   ],
+   [
+    "The spine of the century in dates.",
+    "World War One, 1914 to 1918. World War Two, 1939 to 1945. Bretton Woods set the postwar money system in 1944. Decolonisation ran from 1947 to the 1970s. The Berlin Wall fell in 1989."
+   ],
+   [
+    "The milestones of computing history.",
+    "Ada Lovelace published the first algorithm for a machine in 1843. Bell Labs built the transistor in 1947. ARPANET, the ancestor of the internet, went live in 1969. The transformer architecture behind LLMs arrived in 2017."
+   ]
+  ]
+ },
+ {
+  "source": "learnkit",
+  "course": "history-map",
+  "icon": "🏛️",
+  "id": "learnkit-history-map-terms",
+  "name": "History, the Map: terms",
+  "description": "Flashcard terms from LearnKit's History, the Map. Type the definition.",
+  "cards": [
+   [
+    "Fertile Crescent",
+    "Where farming first began, ~12,000 years ago."
+   ],
+   [
+    "Cuneiform",
+    "Sumerian writing, ~5,000 years ago."
+   ],
+   [
+    "Aboriginal Australia",
+    "Continuous cultures for ~50,000–65,000 years."
+   ],
+   [
+    "Inclusive institutions",
+    "Broad-based power and property rights (Acemoglu & Robinson)."
+   ],
+   [
+    "Axial Age",
+    "~800–200 BCE; philosophy and world religions arise."
+   ],
+   [
+    "Silk Road",
+    "Trade network linking China to the Mediterranean."
+   ],
+   [
+    "House of Wisdom",
+    "Baghdad centre of translation and science."
+   ],
+   [
+    "al-Khwarizmi",
+    "Origin of \"algebra\" and \"algorithm\"."
+   ],
+   [
+    "Gutenberg",
+    "Movable-type printing press, 1450s."
+   ],
+   [
+    "Reformation",
+    "1517; Luther splits Western Christianity."
+   ],
+   [
+    "Copernicus",
+    "1543; heliocentric model."
+   ],
+   [
+    "Principia",
+    "Newton, 1687; laws of motion and gravitation."
+   ],
+   [
+    "Enlightenment",
+    "18th-century movement of reason and rights."
+   ],
+   [
+    "1789",
+    "French Revolution."
+   ],
+   [
+    "Watt's steam engine",
+    "Heart of the first industrial revolution."
+   ],
+   [
+    "Great Divergence",
+    "West pulls ahead of the rest after ~1800."
+   ],
+   [
+    "Federation",
+    "Australia, 1 January 1901."
+   ],
+   [
+    "Mabo (1992)",
+    "Overturned terra nullius; native title recognised."
+   ],
+   [
+    "WWI",
+    "1914–1918."
+   ],
+   [
+    "WWII",
+    "1939–1945."
+   ],
+   [
+    "Bretton Woods",
+    "1944 postwar monetary system."
+   ],
+   [
+    "Decolonisation",
+    "Wave of independence, 1947–1970s."
+   ],
+   [
+    "1989",
+    "Fall of the Berlin Wall."
+   ],
+   [
+    "Ada Lovelace",
+    "First published algorithm for a machine (1843)."
+   ],
+   [
+    "Transistor",
+    "Bell Labs, 1947."
+   ],
+   [
+    "ARPANET",
+    "1969; ancestor of the internet."
+   ],
+   [
+    "TCP/IP",
+    "Cerf & Kahn's internetworking protocols."
+   ],
+   [
+    "CSIRAC",
+    "Australia's first computer (1949)."
+   ],
+   [
+    "Transformer",
+    "2017 architecture behind LLMs."
+   ]
+  ]
+ },
+ {
+  "source": "learnkit",
+  "course": "life-map",
+  "icon": "🧬",
+  "id": "learnkit-life-map-ideas",
+  "name": "Life & Mind, the Map: key ideas",
+  "description": "The key statement of each lesson in LearnKit's Life & Mind, the Map.",
+  "cards": [
+   [
+    "How information flows in a cell, and the size of the code.",
+    "DNA is transcribed into RNA, and RNA is translated into protein. Each codon of three bases codes for one amino acid. The human genome has about 3.1 billion base pairs and about 20,000 protein-coding genes."
+   ],
+   [
+    "The mechanisms that change gene frequencies.",
+    "Natural selection: heritable variants that reproduce more, spread. Genetic drift: random changes in frequency, strongest in small populations. Hamilton's rule: helping kin evolves when r times B is greater than C."
+   ],
+   [
+    "Signals, learning, memory and reward.",
+    "An action potential is an all-or-nothing electrical spike. Neurons that fire together wire together. The hippocampus forms memories. Dopamine signals reward prediction error."
+   ],
+   [
+    "Why trials are randomised, and how to read the result.",
+    "A randomised controlled trial is the gold standard because randomising breaks confounding, where a hidden variable causes both the exposure and the outcome. The number needed to treat is one divided by the absolute risk reduction."
+   ]
+  ]
+ },
+ {
+  "source": "learnkit",
+  "course": "life-map",
+  "icon": "🧬",
+  "id": "learnkit-life-map-terms",
+  "name": "Life & Mind, the Map: terms",
+  "description": "Flashcard terms from LearnKit's Life & Mind, the Map. Type the definition.",
+  "cards": [
+   [
+    "Codon",
+    "Three bases coding one amino acid."
+   ],
+   [
+    "Human genome",
+    "~3.1 billion base pairs, ~20,000 protein-coding genes."
+   ],
+   [
+    "Epigenetics",
+    "Heritable expression changes without sequence changes."
+   ],
+   [
+    "AlphaFold",
+    "AI that predicts protein structure (Nobel 2024)."
+   ],
+   [
+    "Natural selection",
+    "Heritable variants that reproduce more spread."
+   ],
+   [
+    "Genetic drift",
+    "Random frequency change; strong in small populations."
+   ],
+   [
+    "Hamilton's rule",
+    "rB > C."
+   ],
+   [
+    "Convergent evolution",
+    "Same solution evolves independently."
+   ],
+   [
+    "Monotreme",
+    "Egg-laying mammal (platypus, echidna)."
+   ],
+   [
+    "Action potential",
+    "All-or-nothing electrical spike."
+   ],
+   [
+    "Hebbian learning",
+    "Fire together, wire together."
+   ],
+   [
+    "Hippocampus",
+    "Memory formation; place cells."
+   ],
+   [
+    "Dopamine",
+    "Reward-prediction error signal."
+   ],
+   [
+    "Predictive processing",
+    "Brain as prediction-error minimiser."
+   ],
+   [
+    "mRNA vaccine",
+    "Delivers instructions to make an antigen."
+   ],
+   [
+    "CRISPR-Cas9",
+    "Programmable gene editing."
+   ],
+   [
+    "RCT",
+    "Randomised controlled trial — gold standard."
+   ],
+   [
+    "Confounding",
+    "Hidden variable causing both exposure and outcome."
+   ],
+   [
+    "NNT",
+    "Number needed to treat = 1/ARR."
+   ],
+   [
+    "Florey",
+    "Australian who turned penicillin into a medicine."
+   ]
+  ]
+ },
+ {
+  "source": "learnkit",
+  "course": "linux-map",
+  "icon": "🐧",
+  "id": "learnkit-linux-map-ideas",
+  "name": "Linux & Unix, the Map: key ideas",
+  "description": "The key statement of each lesson in LearnKit's Linux & Unix, the Map.",
+  "cards": [
+   [
+    "User space, the kernel, and the doorway between them.",
+    "Programs run in user space; the kernel owns the hardware. A system call is the doorway between them. Everything is a file, and a file descriptor is a small integer naming an open file, socket or pipe."
+   ],
+   [
+    "Which tool answers which question.",
+    "strace shows what a process is asking the kernel. perf profiles where the CPU time goes. ss inspects sockets. journalctl reads service logs. An exit code of zero means success; anything else is failure."
+   ],
+   [
+    "What a container is made of.",
+    "Cgroups limit what a process can use: CPU, memory and which cores. Namespaces limit what a process can see: processes, network, mounts, hostname and users. A container is just a process with both applied."
+   ],
+   [
+    "The kernel knobs that keep a hot core quiet.",
+    "isolcpus keeps the scheduler off reserved cores. nohz_full stops the timer tick on single-task cores. IRQ affinity moves hardware interrupts elsewhere. Busy polling spins instead of sleeping, trading a core for lower latency."
+   ],
+   [
+    "The memory events that cost you latency, and the fixes.",
+    "A page fault means the kernel must intervene; mlock pins memory so it never swaps. Huge pages mean fewer TLB misses. On NUMA machines, remote memory is slower than local. False sharing is two cores writing different variables on the same cache line."
+   ],
+   [
+    "The families of network speed-ups.",
+    "epoll asks which of my sockets are ready. io_uring does async I/O through shared ring buffers with fewer system calls. Kernel bypass hands the NIC to user space. Exchanges publish market data by multicast, and PTP syncs clocks to under a microsecond."
+   ],
+   [
+    "How to look inside a running system.",
+    "perf samples where time goes, and in a flame graph width is time. eBPF runs verified programs inside the kernel for low-overhead tracing. The USE method checks utilisation, saturation and errors for every resource."
+   ],
+   [
+    "The roles, and where they are in Australia.",
+    "Low-latency developers write the trading hot path. Trading infrastructure engineers tune IRQs, NUMA, PTP and kernel bypass. SREs keep systems reliable at scale. In Australia, the exchanges are the ASX and Cboe Australia."
+   ],
+   [
+    "Inodes, links and how data really reaches the disk.",
+    "An inode holds a file's metadata and block map; names point to it. A hard link is a second name for an inode; a symlink is a file holding a path. Writes land in the page cache first, and fsync forces them to stable storage."
+   ],
+   [
+    "The layers of Linux access control.",
+    "Discretionary access control lets the owner set permissions. Mandatory access control, like SELinux, enforces a policy the owner can't override. Capabilities split root's powers into pieces. ASLR randomises memory layout to foil exploits."
+   ],
+   [
+    "From locks down to lock-free.",
+    "A futex only enters the kernel when there is contention. Compare-and-swap atomically sets a value only if it is still what you expected. Acquire and release ordering publish data safely between threads."
+   ],
+   [
+    "The lineage of the systems you use every day.",
+    "Thompson and Ritchie built Unix at Bell Labs in 1969, and Ritchie's C made it portable. Stallman started GNU in 1983. Torvalds wrote the Linux kernel in 1991. The GPL is copyleft: if you distribute a modified version, it must stay free."
+   ]
+  ]
+ },
+ {
+  "source": "learnkit",
+  "course": "linux-map",
+  "icon": "🐧",
+  "id": "learnkit-linux-map-terms",
+  "name": "Linux & Unix, the Map: terms",
+  "description": "Flashcard terms from LearnKit's Linux & Unix, the Map. Type the definition.",
+  "cards": [
+   [
+    "User vs kernel space",
+    "Programs vs the privileged core that owns the hardware."
+   ],
+   [
+    "/proc",
+    "Virtual filesystem of live process and kernel info."
+   ],
+   [
+    "/sys",
+    "Virtual filesystem of kernel objects and tunables (incl. cgroups)."
+   ],
+   [
+    "File descriptor",
+    "A small integer naming an open file, socket or pipe."
+   ],
+   [
+    "strace",
+    "Traces a process's system calls — \"what is it asking the kernel?\""
+   ],
+   [
+    "perf",
+    "Linux's profiler: CPU samples, cache misses, hardware counters."
+   ],
+   [
+    "ss",
+    "Modern socket inspector (replaces netstat)."
+   ],
+   [
+    "jq",
+    "grep/sed for JSON."
+   ],
+   [
+    "journalctl",
+    "Reads systemd service logs."
+   ],
+   [
+    "Exit code 0",
+    "Success; anything else is failure."
+   ],
+   [
+    "cgroup v2 location",
+    "/sys/fs/cgroup — a directory per group, files as settings."
+   ],
+   [
+    "cpuset.cpus",
+    "Which cores a group may run on."
+   ],
+   [
+    "Namespaces",
+    "pid, net, mnt, uts, ipc, user, cgroup, time — what a process can see."
+   ],
+   [
+    "setns / unshare / clone",
+    "Join / create-for-self / create-for-child namespaces."
+   ],
+   [
+    "Jitter",
+    "Variation in latency; the real enemy in HFT."
+   ],
+   [
+    "isolcpus",
+    "Boot param reserving cores away from the scheduler."
+   ],
+   [
+    "nohz_full",
+    "Stops the periodic timer tick on single-task cores."
+   ],
+   [
+    "IRQ affinity",
+    "Choose which cores handle hardware interrupts."
+   ],
+   [
+    "SCHED_FIFO",
+    "Real-time policy: runs until it yields or a higher priority arrives."
+   ],
+   [
+    "Busy polling",
+    "Spin checking for work instead of sleeping."
+   ],
+   [
+    "Page fault",
+    "Touching memory that isn't mapped yet — the kernel must intervene."
+   ],
+   [
+    "mlock / mlockall",
+    "Pin memory in RAM; never swap it."
+   ],
+   [
+    "NUMA",
+    "Each socket has local RAM; remote access is slower."
+   ],
+   [
+    "Page cache",
+    "Idle RAM used to cache files."
+   ],
+   [
+    "False sharing",
+    "Two cores writing different variables on the same cache line — slows both."
+   ],
+   [
+    "epoll",
+    "Linux's scalable \"which of my sockets are ready?\" API."
+   ],
+   [
+    "io_uring",
+    "Async I/O through shared ring buffers; fewer syscalls."
+   ],
+   [
+    "Kernel bypass",
+    "User-space access to the NIC (Onload/ef_vi, DPDK)."
+   ],
+   [
+    "XDP / AF_XDP",
+    "eBPF fast path at the driver."
+   ],
+   [
+    "Multicast",
+    "One-to-many UDP; how exchanges publish market data."
+   ],
+   [
+    "FIX",
+    "Classic text-based protocol for orders between firms."
+   ],
+   [
+    "perf",
+    "Linux profiler: sampling + hardware counters."
+   ],
+   [
+    "Flame graph",
+    "Width = time spent; find the wide plateaus."
+   ],
+   [
+    "eBPF",
+    "Verified programs inside the kernel; low-overhead tracing."
+   ],
+   [
+    "bpftrace",
+    "One-liner language for eBPF."
+   ],
+   [
+    "ftrace",
+    "Built-in kernel function tracer."
+   ],
+   [
+    "USE method",
+    "Utilisation, Saturation, Errors — per resource."
+   ],
+   [
+    "Low-latency dev",
+    "Writes the trading hot path; lives in caches, memory and networking."
+   ],
+   [
+    "Trading infra engineer",
+    "Tunes boxes/networks: IRQs, NUMA, PTP, bypass."
+   ],
+   [
+    "SRE",
+    "Reliability at scale: Linux, containers, observability."
+   ],
+   [
+    "Sydney trading firms",
+    "Optiver, IMC, Akuna, SIG (and others)."
+   ],
+   [
+    "Australian exchanges",
+    "ASX and Cboe Australia."
+   ],
+   [
+    "Inode",
+    "A file's metadata + block map; names point to it."
+   ],
+   [
+    "Hard link vs symlink",
+    "Second name for an inode vs a file holding a path."
+   ],
+   [
+    "fsync",
+    "Force data from page cache to stable storage."
+   ],
+   [
+    "Journaling",
+    "Log intent first, then apply — crash safe."
+   ],
+   [
+    "Copy-on-write FS",
+    "Never overwrite in place; snapshots are nearly free."
+   ],
+   [
+    "NVMe",
+    "SSD protocol over PCIe with many deep parallel queues."
+   ],
+   [
+    "DAC",
+    "Owner-controlled permissions (rwx, users, groups)."
+   ],
+   [
+    "MAC",
+    "Policy-controlled (SELinux, AppArmor); owner can't override."
+   ],
+   [
+    "Capabilities",
+    "Root's powers split into pieces."
+   ],
+   [
+    "setuid",
+    "Program runs as its file owner."
+   ],
+   [
+    "ASLR",
+    "Randomise memory layout to foil exploits."
+   ],
+   [
+    "Spectre / Meltdown",
+    "Speculative-execution side channels (2018)."
+   ],
+   [
+    "futex",
+    "Fast userspace mutex: only enters the kernel on contention."
+   ],
+   [
+    "CAS",
+    "Compare-and-swap: atomic \"set if still equal\"."
+   ],
+   [
+    "Acquire / release",
+    "Memory orders that publish data safely between threads."
+   ],
+   [
+    "LMAX Disruptor",
+    "Famous lock-free ring-buffer design from a trading exchange."
+   ],
+   [
+    "Priority inversion",
+    "Low-priority thread holding a lock blocks a high-priority one."
+   ],
+   [
+    "Unix",
+    "1969, Bell Labs, Thompson & Ritchie."
+   ],
+   [
+    "C",
+    "Ritchie's language (1972) — made Unix portable."
+   ],
+   [
+    "GNU",
+    "Stallman's free Unix-like userland (1983)."
+   ],
+   [
+    "Linux",
+    "Torvalds' kernel (1991); GNU + Linux = most \"Linux\" systems."
+   ],
+   [
+    "POSIX",
+    "Standard interface for Unix-like systems."
+   ],
+   [
+    "GPL",
+    "Copyleft licence; derivatives must stay free."
+   ]
+  ]
+ },
+ {
+  "source": "learnkit",
+  "course": "markets-map",
+  "icon": "📈",
+  "id": "learnkit-markets-map-ideas",
+  "name": "Markets & Quant Finance, the Map: key ideas",
+  "description": "The key statement of each lesson in LearnKit's Markets & Quant Finance, the Map.",
+  "cards": [
+   [
+    "How a limit order book matches trades.",
+    "The bid is the best price to sell to; the ask is the best price to buy from. The spread is ask minus bid. Orders are matched by price-time priority: better price first, then earlier order. Market makers earn the spread but risk adverse selection."
+   ],
+   [
+    "The key idea behind option pricing.",
+    "A call is the right to buy at the strike; a put is the right to sell. If you can replicate an option with the underlying and cash, its price must match the replication, or there is arbitrage. Delta hedging is that replication done continuously."
+   ],
+   [
+    "The main families of quant strategy, and how to judge them.",
+    "Statistical arbitrage trades the mean reversion of related assets. Momentum bets that recent winners keep winning. Carry earns the yield differential. The Sharpe ratio is excess return divided by volatility."
+   ],
+   [
+    "Portfolio risk in four definitions.",
+    "Diversification lowers risk by combining imperfectly correlated assets. Value at risk is a loss threshold at a confidence level, and expected shortfall is the average loss beyond it. The Kelly criterion gives the growth-optimal bet size, but use a fraction of it."
+   ],
+   [
+    "The ideas that history keeps teaching.",
+    "The efficient market hypothesis says prices reflect available information. Minsky: stability breeds leverage, and leverage breeds collapse. Fiat money is money by decree, not backed by a commodity."
+   ]
+  ]
+ },
+ {
+  "source": "learnkit",
+  "course": "markets-map",
+  "icon": "📈",
+  "id": "learnkit-markets-map-terms",
+  "name": "Markets & Quant Finance, the Map: terms",
+  "description": "Flashcard terms from LearnKit's Markets & Quant Finance, the Map. Type the definition.",
+  "cards": [
+   [
+    "Bid / ask",
+    "Best price to sell to / buy from."
+   ],
+   [
+    "Price–time priority",
+    "Better price first, then earlier order."
+   ],
+   [
+    "Market maker",
+    "Liquidity provider earning the spread."
+   ],
+   [
+    "Adverse selection",
+    "Losing to better-informed traders."
+   ],
+   [
+    "CCP",
+    "Central counterparty that guarantees trades."
+   ],
+   [
+    "Call / put",
+    "Right to buy / sell at the strike."
+   ],
+   [
+    "Arbitrage",
+    "Riskless profit; pricing forbids it."
+   ],
+   [
+    "Delta hedging",
+    "Offsetting option exposure with the underlying."
+   ],
+   [
+    "Gamma",
+    "Curvature; how fast delta changes."
+   ],
+   [
+    "Implied vol smile",
+    "IV varies by strike; model's known flaw."
+   ],
+   [
+    "Stat arb",
+    "Trade mean reversion of related assets."
+   ],
+   [
+    "Momentum",
+    "Recent winners tend to keep winning."
+   ],
+   [
+    "Carry",
+    "Earn the yield differential."
+   ],
+   [
+    "Sharpe ratio",
+    "Excess return / volatility."
+   ],
+   [
+    "Overfitting",
+    "Fitting noise; fails out of sample."
+   ],
+   [
+    "Survivorship bias",
+    "Only the survivors are in the dataset."
+   ],
+   [
+    "Diversification",
+    "Lower risk via imperfectly correlated assets."
+   ],
+   [
+    "Beta",
+    "Sensitivity to the market."
+   ],
+   [
+    "VaR",
+    "Loss threshold at a confidence level."
+   ],
+   [
+    "Expected shortfall",
+    "Average loss beyond VaR."
+   ],
+   [
+    "Kelly criterion",
+    "Growth-optimal bet size; use a fraction."
+   ],
+   [
+    "Max drawdown",
+    "Worst peak-to-trough loss."
+   ],
+   [
+    "EMH",
+    "Prices reflect available information; hard to beat."
+   ],
+   [
+    "Minsky moment",
+    "Stability breeds leverage, then collapse."
+   ],
+   [
+    "Flash Crash",
+    "6 May 2010; minutes-long plunge and recovery."
+   ],
+   [
+    "Knight Capital",
+    "2012 deployment bug; ~$440M lost in 45 minutes."
+   ],
+   [
+    "Fiat money",
+    "Money by decree, not backed by a commodity."
+   ],
+   [
+    "RBA cash rate",
+    "Australia's policy interest rate."
+   ]
+  ]
+ },
+ {
+  "source": "learnkit",
+  "course": "maths-map",
+  "icon": "∞",
+  "id": "learnkit-maths-map-ideas",
+  "name": "Mathematics, the Map: key ideas",
+  "description": "The key statement of each lesson in LearnKit's Mathematics, the Map.",
+  "cards": [
+   [
+    "The objects that unify mathematics.",
+    "A group is a set with an associative operation, an identity and inverses: the language of symmetry. A manifold is a space that looks locally like flat space. Galois theory links the roots of polynomials to symmetry groups."
+   ],
+   [
+    "Eigenvectors, the SVD and PCA.",
+    "An eigenvector is a direction a linear map only scales. The singular value decomposition, A equals U Sigma V transpose, works for any matrix. Principal component analysis takes the eigenvectors of the covariance matrix."
+   ],
+   [
+    "Bayes, the central limit theorem and martingales.",
+    "Bayes' theorem: the posterior is proportional to the likelihood times the prior. The central limit theorem: sums of finite-variance variables tend to a Gaussian. A martingale is a process whose expected future value is its current value."
+   ],
+   [
+    "Cantor and Godel, in three sentences.",
+    "Cantor showed some infinities are larger than others: the real numbers are uncountable. Godel's first theorem: any consistent system for arithmetic has true statements it cannot prove. His second: it cannot prove its own consistency."
+   ],
+   [
+    "Three results to carry around.",
+    "A positive Lyapunov exponent means nearby trajectories diverge exponentially: chaos. In a convex problem, every local minimum is a global minimum. Monte Carlo error shrinks like one over the square root of N, whatever the dimension."
+   ]
+  ]
+ },
+ {
+  "source": "learnkit",
+  "course": "maths-map",
+  "icon": "∞",
+  "id": "learnkit-maths-map-terms",
+  "name": "Mathematics, the Map: terms",
+  "description": "Flashcard terms from LearnKit's Mathematics, the Map. Type the definition.",
+  "cards": [
+   [
+    "Group",
+    "A set with an associative operation, identity and inverses — the language of symmetry."
+   ],
+   [
+    "Measure theory",
+    "Rigorous \"size\" of sets; the foundation of probability."
+   ],
+   [
+    "Galois theory",
+    "Links polynomial roots to symmetry groups."
+   ],
+   [
+    "Langlands programme",
+    "Web connecting number theory and representation theory."
+   ],
+   [
+    "Eigenvector",
+    "Direction a linear map only scales."
+   ],
+   [
+    "PCA",
+    "Eigenvectors of the covariance matrix."
+   ],
+   [
+    "Condition number",
+    "Error amplification factor."
+   ],
+   [
+    "Marchenko–Pastur",
+    "Eigenvalue distribution of pure-noise covariance matrices."
+   ],
+   [
+    "Fat tails",
+    "Extremes much likelier than Gaussian predicts."
+   ],
+   [
+    "Martingale",
+    "Expected future value = current value."
+   ],
+   [
+    "Ornstein–Uhlenbeck",
+    "Mean-reverting random process."
+   ],
+   [
+    "Gödel I",
+    "Consistent arithmetic has unprovable truths."
+   ],
+   [
+    "Gödel II",
+    "Can't prove your own consistency."
+   ],
+   [
+    "Continuum hypothesis",
+    "Independent of ZFC (Gödel + Cohen)."
+   ],
+   [
+    "Category theory",
+    "Mathematics of structure-preserving maps."
+   ],
+   [
+    "Lean",
+    "Proof assistant; mathlib library."
+   ],
+   [
+    "Lyapunov exponent",
+    "Rate of exponential divergence of nearby trajectories."
+   ],
+   [
+    "Convex optimisation",
+    "Local = global minimum."
+   ],
+   [
+    "Symplectic integrator",
+    "Long-term stable for Hamiltonian systems."
+   ],
+   [
+    "Bellman equation",
+    "Recursive optimality — heart of dynamic programming and RL."
+   ]
+  ]
+ },
+ {
+  "source": "learnkit",
+  "course": "philosophy-map",
+  "icon": "🦉",
+  "id": "learnkit-philosophy-map-ideas",
+  "name": "Philosophy, the Map: key ideas",
+  "description": "The key statement of each lesson in LearnKit's Philosophy, the Map.",
+  "cards": [
+   [
+    "The main branches of philosophy, one line each.",
+    "Metaphysics asks what exists. Epistemology asks what we can know. Ethics asks how we should act. Logic asks what follows from what. Descartes: I think, therefore I am."
+   ],
+   [
+    "Hume, Popper and Kuhn.",
+    "Hume's problem of induction: there is no logical justification for generalising from the past to the future. Popper's answer: a theory is scientific if it is falsifiable. Kuhn: science advances through paradigm shifts."
+   ],
+   [
+    "The central puzzles of philosophy of mind.",
+    "The hard problem asks why there is subjective experience at all. Functionalism defines the mind by what it does, not what it is made of. Searle's Chinese room argues that syntax is not semantics."
+   ],
+   [
+    "The big three, plus Hume's warning.",
+    "Utilitarianism: maximise total well-being. Deontology: duties and rights constrain what we may do. Virtue ethics: act from good character. Hume's is-ought gap: facts alone don't yield obligations."
+   ],
+   [
+    "Four classic answers about the state and the market.",
+    "Hobbes: a strong state saves us from the war of all against all. Mill's harm principle: liberty may be limited only to prevent harm to others. Rawls: choose rules from behind a veil of ignorance. Smith: self-interest can serve the common good through markets."
+   ],
+   [
+    "Two puzzles where philosophy meets physics and maths.",
+    "The past hypothesis says the universe began in a state of very low entropy, and that explains time's arrow. Platonism holds that mathematical objects exist independently of us. Wigner called the success of maths in physics unreasonably effective."
+   ]
+  ]
+ },
+ {
+  "source": "learnkit",
+  "course": "philosophy-map",
+  "icon": "🦉",
+  "id": "learnkit-philosophy-map-terms",
+  "name": "Philosophy, the Map: terms",
+  "description": "Flashcard terms from LearnKit's Philosophy, the Map. Type the definition.",
+  "cards": [
+   [
+    "Metaphysics",
+    "What exists and what it's like."
+   ],
+   [
+    "Epistemology",
+    "Theory of knowledge."
+   ],
+   [
+    "Analytic vs continental",
+    "Logic/language/science vs history/experience/power."
+   ],
+   [
+    "Cogito",
+    "Descartes: I think, therefore I am."
+   ],
+   [
+    "Problem of induction",
+    "Hume: no logical justification for generalising from past to future."
+   ],
+   [
+    "Falsifiability",
+    "Popper's criterion for science."
+   ],
+   [
+    "Paradigm shift",
+    "Kuhn: revolutionary change of framework."
+   ],
+   [
+    "Quine–Duhem",
+    "Hypotheses are tested only in bundles."
+   ],
+   [
+    "Hard problem",
+    "Why is there subjective experience at all?"
+   ],
+   [
+    "Functionalism",
+    "Mind defined by function, not substrate."
+   ],
+   [
+    "Chinese room",
+    "Syntax isn't semantics (Searle)."
+   ],
+   [
+    "Compatibilism",
+    "Free will is compatible with determinism."
+   ],
+   [
+    "Global workspace",
+    "Consciousness as brain-wide broadcast."
+   ],
+   [
+    "Utilitarianism",
+    "Maximise total well-being."
+   ],
+   [
+    "Deontology",
+    "Duties and rights constrain action."
+   ],
+   [
+    "Virtue ethics",
+    "Act from good character."
+   ],
+   [
+    "Is–ought gap",
+    "Facts alone don't yield obligations."
+   ],
+   [
+    "Trolley problem",
+    "Harm-for-greater-good dilemmas."
+   ],
+   [
+    "Longtermism",
+    "The long-term future matters morally."
+   ],
+   [
+    "Leviathan",
+    "Hobbes: strong state to escape the war of all against all."
+   ],
+   [
+    "Harm principle",
+    "Mill: liberty limited only to prevent harm."
+   ],
+   [
+    "Veil of ignorance",
+    "Rawls' thought experiment for fair rules."
+   ],
+   [
+    "Invisible hand",
+    "Smith: self-interest can serve the common good via markets."
+   ],
+   [
+    "Arrow's theorem",
+    "No perfect voting system."
+   ],
+   [
+    "Block universe",
+    "Past, present and future equally real."
+   ],
+   [
+    "Past hypothesis",
+    "Low-entropy start explains time's arrow."
+   ],
+   [
+    "Platonism",
+    "Mathematical objects exist independently."
+   ],
+   [
+    "Intuitionism",
+    "Maths as construction; no excluded middle for infinities."
+   ],
+   [
+    "Unreasonable effectiveness",
+    "Wigner's puzzle about maths and physics."
+   ]
+  ]
+ },
+ {
+  "source": "learnkit",
+  "course": "physics-map",
+  "icon": "⚛️",
+  "id": "learnkit-physics-map-ideas",
+  "name": "Physics, the Map: key ideas",
+  "description": "The key statement of each lesson in LearnKit's Physics, the Map.",
+  "cards": [
+   [
+    "The one principle behind classical and quantum mechanics.",
+    "The action is the integral of the Lagrangian over time, and the path a system actually takes makes the action stationary. In quantum mechanics, every path contributes, weighted by e to the i S over h-bar."
+   ],
+   [
+    "The link between symmetry and conservation.",
+    "Every continuous symmetry gives a conservation law. Time symmetry gives conservation of energy, space symmetry gives momentum, and rotation symmetry gives angular momentum."
+   ],
+   [
+    "The Born rule, Bell and no-cloning.",
+    "The Born rule: probability is the squared magnitude of the amplitude. Bell's theorem: no local hidden-variable theory can reproduce quantum mechanics. The no-cloning theorem: an unknown quantum state cannot be copied."
+   ],
+   [
+    "Boltzmann's formula and what information costs.",
+    "Boltzmann: entropy equals k times the log of the number of microstates, S equals k ln Omega. The partition function generates all of thermodynamics. Landauer: erasing one bit costs at least kT ln 2 of energy."
+   ],
+   [
+    "General relativity and the cosmos, in brief.",
+    "Matter tells spacetime how to curve, and spacetime tells matter how to move. Gravity is locally indistinguishable from acceleration. The cosmic microwave background is light from 380,000 years after the Big Bang."
+   ],
+   [
+    "How collective behaviour creates new physics.",
+    "A quasiparticle is a collective excitation that behaves like a particle. A band gap separates filled and empty energy bands, and decides metal, semiconductor or insulator. In BCS theory, electrons form Cooper pairs bound by phonons, giving superconductivity."
+   ],
+   [
+    "The biggest mismatches in fundamental physics.",
+    "Quantum gravity matters at the Planck scale, about 10 to the minus 35 metres. The cosmological constant problem: predicted vacuum energy is off by about 120 orders of magnitude. The hierarchy problem: why is the Higgs so light?"
+   ]
+  ]
+ },
+ {
+  "source": "learnkit",
+  "course": "physics-map",
+  "icon": "⚛️",
+  "id": "learnkit-physics-map-terms",
+  "name": "Physics, the Map: terms",
+  "description": "Flashcard terms from LearnKit's Physics, the Map. Type the definition.",
+  "cards": [
+   [
+    "Hamiltonian",
+    "Energy function generating time evolution in phase space."
+   ],
+   [
+    "Path integral",
+    "Sum over histories weighted by e^(iS/ħ)."
+   ],
+   [
+    "Gauge field",
+    "Field required to make a symmetry local; a force carrier."
+   ],
+   [
+    "Higgs mechanism",
+    "Vacuum breaks electroweak symmetry, giving W, Z mass."
+   ],
+   [
+    "CPT theorem",
+    "Every local Lorentz-invariant QFT conserves CPT."
+   ],
+   [
+    "Bell's theorem",
+    "No local hidden variables reproduce QM."
+   ],
+   [
+    "Decoherence",
+    "Environment entanglement suppresses interference."
+   ],
+   [
+    "No-cloning",
+    "Unknown quantum states can't be copied."
+   ],
+   [
+    "Surface code",
+    "Leading quantum error-correcting code."
+   ],
+   [
+    "NISQ",
+    "Noisy intermediate-scale quantum era."
+   ],
+   [
+    "S = k ln Ω",
+    "Boltzmann's entropy."
+   ],
+   [
+    "Renormalisation group",
+    "How physics changes with scale; explains universality."
+   ],
+   [
+    "Equivalence principle",
+    "Gravity is locally indistinguishable from acceleration."
+   ],
+   [
+    "Hawking radiation",
+    "Black holes have temperature and evaporate."
+   ],
+   [
+    "CMB",
+    "Light from 380,000 years after the Big Bang."
+   ],
+   [
+    "ΛCDM",
+    "Dark energy + cold dark matter standard model of cosmology."
+   ],
+   [
+    "Quasiparticle",
+    "A collective excitation that behaves like a particle."
+   ],
+   [
+    "Band gap",
+    "Energy gap separating filled and empty bands."
+   ],
+   [
+    "BCS theory",
+    "Superconductivity via phonon-bound Cooper pairs."
+   ],
+   [
+    "Quantum Hall effect",
+    "Exactly quantised Hall resistance."
+   ],
+   [
+    "Topological phase",
+    "Properties protected by topology, not symmetry breaking."
+   ],
+   [
+    "DFT",
+    "Density functional theory — computational workhorse for materials."
+   ],
+   [
+    "Hierarchy problem",
+    "Why the Higgs is so light compared with the Planck scale."
+   ],
+   [
+    "Past hypothesis",
+    "The early universe had very low entropy."
+   ]
+  ]
+ },
+ {
+  "source": "learnkit",
+  "course": "probability",
+  "icon": "🎲",
+  "id": "learnkit-probability-ideas",
+  "name": "Probability, Intuitively: key ideas",
+  "description": "The key statement of each lesson in LearnKit's Probability, Intuitively.",
+  "cards": [
+   [
+    "The definition of probability for equally likely outcomes.",
+    "The probability of an event is the number of favourable outcomes divided by the number of equally likely outcomes. Two dice give 36 outcomes, and 7 is the most likely total, with 6 ways out of 36."
+   ],
+   [
+    "When to multiply, when to add, and the complement trick.",
+    "For independent events, the probability of A and B is the product. For events that can't both happen, the probability of A or B is the sum. The probability of not A is one minus the probability of A."
+   ],
+   [
+    "What expected value is, and what it isn't.",
+    "Expected value is the sum of each value times its probability, over every outcome. A negative expected value means you lose on average. It says nothing certain about a single play, only about the long-run average."
+   ]
+  ]
+ },
+ {
+  "source": "learnkit",
+  "course": "probability",
+  "icon": "🎲",
+  "id": "learnkit-probability-terms",
+  "name": "Probability, Intuitively: terms",
+  "description": "Flashcard terms from LearnKit's Probability, Intuitively. Type the definition.",
+  "cards": [
+   [
+    "Most likely two-dice total",
+    "7 — six ways out of 36."
+   ],
+   [
+    "Negative EV",
+    "On average you lose — the house edge."
+   ],
+   [
+    "EV and one play",
+    "EV says nothing certain about a single play, only the long-run average."
+   ]
+  ]
+ },
+ {
+  "source": "learnkit",
+  "course": "system-design",
+  "icon": "🏗️",
+  "id": "learnkit-system-design-ideas",
+  "name": "System Design Interviews: key ideas",
+  "description": "The key statement of each lesson in LearnKit's System Design Interviews.",
+  "cards": [
+   [
+    "The framework, and the two kinds of requirement.",
+    "Clarify, estimate, sketch, deep-dive. Functional requirements are what the system does. Non-functional requirements are how well it does it: latency, availability, scale and consistency."
+   ],
+   [
+    "The numbers that make estimates quick.",
+    "A day has 86,400 seconds, so call it 100,000. A month is about 2.5 million seconds. Peak traffic is often two to three times the average."
+   ],
+   [
+    "What each standard component is for.",
+    "A load balancer spreads traffic across servers and removes a single point of failure. A cache is a fast in-memory copy of hot data that can go stale. A message queue buffers work and absorbs spikes. A CDN serves static content from near the user."
+   ],
+   [
+    "Your one-paragraph summary of the URL shortener design.",
+    "Reads dominate, so put a cache in front of a key-value store mapping code to URL. Codes are 7-character base-62 encodings of numeric IDs. Each server takes ID ranges from a counter service, so codes never collide."
+   ]
+  ]
+ },
+ {
+  "source": "learnkit",
+  "course": "system-design",
+  "icon": "🏗️",
+  "id": "learnkit-system-design-terms",
+  "name": "System Design Interviews: terms",
+  "description": "Flashcard terms from LearnKit's System Design Interviews. Type the definition.",
+  "cards": [
+   [
+    "Functional requirement",
+    "What the system does — its features."
+   ],
+   [
+    "Non-functional requirement",
+    "How well it does it — latency, availability, scale, consistency."
+   ],
+   [
+    "Load balancer",
+    "Spreads traffic across servers; removes a single point of failure."
+   ],
+   [
+    "Cache",
+    "Fast in-memory copy of hot data. Watch out for staleness."
+   ],
+   [
+    "Message queue",
+    "Buffers work to be done later; absorbs spikes."
+   ],
+   [
+    "CDN",
+    "Serves static content from servers near the user."
+   ],
+   [
+    "Cache-aside",
+    "On a miss, the app reads the DB and fills the cache."
+   ]
+  ]
+ }
+]

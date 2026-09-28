@@ -11,7 +11,8 @@
     "lint": "eslint .",
     "test": "vitest run",
     "typecheck": "tsc -b",
-    "check": "npm run lint && npm run test && npm run build"
+    "check": "npm run lint && npm run test && npm run build",
+    "import:learnkit": "node scripts/import-learnkit.mjs ../learnkit"
   },
   "dependencies": {
     "@radix-ui/react-dialog": "^1.1.15",

@@ -1,5 +1,6 @@
 import type { AppStateShape, Card, Deck } from '@/types'
 import { storage } from '@/lib/storage'
+import type { Pack } from '@/lib/library'
 
 type DemoDeck = { name: string; description: string; cards: Array<[title: string, content: string]> }
 
@@ -63,16 +64,33 @@ const DEMO: DemoDeck[] = [
   },
 ]
 
+const slug = (name: string) => name.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '')
+
+export const CLASSIC_PACKS: Pack[] = DEMO.map((d) => ({
+  id: `classic-${slug(d.name)}`,
+  name: d.name,
+  description: d.description,
+  source: 'classic',
+  icon: d.name === 'Famous Words' ? '📜' : '🃏',
+  cards: d.cards,
+}))
+
+/** Turns a pack into a fresh deck + cards (new ids each time). */
+export function packToDeck(pack: Pack, now = storage.now()): { deck: Deck; cards: Card[] } {
+  const deck: Deck = { id: storage.uuid(), name: pack.name, description: pack.description, packId: pack.id, createdAt: now, updatedAt: now }
+  const cards = pack.cards.map(([title, content], i): Card => ({ id: storage.uuid(), deckId: deck.id, title, content, createdAt: now + i, updatedAt: now }))
+  return { deck, cards }
+}
+
 export function buildDemoState(): Pick<AppStateShape, 'decks' | 'cards'> {
   const now = storage.now()
   const decks: Deck[] = []
   const cards: Card[] = []
-  DEMO.forEach((demo, di) => {
-    const deck: Deck = { id: storage.uuid(), name: demo.name, description: demo.description, createdAt: now - di, updatedAt: now - di }
-    decks.push(deck)
-    demo.cards.forEach(([title, content], ci) => {
-      cards.push({ id: storage.uuid(), deckId: deck.id, title, content, createdAt: now + di * 100 + ci, updatedAt: now })
-    })
+  CLASSIC_PACKS.forEach((pack, i) => {
+    // Earlier packs get later timestamps so they sort first (newest first) on the home page.
+    const built = packToDeck(pack, now - i * 1000)
+    decks.push(built.deck)
+    cards.push(...built.cards)
   })
   return { decks, cards }
 }

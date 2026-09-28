@@ -7,6 +7,8 @@ export type Prefs = {
   sound: boolean
   haptics: boolean
   hideAnswers: boolean
+  /** Hide the "new decks in the library" banner on the home page. */
+  libraryHintDismissed: boolean
 }
 
 const KEY = 'mw_prefs_v1'
@@ -26,6 +28,7 @@ function defaults(): Prefs {
     sound: true,
     haptics: true,
     hideAnswers: false,
+    libraryHintDismissed: false,
   }
 }
 
@@ -46,6 +49,7 @@ function read(): Prefs {
       sound: typeof p.sound === 'boolean' ? p.sound : base.sound,
       haptics: typeof p.haptics === 'boolean' ? p.haptics : base.haptics,
       hideAnswers: typeof p.hideAnswers === 'boolean' ? p.hideAnswers : base.hideAnswers,
+      libraryHintDismissed: typeof p.libraryHintDismissed === 'boolean' ? p.libraryHintDismissed : base.libraryHintDismissed,
     }
   } catch {
     return base
