@@ -129,7 +129,9 @@ function RevealPreview({ text, reveal }: { text: string; reveal: RevealMode }) {
         [...rest].map((ch, i) => {
           const k = typed + i
           if (isWhitespace(ch)) return <span key={k}>{ch}</span>
-          const cls = reveal === 'full' || !isWordChar(ch) || (reveal === 'initials' && initials[k]) ? 't-hint' : 't-blank t-slot'
+          const word = (n: number) => n >= 0 && n < text.length && isWordChar(text[n])
+          const slot = reveal !== 'full' && isWordChar(ch) ? ` t-slot${word(k - 1) ? '' : ' t-slot-start'}${word(k + 1) ? '' : ' t-slot-end'}` : ''
+          const cls = (reveal === 'full' || !isWordChar(ch) || (reveal === 'initials' && initials[k]) ? 't-hint' : 't-blank') + slot
           return (
             <span key={k} className={cls}>
               {ch}

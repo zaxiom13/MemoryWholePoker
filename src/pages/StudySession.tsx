@@ -609,40 +609,46 @@ function AssistPills({ options }: { options: AssistanceOptions }) {
   )
 }
 
-type SegClass = 'ws' | 'ghost' | 'ghost-slot' | 'hint' | 'blank'
+type SegClass = 'ws' | 'ghost' | 'ghost-slot' | 'hint' | 'hint-slot' | 'blank'
 
 /** Renders the not-yet-typed text according to the reveal mode. */
 function Remainder({ target, from, reveal, ghostEnd, initials }: { target: string; from: number; reveal: RevealMode; ghostEnd: number; initials: boolean[] }) {
   return useMemo(() => {
     const end = reveal === 'none' ? Math.max(from, ghostEnd) : target.length
-    const segments: Array<{ cls: SegClass; text: string }> = []
+    const segments: Array<{ cls: SegClass; text: string; start: number }> = []
     for (let k = from; k < end; k += 1) {
       const ch = target[k]
       let cls: SegClass
-      const hidden = reveal !== 'full' && isWordChar(ch) && !(reveal === 'initials' && initials[k])
+      // In Blanks/Initials every letter sits on its own dash, including shown first
+      // letters and the ghost word, so dashes always match the letter count.
+      const slotted = (reveal === 'blanks' || reveal === 'initials') && isWordChar(ch)
       if (isWhitespace(ch)) cls = 'ws'
-      // In blanks/initials modes the ghost is drawn on top of its dashes, so the line stays put.
-      else if (k < ghostEnd) cls = hidden && reveal !== 'none' ? 'ghost-slot' : 'ghost'
+      else if (k < ghostEnd) cls = slotted ? 'ghost-slot' : 'ghost'
       else if (reveal === 'full') cls = 'hint'
       else if (!isWordChar(ch)) cls = 'hint'
-      else if (reveal === 'initials' && initials[k]) cls = 'hint'
+      else if (reveal === 'initials' && initials[k]) cls = 'hint-slot'
       else cls = 'blank'
       const last = segments[segments.length - 1]
       if (last && last.cls === cls) last.text += ch
-      else segments.push({ cls, text: ch })
+      else segments.push({ cls, text: ch, start: k })
     }
     return (
       <>
         {segments.map((s, i) =>
           s.cls === 'ws' ? (
             <span key={i}>{s.text}</span>
-          ) : s.cls === 'blank' || s.cls === 'ghost-slot' ? (
+          ) : s.cls === 'blank' || s.cls === 'ghost-slot' || s.cls === 'hint-slot' ? (
             // Each hidden letter gets its own dash, so blanks show letter count and position.
-            [...s.text].map((ch, j) => (
-              <span key={`${i}-${j}`} className={s.cls === 'blank' ? 't-blank t-slot' : 't-ghost t-slot'}>
-                {ch}
-              </span>
-            ))
+            [...s.text].map((ch, j) => {
+              const k = s.start + j
+              const edge = (n: number) => n < 0 || n >= target.length || !isWordChar(target[n])
+              const cls = [s.cls === 'blank' ? 't-blank t-slot' : s.cls === 'hint-slot' ? 't-hint t-slot' : 't-ghost t-slot', edge(k - 1) && 't-slot-start', edge(k + 1) && 't-slot-end']
+              return (
+                <span key={`${i}-${j}`} className={cls.filter(Boolean).join(' ')}>
+                  {ch}
+                </span>
+              )
+            })
           ) : (
             <span key={i} className={s.cls === 'ghost' ? 't-ghost' : 't-hint'}>
               {s.text}
