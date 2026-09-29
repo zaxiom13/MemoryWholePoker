@@ -257,6 +257,12 @@
   font-size: clamp(1.15rem, 1rem + 0.9vw, 1.5rem);
   line-height: 1.7;
   letter-spacing: 0.005em;
+  /* Kerning and ligatures depend on neighbouring letters, so a letter would land a
+     pixel away from its blank once typed. Fixed advances keep every position stable
+     (and keep the invisible textarea exactly under the drawn text). */
+  font-kerning: none;
+  font-variant-ligatures: none;
+  font-feature-settings: "kern" 0, "liga" 0, "clig" 0, "calt" 0;
   white-space: pre-wrap;
   overflow-wrap: break-word;
   word-break: normal;
@@ -296,13 +302,15 @@
 }
 .t-hint { color: var(--ink-hint); }
 .t-ghost { color: var(--ink-ghost); font-style: italic; }
+/* One span per hidden letter: a short dash centred under where that letter will
+   be drawn (inset from the glyph's advance box, which is wider than its ink). */
 .t-blank {
   color: transparent;
-  text-decoration: underline;
-  text-decoration-color: oklch(0.24 0.02 260 / 28%);
-  text-decoration-thickness: 2px;
-  text-underline-offset: 5px;
-  text-decoration-skip-ink: none;
+  background-image: linear-gradient(oklch(0.24 0.02 260 / 30%), oklch(0.24 0.02 260 / 30%));
+  background-repeat: no-repeat;
+  background-size: max(0.22em, calc(100% - 0.14em)) 2px;
+  background-position: 50% calc(100% - 0.06em);
+  border-radius: 1px;
 }
 .t-flash { animation: flash-in 380ms var(--ease-out); }
 
