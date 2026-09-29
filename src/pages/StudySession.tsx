@@ -609,7 +609,7 @@ function AssistPills({ options }: { options: AssistanceOptions }) {
   )
 }
 
-type SegClass = 'ws' | 'ghost' | 'hint' | 'blank'
+type SegClass = 'ws' | 'ghost' | 'ghost-slot' | 'hint' | 'blank'
 
 /** Renders the not-yet-typed text according to the reveal mode. */
 function Remainder({ target, from, reveal, ghostEnd, initials }: { target: string; from: number; reveal: RevealMode; ghostEnd: number; initials: boolean[] }) {
@@ -619,8 +619,10 @@ function Remainder({ target, from, reveal, ghostEnd, initials }: { target: strin
     for (let k = from; k < end; k += 1) {
       const ch = target[k]
       let cls: SegClass
+      const hidden = reveal !== 'full' && isWordChar(ch) && !(reveal === 'initials' && initials[k])
       if (isWhitespace(ch)) cls = 'ws'
-      else if (k < ghostEnd) cls = 'ghost'
+      // In blanks/initials modes the ghost is drawn on top of its dashes, so the line stays put.
+      else if (k < ghostEnd) cls = hidden && reveal !== 'none' ? 'ghost-slot' : 'ghost'
       else if (reveal === 'full') cls = 'hint'
       else if (!isWordChar(ch)) cls = 'hint'
       else if (reveal === 'initials' && initials[k]) cls = 'hint'
@@ -634,15 +636,15 @@ function Remainder({ target, from, reveal, ghostEnd, initials }: { target: strin
         {segments.map((s, i) =>
           s.cls === 'ws' ? (
             <span key={i}>{s.text}</span>
-          ) : s.cls === 'blank' ? (
+          ) : s.cls === 'blank' || s.cls === 'ghost-slot' ? (
             // Each hidden letter gets its own dash, so blanks show letter count and position.
             [...s.text].map((ch, j) => (
-              <span key={`${i}-${j}`} className="t-blank">
+              <span key={`${i}-${j}`} className={s.cls === 'blank' ? 't-blank t-slot' : 't-ghost t-slot'}>
                 {ch}
               </span>
             ))
           ) : (
-            <span key={i} className={s.cls === 'ghost' ? 't-ghost' : s.cls === 'hint' ? 't-hint' : 't-blank'}>
+            <span key={i} className={s.cls === 'ghost' ? 't-ghost' : 't-hint'}>
               {s.text}
             </span>
           )
