@@ -301,7 +301,15 @@
   text-underline-offset: 4px;
 }
 .t-hint { color: var(--ink-hint); }
-.t-ghost { color: var(--ink-ghost); font-style: italic; }
+/* Ghost stays upright: italic glyphs have different widths, which drifted the
+   ghost word several pixels away from its blanks and from where it gets typed. */
+.t-ghost {
+  color: var(--ink-ghost);
+  animation: ghost-in 450ms var(--ease-out) both;
+}
+@keyframes ghost-in {
+  from { opacity: 0; }
+}
 /* One span per hidden letter: a short dash centred under where that letter will
    be drawn (inset from the glyph's advance box, which is wider than its ink). */
 .t-blank {
