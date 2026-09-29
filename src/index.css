@@ -320,11 +320,22 @@
    (minus a 1px notch so letters stay countable), so a word's dashes are exactly as
    long as the word and the gaps between words are exactly one space wide. */
 .t-slot {
-  background-image: linear-gradient(oklch(0.24 0.02 260 / 30%), oklch(0.24 0.02 260 / 30%));
-  background-repeat: no-repeat;
-  background-size: calc(100% - 1px) 2px;
-  background-position: 50% calc(100% - 0.06em);
+  position: relative;
 }
+.t-slot::after {
+  content: "";
+  position: absolute;
+  left: 0.5px;
+  right: 0.5px;
+  bottom: 0.06em;
+  height: 2px;
+  background: oklch(0.24 0.02 260 / 30%);
+  pointer-events: none;
+}
+/* Each word's dash run reaches a little past the word on both sides, so the
+   2px caret sitting at a word edge doesn't make the run look short. */
+.t-slot-start::after { left: -0.07em; }
+.t-slot-end::after { right: -0.02em; }
 .t-blank {
   color: transparent;
 }
