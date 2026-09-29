@@ -634,6 +634,13 @@ function Remainder({ target, from, reveal, ghostEnd, initials }: { target: strin
         {segments.map((s, i) =>
           s.cls === 'ws' ? (
             <span key={i}>{s.text}</span>
+          ) : s.cls === 'blank' ? (
+            // Each hidden letter gets its own dash, so blanks show letter count and position.
+            [...s.text].map((ch, j) => (
+              <span key={`${i}-${j}`} className="t-blank">
+                {ch}
+              </span>
+            ))
           ) : (
             <span key={i} className={s.cls === 'ghost' ? 't-ghost' : s.cls === 'hint' ? 't-hint' : 't-blank'}>
               {s.text}
