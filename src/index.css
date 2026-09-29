@@ -143,6 +143,11 @@
     cursor: pointer;
     touch-action: manipulation;
   }
+  /* No italics anywhere: one consistent upright voice (and stable glyph widths). */
+  *, *::before, *::after {
+    font-style: normal !important;
+    font-synthesis-style: none;
+  }
   :focus-visible {
     outline: 2px solid var(--ring);
     outline-offset: 2px;
