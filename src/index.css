@@ -310,20 +310,23 @@
    ghost word several pixels away from its blanks and from where it gets typed. */
 .t-ghost {
   color: var(--ink-ghost);
+  /* Fade the letters only, so a dash underneath doesn't blink. */
   animation: ghost-in 450ms var(--ease-out) both;
 }
 @keyframes ghost-in {
-  from { opacity: 0; }
+  from { color: transparent; }
 }
-/* One span per hidden letter: a short dash centred under where that letter will
-   be drawn (inset from the glyph's advance box, which is wider than its ink). */
-.t-blank {
-  color: transparent;
+/* A slot is the dash under one hidden letter. It spans the letter's full advance
+   (minus a 1px notch so letters stay countable), so a word's dashes are exactly as
+   long as the word and the gaps between words are exactly one space wide. */
+.t-slot {
   background-image: linear-gradient(oklch(0.24 0.02 260 / 30%), oklch(0.24 0.02 260 / 30%));
   background-repeat: no-repeat;
-  background-size: max(0.22em, calc(100% - 0.14em)) 2px;
+  background-size: calc(100% - 1px) 2px;
   background-position: 50% calc(100% - 0.06em);
-  border-radius: 1px;
+}
+.t-blank {
+  color: transparent;
 }
 .t-flash { animation: flash-in 380ms var(--ease-out); }
 
