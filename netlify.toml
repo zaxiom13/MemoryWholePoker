@@ -1,0 +1,4 @@
+# Skip Git-connected PR previews; keep production and branch deploy settings unchanged.
+# Netlify ignore commands use exit 0 to skip a build (not exit 1).
+[context.deploy-preview]
+  ignore = "exit 0"
